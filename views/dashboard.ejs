@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/styles/admin-nav.css">
+        <link rel="stylesheet" href="/styles/dashboard.css">
+        <script src="/scripts/admin-nav.js"></script>
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.min.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <title>LUXE</title>
+    </head>
+    <body>
+        <%- include('partials/admin-nav.ejs') %>
+        <main class="dashboard">
+            <h1 class="dash-head">Dashboard</h1>
+            <p class="dash-text">Welcome back! Here is what's happening with your store.</p>
+
+            <div class="dashboard-cards">
+
+                <div class="card">
+                    <div class="card-details">
+                        <p class="total">Total Revenue</p>
+                        <p class="totoal highlight">₹45,0000</p>
+                        <p class="total compare"> <img src="/images/up-arrow.svg" alt=""> <span>12.5% </span> vs last month</p>
+                    </div>
+                    <div class="card-img">
+                        <img src="/images/rupee.svg" alt="rupees image" class="rupee-img">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-details">
+                        <p class="total">Total Orders</p>
+                        <p class="total highlight">523</p>
+                        <p class="total compare"><img src="/images/up-arrow.svg" alt="up pointing arrow"> <span>8.3%</span> vs last month</p>
+                    </div>
+                    <div class="card-img">
+                        <img src="/images/cart.svg" alt="shopping cart image" class="cart-img">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-details">
+                        <p class="total">Total Product</p>
+                        <p class="total highlight">216</p>
+                        <p class="total compare"><img src="/images/up-arrow.svg" alt="up pointing arrow"><span>2.1%</span> vs last month</p>
+                    </div>
+                    <div class="card-img">
+                        <img src="/images/package.svg" alt="package image" class="package-img">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-details">
+                        <p class="total">Total Customer</p>
+                        <p class="total highlight">1,834</p>
+                        <p class="total compare"><img src="/images/up-arrow.svg" alt="up pointing arrow"> <span>15.7%</span> vs last month</p>
+                    </div>
+                    <div class="card-img">
+                        <img src="/images/user.svg" alt="user image" class="user-img">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="charts-container">
+                <div id="revenue" class="chart"></div>
+                <div id="orders" class="chart"></div>
+            </div>
+        </main>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let lineChart = document.getElementById("revenue");
+                const options = {
+                    chart: {
+                        type: 'line',
+                        height: 350,
+                        width: 745,
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    title: {
+                        text: "Revenue Overview",
+                        align: "left"
+                    },
+                    series: [{
+                        name: 'Revenue',
+                        data: [3200,1400,5200,4900,6100,5800,7200,6800,7100,8000,9100,8900]
+                    }],
+                    xaxis: {
+                        categories: ["Jan","Feb","Mar","Apr","May","Jun", "Jul","Aug","Sep","Oct","Nov","Dec"]
+                    }
+                };
+                let chart = new ApexCharts(lineChart, options)
+                chart.render()
+            });
+
+            let barChart = document.getElementById("orders");
+            const barOptions = {
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    width: 745,
+                    toolbar: {
+                        show: false
+                    }
+                },
+                title: {
+                    text: "Orders Overview",
+                    align: "left"
+                },
+                series: [{
+                    name: 'Orders',
+                    data: [45, 52, 48, 68, 61, 78, 73, 89, 75, 90, 80, 95]
+                }],
+                xaxis: {
+                    categories: ["Jan","Feb","Mar","Apr","May","Jun", "Jul","Aug","Sep","Oct","Nov","Dec"]
+                }
+            }
+
+            let orderChart = new ApexCharts(barChart, barOptions);
+            orderChart.render();
+
+        </script>
+    </body>
+</html>
