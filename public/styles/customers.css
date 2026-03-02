@@ -1,0 +1,250 @@
+.customers-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    padding-inline: 2rem;
+    padding-block: 1.1rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #ffffff;
+    gap: 0.7rem;
+}
+
+.card-title {
+    color: #4a5565;
+    word-spacing: 2px;
+    letter-spacing: 1px;
+}
+
+.card-text {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.active-customer {
+    color: #00a63e;
+}
+
+.blocked-customer {
+    color: #e7000b;
+}
+
+.customer-form-container {
+    margin-top: 2rem;
+    max-width: 100%;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+}
+
+.customer-form {
+    display: flex;
+    gap: 14px;
+}
+
+.input-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-inline: 10px;
+    padding-block: 5px;
+    border-radius: 8px;
+    background-color: #f3f3f5;
+    transition: all 0.1s ease;
+    border: 1px solid #ddd;
+}
+
+.input-container:focus-within {
+    box-shadow: 0 0 10px #d0d0d0;
+}
+
+#search {
+    padding-inline: 0.7rem;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    background-color: #f3f3f5;
+}
+
+select {
+    appearance: base-select;
+    width: 210px;
+    padding: 10px 14px;
+    background-color: #f3f3f5;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    word-spacing: 1px;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+select:hover {
+    background-color: #e8e8ea;
+}
+
+select:focus-visible {
+    outline: none;
+    border-color: #007bff; /* Nice accent color */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+::picker(select) {
+    appearance: base-select;
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow:
+        0 10px 25px -5px rgba(0, 0, 0, 0.1),
+        0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    margin-top: 4px;
+}
+
+selectedcontent,
+option {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 14px;
+}
+
+option {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    color: #4a4a4a;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+option:focus,
+option:focus-visible {
+    outline: none;
+}
+
+option::checkmark {
+    display: none;
+}
+
+option:hover {
+    background-color: #f3f4f6;
+    color: #1a1a1a;
+}
+
+option:checked {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 500;
+}
+
+.table-container {
+    /* font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace; */
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 24px 32px;
+    border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    color: #1a1a1a;
+    margin-top: 2rem;
+}
+
+.table-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    margin-top: 0;
+}
+
+.customer-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 15px;
+}
+
+.customer-table th {
+    padding-bottom: 16px;
+    font-weight: 600;
+    color: #4a4a4a;
+    border-bottom: 1px solid #d1d1d6;
+    text-align: left;
+}
+
+.customer-table td {
+    padding: 16px 0;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e5ea;
+    text-align: left;
+}
+
+.customer-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.customer-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.customer-email {
+    color: #6b6b70;
+    font-size: 12px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.badge.active {
+    background-color: #111114;
+    color: #ffffff;
+}
+
+.badge.blocked {
+    background-color: #d9385e;
+    color: #ffffff;
+}
+
+.actions button {
+    margin-left: 10px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #4a4a4a;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.action-btn:hover {
+    background-color: #e5e5ea;
+}

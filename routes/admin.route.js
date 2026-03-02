@@ -1,42 +1,44 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import AdminModel from "../models/admin.model.js";
+import jwt from "jsonwebtoken";
+import { preventLoggedInAdmin, requireAdminAuth, noCache } from "../middlewares/admin-auth.middleware.js";
 
 const adminRouter = express.Router();
 
-adminRouter.get("/login", (req, res) => {
+adminRouter.get("/login", noCache, preventLoggedInAdmin, (req, res) => {
     return res.render("admin-login");
 });
 
-adminRouter.get("/dashboard", (req, res) => {
+adminRouter.get("/dashboard", requireAdminAuth, (req, res) => {
     return res.render("dashboard", { currentPage: "dashboard" });
 });
 
-adminRouter.get("/products", (req, res) => {
+adminRouter.get("/products", requireAdminAuth, (req, res) => {
     return res.render("products", { currentPage: "products" });
 });
 
-adminRouter.get("/categories", (req, res) => {
+adminRouter.get("/categories", requireAdminAuth, (req, res) => {
     return res.render("categories", { currentPage: "categories" });
 });
 
-adminRouter.get("/orders", (req, res) => {
+adminRouter.get("/orders", requireAdminAuth, (req, res) => {
     return res.render("orders", { currentPage: "orders" });
 });
 
-adminRouter.get("/customers", (req, res) => {
+adminRouter.get("/customers", requireAdminAuth, (req, res) => {
     return res.render("customers", { currentPage: "customers" });
 });
 
-adminRouter.get("/coupons", (req, res) => {
+adminRouter.get("/coupons", requireAdminAuth, (req, res) => {
     return res.render("coupons", { currentPage: "coupons" });
 });
 
-adminRouter.get("/sales-report", (req, res) => {
+adminRouter.get("/sales-report", requireAdminAuth, (req, res) => {
     return res.render("sales-report", { currentPage: "sales-report" });
 });
 
-adminRouter.get("/offers", (req, res) => {
+adminRouter.get("/offers", requireAdminAuth, (req, res) => {
     return res.render("offers", { currentPage: "offers" });
 });
 
@@ -57,7 +59,15 @@ adminRouter.post("/login", async (req, res) => {
         return res.status(400).render("admin-login", { error: "Incorrect email or password" });
     }
 
-    res.redirect("/api/admin/dashboard");
+    const token = jwt.sign({ adminId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    res.cookie("token", token, { httpOnly: true });
+
+    return res.redirect("/api/admin/dashboard");
+});
+
+adminRouter.post("/logout", (req, res) => {
+    res.clearCookie("token", { httpOnly: true });
+    return res.redirect("/api/admin/login");
 });
 
 export default adminRouter;

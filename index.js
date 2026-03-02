@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import dotevn from "dotenv";
 import adminRouter from "./routes/admin.route.js";
+import userRouter from "./routes/userAuth.route.js";
 import { connectDB } from "./lib/db.js";
 
 dotevn.config({ quiet: true });
@@ -17,10 +18,15 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 app.use("/api/admin", adminRouter);
+app.use("/api/auth", userRouter);
 
 app.use((req, res, next) => {
     res.locals.currentPage = req.path.split("/")[1];
     next();
+});
+
+app.get("/", (req, res) => {
+    res.redirect("/api/admin/login");
 });
 
 app.listen(PORT, () => {

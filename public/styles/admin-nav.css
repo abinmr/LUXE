@@ -10,7 +10,7 @@ body {
     background-color: #f9fafb;
     font-family: "Google sans", sans-serif;
     opacity: 0;
-    transition: opacity 0.35s ease;
+    transition: opacity 0.35s ease-in;
 }
 
 body.loaded {
@@ -18,14 +18,12 @@ body.loaded {
 }
 
 .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 250px;
     height: 100%;
     border-right: 1px solid #ddd;
     background-color: #fff;
-    z-index: 100;
+    position: fixed;
+    top: 0;
 }
 
 .head {
@@ -81,18 +79,28 @@ body.loaded {
     color: #155dfc;
 }
 
-.admin-profile {
-    display: flex;
-    align-items: center;
-    margin-top: 22rem;
+.admin-logout {
     padding-top: 2rem;
     border-top: 1px solid #ddd;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin-bottom: 1rem;
 }
 
-.admin-profile-img {
-    height: 38px;
-    width: 38px;
-    margin-inline: 10px;
+.logout-form {
+    display: flex;
+    justify-content: center;
+}
+
+.logout-btn {
+    padding-block: 8px;
+    padding-inline: 14px;
+    border: none;
+    border-radius: 12px;
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 20px;
 }
 
 .date {
@@ -105,7 +113,7 @@ body.loaded {
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 50;
+    z-index: -10;
 }
 
 .slate {
@@ -118,5 +126,18 @@ body.loaded {
 main {
     margin-top: 4rem;
     margin-left: 250px;
-    padding: 10px;
+    padding: 2rem;
+}
+
+h2 {
+    font-size: 2rem;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.main-text {
+    color: #4a5565;
+    margin-top: 0.3rem;
+    letter-spacing: 0.5px;
+    word-spacing: 2px;
 }

@@ -1,3 +1,4 @@
+
 <aside class="navbar">
 <div class="head">
     <img src="/images/admin-dash.svg" alt="admin logo" class="logo">
@@ -33,24 +34,30 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-percent w-5 h-5"><line x1="19" x2="5" y1="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>
         Offers</a>
 </nav>
-    <div class="admin-profile">
-        <img src="/images/profile.jpg" alt="admin profile image" class="admin-profile-img">
-        <div class="admin-detail">
-            <h4>Admin User</h4>
-            <p>admin@luxe.com</p>
-        </div>
+    <div class="admin-logout">
+        <form action="/api/admin/logout" method="POST" class="logout-form">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
     </div>
 </aside>
 
 <div class="date">
-<h4 class="slate">
-  <%= new Date().toLocaleDateString('en-IN', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'Asia/Kolkata'
-  }) %>
-</h4>
+    <h4 class="slate">
+      <%= new Date().toLocaleDateString('en-IN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            timeZone: 'Asia/Kolkata'
+      }) %>
+    </h4>
 </div>
+
+<script>
+
+    window.addEventListener("load", () => {
+        document.body.classList.add("loaded");
+    });
+
+</script>
 

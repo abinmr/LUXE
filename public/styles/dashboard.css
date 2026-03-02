@@ -2,17 +2,6 @@
     padding: 2rem;
 }
 
-.dash-head {
-    font-size: 1.875rem;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-
-.dash-text {
-    color: #4a5565;
-    margin-top: 6px;
-}
-
 .dashboard-cards {
     margin-top: 1.5rem;
     display: grid;
