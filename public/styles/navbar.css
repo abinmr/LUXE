@@ -1,1 +1,43 @@
+a {
+    color: #000000;
+}
 
+.glass {
+    background: rgba(254, 251, 248, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+.search-bar {
+    border: 2px solid #e3ddd8;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+    border: 2px solid #cf4040;
+    border-color: #cf4040; /* Blue */
+    box-shadow:
+        0 0 0 2px #e69d9b,
+        0 0 8px 1px rgba(13, 110, 253, 0.25);
+}
+
+.user-actions {
+    height: 36px;
+    width: 36px;
+    transition: all 0.3 ease-in-out;
+}
+
+.user-actions:hover {
+    background-color: #f3e9e1;
+}
+
+.categories img {
+    width: 315px;
+    height: 395px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.categories img:hover {
+    transform: scale(1.05);
+    border-radius: 8px;
+}
