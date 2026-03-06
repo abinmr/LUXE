@@ -1,5 +1,86 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body {
+    background-color: #fefbf8;
+}
+
+input {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+.form-container {
+    background-color: #ffffff;
+}
+
+.btn-main {
+    background-color: #cf4040;
+    transition: all 0.2s ease;
+}
+
+.btn-main:hover {
+    background-color: #d94f4f;
+}
+
+.error-container {
+    min-height: 15px !important;
+    margin-left: 4px;
+}
+
+.error-container p {
+    font-size: 12px;
+}
+
+.google-btn {
+    background-color: #fefbf8;
+    border: 1px solid #e3ddd8;
+    transition: all 0.1s ease-in-out;
+}
+
+.google-btn:hover {
+    background-color: #f3e9e1;
+}
+
+.google-btn svg {
+    height: 1rem;
+    width: 1rem;
+}
+
+.forget-pass:hover {
+    color: #cf4040 !important;
+    text-decoration: underline !important;
+}
+
+.otp-input {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 22px;
+    outline: none;
+    background-color: #ffffff;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.otp-input:focus {
+    border: 1px solid #dc7474 !important;
+    box-shadow: 0 0 0 3px #dc7474 !important;
+}
+
+.resend-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.link {
+    color: #c94c4c;
+    cursor: pointer;
+}
+
+.resend-link:hover {
+    text-decoration: underline;
+}
+
+#resendBtn {
+    border: none;
+    color: #c94c4c;
 }
