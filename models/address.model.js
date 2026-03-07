@@ -25,6 +25,10 @@ const AddressModel = new mongoose.Schema(
         street: {
             type: String,
         },
+        city: {
+            type: String,
+            required: true,
+        },
         state: {
             type: String,
             required: true,

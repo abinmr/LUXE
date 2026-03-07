@@ -42,6 +42,32 @@ export const protectedRoute = async (req, res, next) => {
     }
 };
 
+export const checkUser = async (req, res, next) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        res.locals.user = null;
+        return next();
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId).select("-password");
+
+        if (user && !user.isBlocked) {
+            req.user = user;
+            res.locals.user = user;
+        } else {
+            res.locals.user = null;
+        }
+
+        return next();
+    } catch (err) {
+        res.locals.user = null;
+        return next();
+    }
+};
+
 export const noCache = (req, res, next) => {
     res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     res.set("Pragma", "no-cache");

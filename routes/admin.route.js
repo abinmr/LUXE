@@ -29,7 +29,6 @@ router.get("/orders", requireAdminAuth, (req, res) => {
 
 router.get("/customers", requireAdminAuth, async (req, res) => {
     const userDetails = await User.find();
-    console.log(userDetails);
     const userInfo = {
         total: userDetails.length,
         active: userDetails.reduce((acc, curr) => {
@@ -42,7 +41,6 @@ router.get("/customers", requireAdminAuth, async (req, res) => {
         }, 0),
         revenue: userDetails.total || "0",
     };
-    console.log(userInfo);
     return res.render("customers", { currentPage: "customers", users: userDetails, userInfo: userInfo });
 });
 
