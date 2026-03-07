@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/admin.model.js";
 
 export const preventLoggedInAdmin = async (req, res, next) => {
-    const token = req.cookies.token;
+    const token = req.cookies.admin_token;
     if (!token) {
         return next();
     }
@@ -11,14 +11,14 @@ export const preventLoggedInAdmin = async (req, res, next) => {
         console.log("Admin is already logged in: ", decodedToken);
         return res.redirect("/api/admin/dashboard");
     } catch (err) {
-        res.clearCookie("token");
+        res.clearCookie("admin_token", { httpOnly: true });
         console.error("Invalid token on login page:", err);
         return next();
     }
 };
 
 export const requireAdminAuth = async (req, res, next) => {
-    const token = req.cookies.token;
+    const token = req.cookies.admin_token;
     if (!token) {
         return res.redirect("/api/admin/login");
     }
@@ -31,7 +31,7 @@ export const requireAdminAuth = async (req, res, next) => {
         if (!adminExists) {
             return res.redirect("/api/admin/login");
         }
-        console.log("Admin: ", adminExists);
+        // console.log("Admin: ", adminExists);
         req.admin = adminExists;
         return next();
     } catch (err) {

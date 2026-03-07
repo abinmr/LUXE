@@ -1,7 +1,8 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import Admin from "../models/admin.model.js";
 import jwt from "jsonwebtoken";
+import Admin from "../models/admin.model.js";
+import User from "../models/user.model.js";
 import { preventLoggedInAdmin, requireAdminAuth, noCache } from "../middlewares/admin-auth.middleware.js";
 
 const router = express.Router();
@@ -26,8 +27,23 @@ router.get("/orders", requireAdminAuth, (req, res) => {
     return res.render("orders", { currentPage: "orders" });
 });
 
-router.get("/customers", requireAdminAuth, (req, res) => {
-    return res.render("customers", { currentPage: "customers" });
+router.get("/customers", requireAdminAuth, async (req, res) => {
+    const userDetails = await User.find();
+    console.log(userDetails);
+    const userInfo = {
+        total: userDetails.length,
+        active: userDetails.reduce((acc, curr) => {
+            if (!curr.isBlocked) acc += 1;
+            return acc;
+        }, 0),
+        blocked: userDetails.reduce((acc, curr) => {
+            if (curr.isBlocked) acc += 1;
+            return acc;
+        }, 0),
+        revenue: userDetails.total || "0",
+    };
+    console.log(userInfo);
+    return res.render("customers", { currentPage: "customers", users: userDetails, userInfo: userInfo });
 });
 
 router.get("/coupons", requireAdminAuth, (req, res) => {
@@ -60,13 +76,13 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({ adminId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("admin_token", token, { httpOnly: true });
 
     return res.redirect("/api/admin/dashboard");
 });
 
 router.post("/logout", (req, res) => {
-    res.clearCookie("token", { httpOnly: true });
+    res.clearCookie("admin_token", { httpOnly: true });
     return res.redirect("/api/admin/login");
 });
 
