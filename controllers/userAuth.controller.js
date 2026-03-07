@@ -18,7 +18,7 @@ const transporter = nodeMailer.createTransport({
     },
 });
 
-const setCookies = async (userId, res) => {
+export const setCookies = async (userId, res) => {
     const token = jwt.sign({ userId: userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
     res.cookie("token", token, {
         httpOnly: true,
@@ -174,7 +174,7 @@ export const register = async (req, res) => {
 
         await user.save();
         req.session.userId = user._id;
-        console.log(user);
+        console.log(user._id);
     } catch (err) {
         console.error(err);
     }
@@ -190,7 +190,6 @@ export const otpVerification = async (req, res) => {
         const { otp } = req.body;
         console.log("OTP:", otp);
         const userId = req.session.userId;
-        console.log("session userId: ", userId);
 
         if (!otp) {
             return res.render("otp", { error: "OTP is required" });

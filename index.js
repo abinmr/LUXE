@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import passport from "passport";
 import dotevn from "dotenv";
 import adminRouter from "./routes/admin.route.js";
 import userRouter from "./routes/userAuth.route.js";
@@ -25,6 +26,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api/admin", adminRouter);
 app.use("/api/auth", userRouter);
