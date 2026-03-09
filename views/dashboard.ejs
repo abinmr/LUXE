@@ -3,75 +3,25 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/styles/admin-nav.css">
-        <link rel="stylesheet" href="/styles/dashboard.css">
-        <script src="/scripts/admin-nav.js"></script>
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.min.js"></script> -->
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <title>LUXE</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="/styles/admin-nav.css">
+        <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     </head>
     <body>
-        <%- include('partials/admin-nav.ejs') %>
-        <main class="dashboard">
-            <h2>Dashboard</h2>
-            <p class="main-text">Welcome back! Here is what's happening with your store.</p>
+        <%- include('partials/admin-header.ejs', { activePage: 'dashboard' }) %>
 
-            <div class="dashboard-cards">
-
-                <div class="card">
-                    <div class="card-details">
-                        <p class="total">Total Revenue</p>
-                        <p class="totoal highlight">₹45,0000</p>
-                        <p class="total compare"> <img src="/images/up-arrow.svg" alt=""> <span>12.5% </span> vs last month</p>
-                    </div>
-                    <div class="card-img">
-                        <img src="/images/rupee.svg" alt="rupees image" class="rupee-img">
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-details">
-                        <p class="total">Total Orders</p>
-                        <p class="total highlight">523</p>
-                        <p class="total compare"><img src="/images/up-arrow.svg" alt="up pointing arrow"> <span>8.3%</span> vs last month</p>
-                    </div>
-                    <div class="card-img">
-                        <img src="/images/cart.svg" alt="shopping cart image" class="cart-img">
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-details">
-                        <p class="total">Total Product</p>
-                        <p class="total highlight">216</p>
-                        <p class="total compare"><img src="/images/up-arrow.svg" alt="up pointing arrow"><span>2.1%</span> vs last month</p>
-                    </div>
-                    <div class="card-img">
-                        <img src="/images/package.svg" alt="package image" class="package-img">
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-details">
-                        <p class="total">Total Customer</p>
-                        <p class="total highlight">1,834</p>
-                        <p class="total compare"><img src="/images/up-arrow.svg" alt="up pointing arrow"> <span>15.7%</span> vs last month</p>
-                    </div>
-                    <div class="card-img">
-                        <img src="/images/user.svg" alt="user image" class="user-img">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="charts-container">
+            <div class="charts-container d-flex gap-2 m-4 bg-white">
                 <div id="revenue" class="chart"></div>
-                <div id="orders" class="chart"></div>
+                <div id="orders" class="chart" ></div>
             </div>
-        </main>
 
+            <%- include('partials/admin-footer.ejs') %>
 
         <script>
+            const dateOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+            document.getElementById("currentDate").textContent = new Date().toLocaleDateString("en-US", dateOptions);
             document.addEventListener("DOMContentLoaded", function () {
                 let lineChart = document.getElementById("revenue");
                 const options = {

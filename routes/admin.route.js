@@ -40,9 +40,8 @@ router.get("/customers", requireAdminAuth, async (req, res) => {
             if (curr.isBlocked) acc += 1;
             return acc;
         }, 0),
-        revenue: userDetails.total || "0",
+        revenue: userDetails.total || 0,
     };
-    console.log(userInfo);
     return res.render("customers", { currentPage: "customers", users: userDetails, userInfo: userInfo });
 });
 
@@ -81,7 +80,7 @@ router.post("/login", async (req, res) => {
     return res.redirect("/api/admin/dashboard");
 });
 
-router.post("/logout", (req, res) => {
+router.get("/logout", (req, res) => {
     res.clearCookie("admin_token", { httpOnly: true });
     return res.redirect("/api/admin/login");
 });

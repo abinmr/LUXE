@@ -3,99 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/styles/admin-nav.css">
     <link rel="stylesheet" href="/styles/customers.css">
     <title>Luxe</title>
 </head>
 <body>
     
-    <%- include('partials/admin-nav.ejs') %>
-    <main>
+    <%- include('partials/admin-header.ejs', { activePage: 'customers' }) %>
+
+    <div class="m-4">
         <h2>Customers</h2>
-        <p class="main-text">Manage registered users and customers accounts.</p>
-        <div class="customers-cards">
-            <div class="card">
-                <p class="card-title">Total Customers</p>
-                <h4 class="card-text"> <%= userInfo.total %> </h4>
-            </div>
-
-            <div class="card">
-                <p class="card-title">Active Customers</p>
-                <h4 class="card-text active-customer"> <%= userInfo.active %> </h4>
-            </div>
-
-            <div class="card">
-                <p class="card-title">Blocked Customers</p>
-                <h4 class="card-text blocked-customer"> <%= userInfo.blocked %> </h4>
-            </div>
-
-            <div class="card">
-                <p class="card-title">Total Revenue</p>
-                <h4 class="card-text"> <%= userInfo.revenue %> </h4>
-            </div>
-
-        </div>
-
-        <div class="customer-form-container">
-            <form action="/api/admin/customers/search" method="POST" class="customer-form">
-                <div class="input-container">
-                    <img src="/images/search.svg" alt="search button icon">
-                    <input type="text" name="search" id="search">
+        <p class="text-secondary">Manage registered users and customer accounts</p>
+        <div class="card-container pt-2">
+            <div class="card rounded-4">
+                <div class="card-body mx-2">
+                    <h6 class="card-title mt-2 text-muted">Total Customers</h6>
+                    <p class="card-text fs-3 fw-bold my-1">8</p>
                 </div>
-                <select name="status" id="status">
-                    <button><selectedcontent></selectedcontent></button>
-                    <option value="all-status">All Statuses</option>
-                    <option value="Active">Active</option>
-                    <option value="Blocked">Blocked</option>
-                </select>
-            </form>
+            </div>
+            <div class="card rounded-4">
+                <div class="card-body mx-2">
+                    <h6 class="card-title mt-2 text-muted">Active Customers</h6>
+                    <p class="card-text fs-3 fw-bold text-success my-1">7</p>
+                </div>
+            </div>
+            <div class="card rounded-4">
+                <div class="card-body mx-2">
+                    <h6 class="card-title mt-2 text-muted">Blocked Customers</h6>
+                    <p class="card-text fs-3 fw-bold text-danger my-1">1</p>
+                </div>
+            </div>
+            <div class="card rounded-4">
+                <div class="card-body mx-2">
+                    <h6 class="card-title mt-2 text-muted">Total Revenue</h6>
+                    <p class="card-text fs-3 fw-bold my-1">₹349,400</p>
+                </div>
+            </div>
         </div>
 
-        <div class="table-container">
-            <div class="table-header">
-                <h2>All Customers (8)</h2>
+        <form action="/search-endpoint" method="GET" class="border rounded-4 px-4 py-4 mt-4 bg-white">
+            <div class="d-flex gap-2">
+                
+                <div class="input-group flex-grow-1 focus-ring-wrapper me-2 rounded-3">
+                    <span class="input-group-text bg-light border-0 text-muted">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                    </span>
+                    <input type="search" name="q" class="form-control bg-light border-0 shadow-none font-monospace text-muted" placeholder="Search customers...">
+                </div>
+
+                <select name="status" class="form-select w-auto bg-light border-0 shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px;">
+                    <option value="all" selected>All Statuses</option>
+                    <option value="active">Active</option>
+                    <option value="blocked">Blocked</option>
+                </select>
+                
             </div>
-            
-            <table class="customer-table">
+        </form>
+
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4">
+            <div>
+                <h3 class="fs-5">All Customers</h3>
+            </div>
+            <table class="table table-hover mt-4">
                 <thead>
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Customer</th>
-                        <th>Phone</th>
-                        <th>Joined Date</th>
-                        <th>Orders</th>
-                        <th>Total Spent</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th scope="col">Customer ID</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Joined Date</th>
+                        <th scope="col">Total Spend</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% users.forEach((user) => { %>
                     <tr>
-                        <td>CUS001</td>
+                        <th scope="row">CUS001</th>
                         <td>
-                            <div class="customer-name"> <%= user.fullname %> </div>
-                            <div class="customer-email"> <%= user.email %> </div>
+                            <div>Priya Sharma</div>
+                            <div class="text-muted">priya@gmail.com</div>
                         </td>
-                        <td> <%= user.phone || "not available" %></td>
-                        <td> <%= user.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
-                        <td> <%= user.orders || "0" %> </td>
-                        <td> <%= user.total || "₹0" %> </td>
-                        <% if (!user.isBlocked) { %>
-                        <td><span class="badge active">Active</span></td>
-                        <% } else { %>
-                        <td><span class="badge blocked">Blocked</span></td>
-                        <% } %>
-                        <td class="actions">
-                            <button class="action-btn">⋮</button>
+                        <td>+91 98765 43210</td>
+                        <td>Jan 15, 2024</td>
+                        <td>₹45,600</td>
+                        <td><button class="btn btn-dark rounded-4">Active</button></td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#customer" aria-haspopup="true" data-bs-offset="60,5" aria-expanded="false">⋮</button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a href="#" class="dropdown-item small">
+                                        <img src="/images/view-details.svg" alt="eye logo" class="pe-2">
+                                        View Details</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="#" class="dropdown-item small">
+                                        <img src="/images/block.svg" alt="block logo" class="pe-2">
+                                        Block Customer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
-                    <% }); %>
                 </tbody>
             </table>
         </div>
 
+    </div>
 
-    </main>
+    <%- include('partials/admin-footer.ejs') %>
 </body>
 </html>
