@@ -20,58 +20,59 @@
             <div class="card rounded-4">
                 <div class="card-body mx-2">
                     <h6 class="card-title mt-2 text-muted">Total Customers</h6>
-                    <p class="card-text fs-3 fw-bold my-1">8</p>
+                    <p class="card-text fs-3 fw-bold my-1"> <%= userInfo.total %> </p>
                 </div>
             </div>
             <div class="card rounded-4">
                 <div class="card-body mx-2">
                     <h6 class="card-title mt-2 text-muted">Active Customers</h6>
-                    <p class="card-text fs-3 fw-bold text-success my-1">7</p>
+                    <p class="card-text fs-3 fw-bold text-success my-1"> <%= userInfo.active %> </p>
                 </div>
             </div>
             <div class="card rounded-4">
                 <div class="card-body mx-2">
                     <h6 class="card-title mt-2 text-muted">Blocked Customers</h6>
-                    <p class="card-text fs-3 fw-bold text-danger my-1">1</p>
+                    <p class="card-text fs-3 fw-bold text-danger my-1"> <%= userInfo.blocked %> </p>
                 </div>
             </div>
             <div class="card rounded-4">
                 <div class="card-body mx-2">
                     <h6 class="card-title mt-2 text-muted">Total Revenue</h6>
-                    <p class="card-text fs-3 fw-bold my-1">₹349,400</p>
+                    <p class="card-text fs-3 fw-bold my-1">₹<%= userInfo.revenue %> </p>
                 </div>
             </div>
         </div>
 
-        <form action="/search-endpoint" method="GET" class="border rounded-4 px-4 py-4 mt-4 bg-white">
+        <div class="border rounded-4 px-4 py-4 mt-4 bg-white">
             <div class="d-flex gap-2">
-                
-                <div class="input-group flex-grow-1 focus-ring-wrapper me-2 rounded-3">
-                    <span class="input-group-text bg-light border-0 text-muted">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                        </svg>
-                    </span>
-                    <input type="search" name="q" class="form-control bg-light border-0 shadow-none font-monospace text-muted" placeholder="Search customers...">
-                </div>
+                <form action="/api/admin/customers" method="GET" id="searchForm" class="w-100 d-flex gap-2">
+                    <div class="input-group flex-grow-1 focus-ring-wrapper me-2 rounded-3">
+                        <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </span>
+                        <input type="search" value="<%= locals.search || '' %>" id="searchCustomer" name="search" class="form-control border-0 shadow-none text-muted" placeholder="Search customers..." style="background-color: #f3f3f5;">
+                    </div>
+                    <button class="btn btn-primary btn-sm rounded-3">submit</button>
+                    <select name="customerStatus" id="customerStatus" class="form-select w-auto bg-light border-0 shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px;">
+                        <option value="all" <%= userInfo.status === 'all' ? 'selected' : '' %>>All Statuses</option>
+                        <option value="active" <%= userInfo.status === 'active' ? 'selected' : '' %> >Active</option>
+                        <option value="blocked" <%= userInfo.status === 'blocked' ? 'selected' : '' %> >Blocked</option>
+                    </select>
+                </form>
 
-                <select name="status" class="form-select w-auto bg-light border-0 shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px;">
-                    <option value="all" selected>All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="blocked">Blocked</option>
-                </select>
-                
-            </div>
-        </form>
+                <!-- <form action="/api/admin/customers" method="GET" id="customerStatus"> -->
+                <!-- </form> -->
+            </div> 
+        </div>
 
-        <div class="bg-white mt-4 px-3 py-4 border rounded-4">
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 600px; display: block; min-width: 100%;">
             <div>
-                <h3 class="fs-5">All Customers</h3>
+                <h3 class="fs-5 ps-1">All Customers</h3>
             </div>
             <table class="table table-hover mt-4">
                 <thead>
                     <tr>
-                        <th scope="col">Customer ID</th>
+                        <th scope="col">Customer NO</th>
                         <th scope="col">Customer</th>
                         <th scope="col">Phone</th>
                         <th scope="col">Joined Date</th>
@@ -81,36 +82,190 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <% users.forEach((user, index) => { %>
+                        
                     <tr>
-                        <th scope="row">CUS001</th>
+                        <th scope="row"> <%= (currentPageNumber - 1) * limit + index + 1 %> </th>
                         <td>
-                            <div>Priya Sharma</div>
-                            <div class="text-muted">priya@gmail.com</div>
+                            <div> <%= user.fullname %> </div>
+                            <div class="text-muted"> <%= user.email %> </div>
                         </td>
-                        <td>+91 98765 43210</td>
-                        <td>Jan 15, 2024</td>
-                        <td>₹45,600</td>
-                        <td><button class="btn btn-dark rounded-4">Active</button></td>
+                        <td> <%= user.phone || "Not available" %> </td>
+                        <% const dateOption = { month: 'short', day: 'numeric', year: 'numeric' } %>
+                        <td> <%= user.createdAt.toLocaleDateString('en-US', dateOption) %> </td>
+                        <td> ₹<%= user.totalSpend || 0 %> </td>
+                        <% if (!user.isBlocked) { %>
+                        <td><button class="btn btn-sm btn-dark rounded-2">Active</button></td>
+                        <% } else { %>
+                            <td><button class="btn btn-sm btn-danger rounded-2">Blocked</button></td>
+                        <% } %>
                         <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#customer" aria-haspopup="true" data-bs-offset="60,5" aria-expanded="false">⋮</button>
+                            <div class="btn-group ms-4">
+                                <button type="button" class="btn btn-light rounded-2" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a href="#" class="dropdown-item small">
+                                    <a href="#" class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#detailModal-<%= user._id %>">
                                         <img src="/images/view-details.svg" alt="eye logo" class="pe-2">
                                         View Details</a>
                                     <div class="dropdown-divider"></div>
-                                    <a href="#" class="dropdown-item small">
-                                        <img src="/images/block.svg" alt="block logo" class="pe-2">
-                                        Block Customer</a>
+                                    <a href="#" class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#blockModal-<%= user._id %>">
+                                        <% if (user.isBlocked) { %>
+                                            <img src="/images/unblock.svg" alt="unblock logo" class="pe-2">
+                                            Unblock Customer
+                                        <% } else { %>
+                                            <img src="/images/block.svg" alt="block logo" class="pe-2">
+                                            Block Customer
+                                        <% } %>
+                                        </a>
                                 </div>
+
+                                <form action="/api/admin/customers/block/<%= user._id %>" method="POST" >
+                                    <div class="modal fade" id="blockModal-<%= user._id %>" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header border-0">
+                                                    <h5 class="modal-title">Block Customer?</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body pb-2">
+                                                    <p class="mb-0 text-muted" style="white-space: normal; word-break: inherit;">
+                                                        <% if (user.isBlocked) { %>
+                                                            Are you sure you want to unblock <%= user.fullname %>? They will regain full access to their account.
+                                                            <% } else { %>
+                                                            Are you sure you want to block <%= user.fullname %>? They will not be able to place orders or access their account.
+                                                        <% } %>
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn <%= user.isBlocked ? 'btn-success' : 'btn-danger' %> ">
+                                                        <%= user.isBlocked ? 'Unblock' : 'Block' %>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div class="modal fade" id="detailModal-<%= user._id %>" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header border-0">
+                                                <h5 class="modal-title">Customer Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Name</div>
+                                                        <div class="fw-bold col-6"> <%= user.fullname %> </div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Email</div>
+                                                        <div class="fw-bold col-6"> <%= user.email %> </div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Phone</div>
+                                                        <div class="fw-bold col-6"> <%= user.phone || "Not available" %> </div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Joined</div>
+                                                        <div class="col-6 fw-bold"> <%= user.createdAt.toLocaleDateString('en-US', dateOption) %> </div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Orders</div>
+                                                        <div class="col-6 fw-bold"> <%= user.orders || 0 %> </div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Spent</div>
+                                                        <div class="col-6 fw-bold">₹<%= user.total || 0 %></div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Last Update</div>
+                                                        <div class="col-6 fw-bold"><%= user.updatedAt.toLocaleDateString('en-US', dateOption) %></div>
+                                                    </div>
+                                                    <div class="mb-3 d-flex">
+                                                        <div class="col-4">Status</div>
+                                                        <div class="btn btn-sm <%= user.isBlocked ? 'btn-danger' : 'btn-dark' %> "> <%= user.isBlocked ? 'Blocked' : 'Active' %> </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </td>
                     </tr>
+
+                    <% }); %>
+
                 </tbody>
             </table>
+
+            <% if (totalPages > 1) { %>
+                <nav aria-label="Customer page navigation">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item <%= currentPageNumber === 1 ? 'disabled' : '' %> ">
+                            <a href="?page=<%= currentPageNumber - 1 %>" class="page-link">Previous</a>
+                        </li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPageNumber === i ? 'active' : '' %> ">
+                            <a href="?page=<%= i %>" class="page-link"><%= i %></a>
+                        </li>
+                        <% } %>
+                        <li class="page-item <%= currentPageNumber === totalPages ? 'disabled' : '' %>">
+                            <a href="?page=<%= currentPageNumber + 1 %>" class="page-link">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            <% } %>
+
         </div>
 
     </div>
+
+    <script>
+        const customerStatus = document.getElementById("customerStatus");
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchCustomer");
+        searchForm.addEventListener("change", () => {
+            searchForm.submit();
+        })
+        searchInput.addEventListener("input", () => {
+            if (searchInput.value.length === 0) {
+                searchForm.submit();
+                searchInput.focus();
+            }
+        })
+        // const customerStatus = document.getElementById("customerStatus");
+        // customerStatus.addEventListener("change", () => {
+        //     const selectedValue = this.value;
+
+        //     fetch("/api/admin/customers/filter", {
+        //         method: "post",
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify({ choice: selectedValue })
+        //     })
+        // });
+
+        // 1. When the page is about to reload, save the current scroll position
+        window.addEventListener("beforeunload", () => {
+            sessionStorage.setItem("scrollPosition", window.scrollY);
+        });
+
+        // 2. When the page finishes loading, check if we saved a position and scroll to it
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedScrollPosition = sessionStorage.getItem("scrollPosition");
+            
+            if (savedScrollPosition) {
+                // Scroll to the saved position instantly
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                
+                // Optional: Clear it so it doesn't affect standard navigation later
+                sessionStorage.removeItem("scrollPosition");
+            }
+        });
+    </script>
 
     <%- include('partials/admin-footer.ejs') %>
 </body>

@@ -1,6 +1,6 @@
 const inputs = document.querySelectorAll(".otp-input");
 const hiddenInput = document.getElementById("combinedOtp");
-const form = document.getElementById("otpForm");
+// const form = document.getElementById("otpForm");
 const resendBtn = document.getElementById("resendBtn");
 const countdownEl = document.getElementById("countdown");
 
@@ -49,5 +49,4 @@ function startTimer() {
     }, 1000);
 }
 
-// Start timer when page loads
 startTimer();
