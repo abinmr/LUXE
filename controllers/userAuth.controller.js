@@ -94,7 +94,7 @@ export const login = async (req, res) => {
         return res.render("login", { error: "Please register first." });
     }
 
-    const match = bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
         return res.render("login", { error: "Wrong email or password." });

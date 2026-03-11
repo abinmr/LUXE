@@ -7,6 +7,7 @@ import dotevn from "dotenv";
 import adminRouter from "./routes/admin.route.js";
 import userRouter from "./routes/userAuth.route.js";
 import appRouter from "./routes/app.route.js";
+import profileRouter from "./routes/profile.route.js";
 import { connectDB } from "./lib/db.js";
 
 dotevn.config({ quiet: true });
@@ -32,6 +33,7 @@ app.use(passport.session());
 app.use("/api/admin", adminRouter);
 app.use("/api/auth", userRouter);
 app.use("/", appRouter);
+app.use("/profile", profileRouter);
 
 app.use((req, res, next) => {
     res.locals.currentPage = req.path.split("/")[1];

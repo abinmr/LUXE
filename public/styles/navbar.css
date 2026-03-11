@@ -41,3 +41,21 @@ a {
     transform: scale(1.05);
     border-radius: 8px;
 }
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.active-profile {
+    background-color: #f4ede8 !important;
+}
+
+.error-container {
+    min-height: 20px !important;
+    overflow: hidden;
+}
+
+.error-container p {
+    font-size: 13px !important;
+    line-height: 20px !important;
+}
