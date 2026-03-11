@@ -50,7 +50,7 @@
                         <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
                         </span>
-                        <input type="search" value="<%= locals.search || '' %>" id="searchCustomer" name="search" class="form-control border-0 shadow-none text-muted" placeholder="Search customers..." style="background-color: #f3f3f5;">
+                        <input type="search" value="<%= locals.search || '' %>" id="searchCustomer" name="search" class="form-control border-0 shadow-none text-muted" placeholder="Search customers..." style="background-color: #f3f3f5;" autofocus>
                     </div>
                     <button class="btn btn-primary btn-sm rounded-3">submit</button>
                     <select name="customerStatus" id="customerStatus" class="form-select w-auto bg-light border-0 shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px;">
@@ -225,7 +225,31 @@
     </div>
 
     <script>
+        window.addEventListener("beforeunload", () => {
+            sessionStorage.setItem("scrollPosition", window.scrollY);
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedScrollPosition = sessionStorage.getItem("scrollPosition");
+            
+            if (savedScrollPosition) {
+                // Scroll to the saved position instantly
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                
+                // Optional: Clear it so it doesn't affect standard navigation later
+                sessionStorage.removeItem("scrollPosition");
+                const searchInput = document.getElementById("searchCustomer");
+                if (searchInput && searchInput.value.length > 0) {
+                    // Move the cursor to the exact end of the text
+                    const textLength = searchInput.value.length;
+                    searchInput.setSelectionRange(textLength, textLength);
+                }
+            }
+        });
+
         const customerStatus = document.getElementById("customerStatus");
+        const savedScrollPosition = sessionStorage.getItem("scrollPosition");
+    
         const searchForm = document.getElementById("searchForm");
         const searchInput = document.getElementById("searchCustomer");
         searchForm.addEventListener("change", () => {
@@ -234,7 +258,7 @@
         searchInput.addEventListener("input", () => {
             if (searchInput.value.length === 0) {
                 searchForm.submit();
-                searchInput.focus();
+                // searchInput.focus();
             }
         })
         // const customerStatus = document.getElementById("customerStatus");
@@ -248,23 +272,6 @@
         //     })
         // });
 
-        // 1. When the page is about to reload, save the current scroll position
-        window.addEventListener("beforeunload", () => {
-            sessionStorage.setItem("scrollPosition", window.scrollY);
-        });
-
-        // 2. When the page finishes loading, check if we saved a position and scroll to it
-        window.addEventListener("DOMContentLoaded", () => {
-            const savedScrollPosition = sessionStorage.getItem("scrollPosition");
-            
-            if (savedScrollPosition) {
-                // Scroll to the saved position instantly
-                window.scrollTo(0, parseInt(savedScrollPosition));
-                
-                // Optional: Clear it so it doesn't affect standard navigation later
-                sessionStorage.removeItem("scrollPosition");
-            }
-        });
     </script>
 
     <%- include('partials/admin-footer.ejs') %>
