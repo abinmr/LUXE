@@ -179,7 +179,6 @@ export const register = async (req, res) => {
         console.error(err);
     }
 
-    setCookies(user._id, res);
     sendOtpVerification(user._id, email);
 
     return res.redirect("/api/auth/register/otp");

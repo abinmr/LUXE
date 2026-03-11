@@ -1,90 +1,28 @@
-.dashboard {
-    padding: 2rem;
-}
-
-.dashboard-cards {
-    margin-top: 1.5rem;
+.card-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
 }
 
-.card {
-    background-color: #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 375px;
-    padding: 24px 22px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-}
-
-.card-details {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.total {
-    color: #4a5565;
-}
-
-.compare {
+.card-img-container {
+    height: 48px;
+    width: 48px;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
-.compare img {
-    margin-right: 2px;
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
 }
 
-.compare span {
-    color: #00a63e;
-    margin-right: 4px;
-}
-
-.highlight {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: #000;
-}
-
-.card-img {
-    margin-right: 5px;
-}
-
-.card-img img {
-    padding: 14px;
-    border-radius: 12px;
-}
-
-.rupee-img {
-    background-color: #dcfce7;
-}
-
-.cart-img {
-    background-color: #dbeafe;
-}
-
-.package-img {
-    background-color: #f3e8ff;
-}
-
-.user-img {
-    background-color: #ffedd4;
-}
-
-.charts-container {
-    display: flex;
-    gap: 38px;
-}
-
-.chart {
+/* .chart {
     margin-top: 2rem;
     padding: 14px;
     background-color: white;
     width: 760px;
     border-radius: 12px;
     border: 1px solid #ddd;
-}
+} */
