@@ -73,7 +73,7 @@
                                         <label for="phone" class="form-label">Phone</label>
                                         <input type="number" class="form-control text-muted" name="phone" id="phone" placeholder="<%= locals.user.phone || 'Optional' %>" readonly>
                                     </div>
-                                    <button type="button" id="editProfileBtn" class="btn btn-danger">Edit Profile</button>
+                                    <button type="button" id="editProfileBtn" class="btn btn-danger" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >Edit Profile</button>
                                     <div class="d-none" id="updateProfile">
                                         <button type="submit" class="btn btn-danger" id="saveProflieBtn">Save Changes</button>
                                         <button type="button" class="btn btn-light border" id="cancelProfileBtn">Cancel</button>
@@ -105,7 +105,10 @@
                                             <p class="text-danger m-0" id="confirmPasswordError"></p>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-danger mt-2">Change Password</button>
+                                    <div class="error-container">
+                                        <p class="m-0 text-danger"><%= locals.error %> </p>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger mt-2" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >Change Password</button>
                                 </form>
                             <% } %>
 
@@ -225,17 +228,6 @@
                                     <% } %>
                                 </div>
 
-                                <% if (locals.success) { %>
-                                <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                                    <div class="toast align-items-center" role="start" aria-live="assertive" aria-atomic="true">
-                                        <div class="d-flex">
-                                            <div class="toast-body">
-                                                Address Delete
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <% } %>
 
                                 <div class="modal fade" id="addAddressModal" tabindex="1" aria-hidden="true"> 
                                     <div class="modal-dialog modal-dialog-centered">
@@ -295,6 +287,27 @@
                 </div>
             </div>
         </div>
+
+            <% if (locals.toast) { %>
+                <div class="toast-container position-fixed bottom-0 end-0 p-3 m-2">
+                    <div id="actionToast" class="toast align-items-center glass" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <%= locals.toast.message %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const toastEl = document.getElementById("actionToast");
+                        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+                        toast.show();
+                    });
+                </script>
+
+            <% } %>
 
     </body>
 </html>

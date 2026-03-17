@@ -7,12 +7,110 @@
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <title>LUXE</title>
     <link rel="stylesheet" href="/styles/admin-nav.css">
+    <link rel="stylesheet" href="/styles/customers.css">
 </head>
 <body>
 
     <%- include('partials/admin-header.ejs', { activePage: 'products' }) %>
 
-        <h1>Product page</h1>
+    <div class="m-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2>Products</h2>
+                <p class="text-muted">Manage your product inventory</p>
+            </div>
+            <a href="/admin/products/add">
+                <button class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    Add Product
+                </button>
+            </a>
+        </div>
+
+        <div class="border rounded-4 p-4 mt-4 bg-white">
+            <form action="/" method="GET">
+                <div class="input-group flex-grow-1 focus-ring-wrapper rounded-3">
+                    <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    </span>
+                    <input type="search" class="form-control border-0 shadow-none" name="search" id="search" placeholder="Search products..." style="background-color: #f3f3f5" autofocus>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 600px; display: block;">
+            <div>
+                <h3 class="fs-5 ps-1">All Products</h3>
+            </div>
+            <table class="table table-hover mt-4">
+                <thead>
+                    <tr>
+                        <th scope="col">NO</th>
+                        <th scope="col">Product</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Sales</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Classic White t-shirt</td>
+                        <td>Men's Clothing</td>
+                        <td>₹599.00</td>
+                        <td>145</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-dark rounded-2">In Stock</button>
+                            </div>
+                        </td>
+                        <td>854</td>
+                        <td>
+                            <div class="btn-group ms-4">
+                                <button class="btn btn-light rounded-2" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="#" class="dropdown-item">
+                                        <img src="/images/view-details.svg" alt="open eye icon" class="me-2">
+                                        List</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a href="#" class="dropdown-item">
+                                            <img src="/images/edit.svg" alt="edit icon" class="me-2">
+                                            Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item">
+                                            <img src="/images/delete.svg" alt="trash icon" class="me-2">
+                                            <span class="text-danger">Delete</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav aria-label="Product page navigation" class="mt-2">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item">
+                    <a href="#" class="page-link">Previous</a>
+                </li>
+                <li class="page-item">
+                    <a href="#" class="page-link">1</a>
+                </li>
+                <li class="page-item">
+                    <a href="#" class="page-link">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 
     <%- include('partials/admin-footer.ejs') %>
 </body>

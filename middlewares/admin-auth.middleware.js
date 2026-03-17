@@ -9,7 +9,7 @@ export const preventLoggedInAdmin = async (req, res, next) => {
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         console.log("Admin is already logged in: ", decodedToken);
-        return res.redirect("/api/admin/dashboard");
+        return res.redirect("/admin/dashboard");
     } catch (err) {
         res.clearCookie("admin_token", { httpOnly: true });
         console.error("Invalid token on login page:", err);
@@ -20,7 +20,7 @@ export const preventLoggedInAdmin = async (req, res, next) => {
 export const requireAdminAuth = async (req, res, next) => {
     const token = req.cookies.admin_token;
     if (!token) {
-        return res.redirect("/api/admin/login");
+        return res.redirect("/admin/login");
     }
 
     try {
@@ -29,13 +29,13 @@ export const requireAdminAuth = async (req, res, next) => {
         const adminExists = await Admin.findById(decoded.adminId).select("-password");
 
         if (!adminExists) {
-            return res.redirect("/api/admin/login");
+            return res.redirect("/admin/login");
         }
         // console.log("Admin: ", adminExists);
         req.admin = adminExists;
         return next();
     } catch (err) {
-        return res.redirect("/api/admin/login");
+        return res.redirect("/admin/login");
     }
 };
 

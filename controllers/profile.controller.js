@@ -5,14 +5,15 @@ import Address from "../models/address.model.js";
 export const getProfile = async (req, res) => {
     try {
         const currentSection = req.query.section || "profile";
+        const toast = req.flash("toast")[0];
         let addresses = [];
         if (currentSection === "address") {
             addresses = await Address.find({ user: req.user._id });
         }
-        res.render("profile", { section: currentSection, addresses: addresses });
+        res.render("profile", { section: currentSection, addresses: addresses, toast: toast ? JSON.parse(toast) : null });
     } catch (err) {
         console.error("Error rendering profile.", err);
-        return res.redirect("/profile?section=address");
+        return res.redirect("/profile?section=profile");
     }
 };
 
@@ -28,6 +29,7 @@ export const changePassword = async (req, res) => {
             const match = await bcrypt.compare(currentPassword, user.password);
             if (!match) {
                 console.log("Password is wrong");
+                req.flash("toast", JSON.stringify({ type: "error", message: "Wrong password" }));
                 return res.redirect("/profile?section=password");
             }
 
@@ -35,11 +37,14 @@ export const changePassword = async (req, res) => {
             const updateResult = await User.findByIdAndUpdate(req.user._id, { password: newHashPassword });
             console.log("user: ", req.user);
             console.log("update success:", updateResult);
+            req.flash("toast", JSON.stringify({ type: "success", message: "Password Updated" }));
             return res.redirect("/profile?section=password");
         } else {
-            return res.redirect("/profile?section=password?error=NoUser");
+            req.flash("toast", JSON.stringify({ type: "error", message: "User not found" }));
+            return res.redirect("/profile?section=password");
         }
     } catch (err) {
+        req.flash("toast", JSON.stringify({ type: "error", message: "Error in changing password" }));
         console.error("Error in changing password", err);
         return res.redirect("/profile?section=password");
     }
@@ -54,7 +59,10 @@ export const updateProfile = async (req, res) => {
         const { fullname, email, phone } = req.body;
 
         const updateDetails = await User.updateOne({ _id: req.user._id }, { fullname: fullname, email: email, phone: phone });
-        console.log(updateDetails);
+
+        if (updateDetails) {
+            req.flash("toast", JSON.stringify({ type: "success", message: "Details updated" }));
+        }
 
         return res.redirect("/profile?section=profile");
     } catch (err) {
@@ -117,11 +125,16 @@ export const editAddress = async (req, res) => {
             houseNumber: house,
             street: street,
             city: city,
+            state: state,
             isDefault: makeDefault,
         });
-        return res.redirect("/profile?section=address");
+        if (updateResult) {
+            req.flash("toast", JSON.stringify({ type: "success", message: "Address updated" }));
+            return res.redirect("/profile?section=address");
+        }
     } catch (err) {
         console.error("Error updating address:", err);
+        req.flash("toast", JSON.stringify({ type: "error", message: "Update failed" }));
         return res.redirect("/profile?section=address");
     }
 };
@@ -130,8 +143,10 @@ export const deleteAddress = async (req, res) => {
     try {
         const addressId = req.params.id;
         const deleteResult = await Address.deleteOne({ _id: addressId });
-        console.log(deleteResult);
-        return res.redirect("/profile?section=address", { success: true });
+        if (deleteResult) {
+            req.flash("toast", JSON.stringify({ type: "success", message: "Address deleted" }));
+        }
+        return res.redirect("/profile?section=address");
     } catch (err) {
         console.error("Address delete error", err);
         return res.redirect("/profile?section=address");

@@ -1,0 +1,31 @@
+.item-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+}
+
+.cart-items {
+    grid-column: span 2;
+}
+
+.cart-sidebar {
+    grid-column: 3;
+    grid-row: 1 / -1;
+}
+
+.qty-input {
+    width: 36px;
+    background: transparent;
+    caret-color: transparent;
+    outline: none;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.qty-input[type="number"] {
+    -moz-appearance: textfield;
+}

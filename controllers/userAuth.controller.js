@@ -70,6 +70,23 @@ const sendOtpVerification = async (userId, email) => {
         throw err;
     }
 };
+export const resendOtp = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        if (!userId) return res.redirect("/auth/register");
+
+        const user = await User.findById(userId);
+        if (!user) return res.redirect("/auth/register");
+
+        await Otp.deleteOne({ userId: userId });
+        await sendOtpVerification(userId, user.email);
+        return res.redirect("/auth/register/otp");
+    } catch (err) {
+        console.error(err);
+        req.flash("otpError", "Failed to resent OTP. Try again");
+        return res.redirect("/auth/register/otp");
+    }
+};
 
 export const login = async (req, res) => {
     let { email, password } = req.body;
@@ -179,9 +196,9 @@ export const register = async (req, res) => {
         console.error(err);
     }
 
-    sendOtpVerification(user._id, email);
+    await sendOtpVerification(user._id, email);
 
-    return res.redirect("/api/auth/register/otp");
+    return res.redirect("/auth/register/otp");
 };
 
 export const otpVerification = async (req, res) => {
@@ -191,32 +208,63 @@ export const otpVerification = async (req, res) => {
         const userId = req.session.userId;
 
         if (!otp) {
-            return res.render("otp", { error: "OTP is required" });
+            req.flash("otpError", "OTP is required");
+            return res.redirect("/auth/register/otp");
         }
 
         const otpDetails = await Otp.findOne({ userId: userId });
 
         if (!otpDetails) {
-            return res.render("otp", { error: "OTP not found." });
+            req.flash("otpError", "OTP not found");
+            return res.redirect("/auth/register/otp");
         }
 
         if (otpDetails.expiresAt < new Date()) {
             await Otp.deleteOne({ _id: otpDetails._id });
-            return res.render("otp", { error: "OTP expired. Please request a new one" });
+            req.flash("otpError", "OTP expired. Please request a new one");
+            return res.redirect("/auth/register/otp");
         }
 
         const isMatch = await bcrypt.compare(otp, otpDetails.otp);
 
         if (!isMatch) {
-            return res.render("otp", { error: "Invalid OTP" });
+            req.flash("otpError", "Invalid OTP");
+            return res.redirect("/auth/register/otp");
         }
 
         await User.findOneAndUpdate({ _id: userId }, { isVerified: true });
+        await Otp.deleteOne({ _id: otpDetails._id });
+        setCookies(req.session.userId, res);
 
         return res.redirect("/home");
     } catch (err) {
         console.error(err);
-        res.render("otp", { error: "something went wrong" });
+        req.flash("otpError", "Something went wrong");
+        return res.redirect("/auth/register/otp");
+    }
+};
+
+export const resetPasswordOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email: email });
+
+        if (!user) {
+            req.flash("resetError", "Email does not exist");
+            return res.redirect("/auth/login/reset-password");
+        }
+
+        req.session.resetUserId = user._id;
+
+        await Otp.deleteOne({ userId: user._id });
+        await sendOtpVerification(user._id, email);
+
+        return res.redirect("/auth/login/reset-otp");
+    } catch (err) {
+        console.error(err);
+        req.flash("resetError", "Something went wrong. Try again");
+        return res.redirect("/auth/login/reset-password");
     }
 };
 
@@ -224,5 +272,5 @@ export const logout = (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
     });
-    return res.redirect("/api/auth/login");
+    return res.redirect("/auth/login");
 };

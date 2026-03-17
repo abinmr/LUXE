@@ -1,5 +1,7 @@
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("toggle-password");
+const eyeIcon = document.getElementById("eye-icon");
 
 function validateEmail() {
     const email = emailInput.value.trim();
@@ -48,6 +50,18 @@ function validatePassword() {
 
 emailInput.addEventListener("blur", validateEmail);
 passwordInput.addEventListener("blur", validatePassword);
+togglePassword.addEventListener("click", () => {
+    const type = passwordInput.type === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+
+    if (type === "text") {
+        eyeIcon.classList.remove("bi-eye-slash");
+        eyeIcon.classList.add("bi-eye");
+    } else {
+        eyeIcon.classList.remove("bi-eye");
+        eyeIcon.classList.add("bi-eye-slash");
+    }
+});
 
 form.addEventListener("submit", (e) => {
     const isEmailValid = validateEmail();

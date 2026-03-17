@@ -27,13 +27,10 @@ function updateHiddenInput() {
     hiddenInput.value = code;
 }
 
-let duration = 300;
-let timer;
-
-function startTimer() {
+function startTimer(duration) {
     resendBtn.disabled = true;
 
-    timer = setInterval(() => {
+    const timer = setInterval(() => {
         const minutes = Math.floor(duration / 60);
         const seconds = duration % 60;
 
@@ -49,4 +46,4 @@ function startTimer() {
     }, 1000);
 }
 
-startTimer();
+startTimer(secondsLeft);

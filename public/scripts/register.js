@@ -10,6 +10,35 @@ const emailError = document.getElementById("emailError");
 const passwordError = document.getElementById("passwordError");
 const confirmError = document.getElementById("confirmError");
 
+const togglePassword = document.getElementById("toggle-password");
+const togglePassword2 = document.getElementById("toggle-password-2");
+const eyeIcon = document.getElementById("eye-icon");
+const eyeIcon2 = document.getElementById("eye-icon-2");
+togglePassword.addEventListener("click", () => {
+    const type = passwordInput.type === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+
+    if (type === "text") {
+        eyeIcon.classList.remove("bi-eye-slash");
+        eyeIcon.classList.add("bi-eye");
+    } else {
+        eyeIcon.classList.remove("bi-eye");
+        eyeIcon.classList.add("bi-eye-slash");
+    }
+});
+togglePassword2.addEventListener("click", () => {
+    const type = confirmPasswordInput.type === "password" ? "text" : "password";
+    confirmPasswordInput.setAttribute("type", type);
+
+    if (type === "text") {
+        eyeIcon2.classList.remove("bi-eye-slash");
+        eyeIcon2.classList.add("bi-eye");
+    } else {
+        eyeIcon2.classList.remove("bi-eye");
+        eyeIcon2.classList.add("bi-eye-slash");
+    }
+});
+
 console.log("Script is loaded");
 
 function validateFullName() {

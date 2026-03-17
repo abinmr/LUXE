@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -23,33 +24,29 @@
             <div class="border shadow-sm w-50 rounded-4 form-container">
                 <div class="text-center mt-4">
                     <h2 class="py-2 fw-bold" style="color: black; font-family: serif">LUXE</h2>
-                    <h4 class="fw-semibold">Verify Your Account</h4>
+                    <h4 class="fw-semibold">Reset your password</h4>
                 </div>
                 <p class="text-center mb-0 mt-1 text-danger" style="visibility: <%= locals.error ? 'visible' : 'hidden' %>;"><%= locals.error || 'Placeholder' %></p>
-                <form action="/auth/register/otp" method="post" class="d-flex flex-column align-items-center py-2 mt-4" id="otpForm">
+                <form action="/auth/login/reset-otp" method="POST" class="d-flex flex-column align-items-center py-2 mt-4" id="otpForm">
                     <label class="form-label fw-bold">Enter the 4-digit verification code</label>
                     
                     <div class="d-flex justify-content-center gap-3 mt-4 mb-2">
-                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input">
-                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input">
-                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input">
-                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input">
+                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input" required>
+                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input" required>
+                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input" required>
+                        <input type="text" maxlength="1" inputmode="numeric" class="form-control text-center otp-input" required>
                     </div>
 
                     <input type="hidden" name="otp" id="combinedOtp">
 
                     <button class="btn text-white my-4 btn-main w-50" type="submit">Verify & Complete</button>
                 </form>
-                <form action="/auth/register/otp/resend" method="POST" class="d-flex justify-content-center align-items-center gap-1">
+                <form action="/auth/login/reset-otp/resend" method="get" class="d-flex justify-content-center align-items-center gap-1">
                     <p class="text-center mb-0">Didn't receive the code?</p>
                     <button type="submit" class="link btn py-0 px-0 text-decoration-none" id="resendBtn">Resend</button>
                 </form>
-                <p class="text-center py-4 timer-text">Resend available in <span id="countdown">0:00</span></p>
+                <p class="text-center py-4 timer-text">Resend available in <span id="countdown">05:00</span></p>
             </div>
         </div>
-
-        <script>
-            const secondsLeft = <%= secondsLeft %>
-        </script>
     </body>
 </html>

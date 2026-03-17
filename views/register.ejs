@@ -15,6 +15,12 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+            integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD"
+            crossorigin="anonymous"
+        />
         <link rel="stylesheet" href="/styles/register.css" />
         <script defer src="/scripts/register.js"></script>
     </head>
@@ -27,7 +33,7 @@
                     <p class="text-muted mb-0">Sign up to get started</p>
                 </div>
                 <p class="text-center mb-0 mt-2 text-danger fw-semibold" style="visibility: <%= locals.error ? 'visible' : 'hidden' %>;"><%= locals.error || 'Placeholder' %></p>
-                <form action="/api/auth/register" method="POST" class="d-flex flex-column pt-3 align-items-center" id="form">
+                <form action="/auth/register" method="POST" class="d-flex flex-column pt-3 align-items-center" id="form">
                     <div class="col-9">
                         <label for="fullName" class="form-label">Full Name</label>
                         <input class="form-control" type="text" name="fullName" id="fullName" placeholder="Fullname" />
@@ -44,7 +50,12 @@
                     </div>
                     <div class="col-9">
                         <label for="password" class="form-label">Password</label>
-                        <input class="form-control" type="password" name="password" id="password" placeholder="password" />
+                        <div class="d-flex input-group border border-1 rounded-2">
+                            <input class="form-control border-0" type="password" name="password" id="password" placeholder="password" />
+                            <button class="btn border-0" type="button" id="toggle-password">
+                                <i class="bi bi-eye-slash" id="eye-icon"></i>
+                            </button>
+                        </div>
                         <div class="mt-1 error-container">
                             <p class="text-danger small mb-0" id="passwordError" style="visibility: <%= locals.passwordError ? 'visible' : 'hidden' %>;">
                                 <%= locals.passwordError || 'Placeholder' %>
@@ -53,7 +64,12 @@
                     </div>
                     <div class="col-9">
                         <label class="form-label" for="confirm-password">Confirm Password</label>
-                        <input class="form-control" type="password" name="confirmPassword" id="confirmPassword" placeholder="confirm password" />
+                        <div class="d-flex input-group border border-1 rounded-2">
+                            <input class="form-control border-0" type="password" name="confirmPassword" id="confirmPassword" placeholder="confirm password" />
+                            <button class="btn border-0" type="button" id="toggle-password-2">
+                                <i class="bi bi-eye-slash" id="eye-icon-2"></i>
+                            </button>
+                        </div>
                         <div class="mt-1 error-container">
                             <p class="text-danger small mb-0" id="confirmError" style="visibility: <%= locals.confirmError ? 'visible' : 'hidden' %>;"><%= locals.confirmError || 'Placeholder' %></p>
                         </div>
@@ -74,7 +90,7 @@
                         <span class="px-3 text-secondary" style="color: #637b92 !important">OR</span>
                         <div class="flex-grow-1 border-bottom"></div>
                     </div>
-                    <a href="/api/auth/google" class="text-decoration-none link-dark">
+                    <a href="/auth/google" class="text-decoration-none link-dark">
                         <button class="google-btn btn mb-3 w-75 mx-auto d-flex justify-content-center align-items-center gap-2">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
@@ -87,7 +103,7 @@
                     </a>
                 </div>
                 <p class="text-muted text-center pb-3">
-                    Already have an accound?<a href="/api/auth/login" class="link text-decoration-none"><span class="ms-1">Login</span></a>
+                    Already have an accound?<a href="/auth/login" class="link text-decoration-none"><span class="ms-1">Login</span></a>
                 </p>
             </div>
         </div>

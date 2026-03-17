@@ -20,7 +20,8 @@ export const protectedRoute = async (req, res, next) => {
     try {
         const token = req.cookies.token;
         if (!token) {
-            return res.redirect("/api/auth/login?error=Please login first");
+            req.flash("loginError", "Please login first");
+            return res.redirect("/auth/login");
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -28,11 +29,13 @@ export const protectedRoute = async (req, res, next) => {
         const user = await User.findById(decoded.userId).select("-password");
 
         if (!user) {
-            return res.redirect("/api/auth/login?error=User not found.");
+            req.flash("loginError", "User not found");
+            return res.redirect("/auth/login");
         }
 
         if (user.isBlocked) {
-            return res.redirect("/api/auth/login?error=You are blocked from accessing this site.");
+            req.flash("loginError", "You are blocked from accessing this website");
+            return res.redirect("/auth/login");
         }
 
         req.user = user;

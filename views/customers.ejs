@@ -45,7 +45,7 @@
 
         <div class="border rounded-4 px-4 py-4 mt-4 bg-white">
             <div class="d-flex gap-2">
-                <form action="/api/admin/customers" method="GET" id="searchForm" class="w-100 d-flex gap-2">
+                <form action="/admin/customers" method="GET" id="searchForm" class="w-100 d-flex gap-2">
                     <div class="input-group flex-grow-1 focus-ring-wrapper me-2 rounded-3">
                         <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
@@ -60,12 +60,12 @@
                     </select>
                 </form>
 
-                <!-- <form action="/api/admin/customers" method="GET" id="customerStatus"> -->
+                <!-- <form action="/admin/customers" method="GET" id="customerStatus"> -->
                 <!-- </form> -->
             </div> 
         </div>
 
-        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 600px; display: block; min-width: 100%;">
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 500px; display: block; min-width: 100%;">
             <div>
                 <h3 class="fs-5 ps-1">All Customers</h3>
             </div>
@@ -118,7 +118,7 @@
                                         </a>
                                 </div>
 
-                                <form action="/api/admin/customers/block/<%= user._id %>" method="POST" >
+                                <form action="/admin/customers/block/<%= user._id %>" method="POST" >
                                     <div class="modal fade" id="blockModal-<%= user._id %>" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
@@ -202,25 +202,25 @@
                 </tbody>
             </table>
 
-            <% if (totalPages > 1) { %>
-                <nav aria-label="Customer page navigation">
-                    <ul class="pagination justify-content-center mb-0">
-                        <li class="page-item <%= currentPageNumber === 1 ? 'disabled' : '' %> ">
-                            <a href="?page=<%= currentPageNumber - 1 %>" class="page-link">Previous</a>
-                        </li>
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li class="page-item <%= currentPageNumber === i ? 'active' : '' %> ">
-                            <a href="?page=<%= i %>" class="page-link"><%= i %></a>
-                        </li>
-                        <% } %>
-                        <li class="page-item <%= currentPageNumber === totalPages ? 'disabled' : '' %>">
-                            <a href="?page=<%= currentPageNumber + 1 %>" class="page-link">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            <% } %>
 
         </div>
+        <% if (totalPages > 1) { %>
+        <nav aria-label="Customer page navigation" class="mt-2">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item <%= currentPageNumber === 1 ? 'disabled' : '' %> ">
+                    <a href="?page=<%= currentPageNumber - 1 %>" class="page-link">Previous</a>
+                </li>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPageNumber === i ? 'active' : '' %> ">
+                    <a href="?page=<%= i %>" class="page-link"><%= i %></a>
+                </li>
+                <% } %>
+                <li class="page-item <%= currentPageNumber === totalPages ? 'disabled' : '' %>">
+                    <a href="?page=<%= currentPageNumber + 1 %>" class="page-link">Next</a>
+                </li>
+            </ul>
+        </nav>
+        <% } %>
 
     </div>
 
@@ -265,7 +265,7 @@
         // customerStatus.addEventListener("change", () => {
         //     const selectedValue = this.value;
 
-        //     fetch("/api/admin/customers/filter", {
+        //     fetch("/admin/customers/filter", {
         //         method: "post",
         //         headers: { 'Content-Type': 'application/json' },
         //         body: JSON.stringify({ choice: selectedValue })
