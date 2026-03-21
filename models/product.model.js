@@ -14,6 +14,7 @@ const productModel = new mongoose.Schema(
 
         category: {
             type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
             required: true,
         },
 
@@ -22,8 +23,9 @@ const productModel = new mongoose.Schema(
             required: true,
         },
 
-        isFeatured: {
+        isDeleted: {
             type: Boolean,
+            default: false,
             required: true,
         },
     },

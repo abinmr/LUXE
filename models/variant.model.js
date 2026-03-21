@@ -6,25 +6,6 @@ const variantModel = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
-        size: {
-            type: String,
-            required: true,
-        },
-
-        price: {
-            type: Number,
-            required: true,
-        },
-
-        compareAtPrice: {
-            type: Number,
-            required: true,
-        },
-
-        stockQuantity: {
-            type: Number,
-            required: true,
-        },
 
         color: {
             type: String,
@@ -33,11 +14,31 @@ const variantModel = new mongoose.Schema(
         image: {
             type: String,
         },
+
+        sizes: [
+            {
+                size: {
+                    type: String,
+                    required: true,
+                },
+                price: {
+                    type: Number,
+                    required: true,
+                },
+                compareAtPrice: {
+                    type: Number,
+                },
+                stock: {
+                    type: Number,
+                    required: true,
+                },
+            },
+        ],
     },
 
     { timestamps: true },
 );
 
-const Variant = mongoose.model("Varient", variantModel);
+const Variants = mongoose.model("Varient", variantModel);
 
-export default Variant;
+export default Variants;

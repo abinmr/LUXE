@@ -17,7 +17,7 @@
                     <h2>Categories</h2>
                     <p class="text-muted">Organize your products into categories.</p>
                 </div>
-                <a href="/admin/category/add">
+                <a href="/admin/categories/add">
                     <button class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                         Add Category
@@ -26,13 +26,14 @@
             </div>
 
             <div class="border border-1 rounded-4 p-4 mt-4 bg-white">
-                <form action="/" method="GET" class="">
+                <form action="/admin/categories" method="GET" class="d-flex align-items-center gap-4">
                     <div class="input-group flex-grow-1 focus-ring-wrapper rounded-3">
                         <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
                         </span>
                         <input type="search" class="form-control border-0 shadow-none" name="search" id="search" placeholder="Search categories..." style="background-color: #f3f3f5" autofocus>
                     </div>
+                    <button type="submit" class="btn btn-primary">submit</button>
 
                 </form>
             </div>
@@ -54,37 +55,61 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <% locals.categories.forEach((category, index) => { %>
+
                         <tr>
-                            <th scope="row">1</th>
-                            <td>Men's Clothing</td>
-                            <td>mens-clothing</td>
-                            <td><button class="btn btn-sm btn-dark rounded-2">Active</button></td>
-                            <td>Jan 10, 2026</td>
-                            <td>Mar 13, 2026</td>
+                            <th scope="row"> <%= (currentPage - 1) * limit + index + 1 %></th>
+                            <td> <%= category.name %></td>
+                            <td> <%= category.slug %> </td>
+                            <% if (category.isActive) { %>
+                                <td><button class="btn btn-sm btn-dark rounded-2">Active</button></td>
+                            <% } else { %>
+                                <td><button class="btn btn-sm btn-light border rounded-2">Inactive</button></td>
+                            <% } %>
+                            <% const dateOption = { month: 'short', day: 'numeric', year: 'numeric' } %>
+                            <td> <%= category.createdAt.toLocaleDateString('en-US', dateOption) %> </td>
+                            <td> <%= category.updatedAt.toLocaleDateString('en-US', dateOption) %> </td>
                             <td>
                                 <div class="btn-group ms-4">
-                                    <button class="btn btn-light rounded-2">⋮</button>
+                                    <button class="btn btn-light rounded-2" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
+                                    <ul class="dropdown-menu">
+                                        <li class="mb-1">
+                                            <a href="/admin/categories/edit/<%= category._id %>" class="dropdown-item small py-2">
+                                                <img src="/images/edit.svg" alt="edit icon" class="me-2">
+                                                Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="/admin/categories/delete/<%= category._id %>" class="dropdown-item text-danger small py-2">
+                                                <img src="/images/delete.svg" alt="trash icon" class="me-2">
+                                                Delete
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </td>
                         </tr>
+                        <% }); %>
                     </tbody>
                 </table>
 
-                <nav aria-label="Category page navigation">
-                    <ul class="pagination justify-content-center mb-0">
-                        <li class="page-item">
-                            <a href="#" class="page-link">Previous</a>
-                        </li>
-                        <li class="page-item">
-                            <a href="#" class="page-link">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a href="#" class="page-link">Next</a>
-                        </li>
-                    </ul>
-                </nav>
 
             </div>
+            <nav aria-label="Category page navigation" class="mt-2">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                        <a href="?page=<%= currentPage - 1 %>" class="page-link">Previous</a>
+                    </li>
+                    <% for (let i = 1; i <= totalPage; i++) { %>
+                    <li class="page-item">
+                        <a href="?page=<%= i %>" class="page-link">1</a>
+                    </li>
+                    <% } %>
+                    <li class="page-item <%= currentPage === totalPage ? 'disabled' : '' %>">
+                        <a href="?page=<%= currentPage + 1 %>" class="page-link">Next</a>
+                    </li>
+                </ul>
+            </nav>
 
         </div>
     <%- include('partials/admin-footer.ejs') %>

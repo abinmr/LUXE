@@ -58,6 +58,15 @@ body {
     flex-direction: column;
 }
 
+.error-container {
+    min-height: 15px !important;
+    margin-left: 4px;
+}
+
+.error-container p {
+    font-size: 12px;
+}
+
 .top-bar {
     height: 70px;
     background-color: #fcfcfc;

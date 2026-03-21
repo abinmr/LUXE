@@ -45,6 +45,10 @@ app.use("/", appRouter);
 app.use("/profile", profileRouter);
 app.use("/cart", cartRouter);
 
+app.get("/", (req, res) => {
+    return res.redirect("/home");
+});
+
 app.use((req, res, next) => {
     res.locals.currentPage = req.path.split("/")[1];
     next();

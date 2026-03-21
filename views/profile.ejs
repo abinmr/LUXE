@@ -71,7 +71,7 @@
                                     </div>
                                     <div class="mb-4">
                                         <label for="phone" class="form-label">Phone</label>
-                                        <input type="number" class="form-control text-muted" name="phone" id="phone" placeholder="<%= locals.user.phone || 'Optional' %>" readonly>
+                                        <input type="number" class="form-control text-muted" name="phone" id="phoneProfile" placeholder="<%= locals.user.phone || 'Optional' %>" readonly>
                                     </div>
                                     <button type="button" id="editProfileBtn" class="btn btn-danger" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >Edit Profile</button>
                                     <div class="d-none" id="updateProfile">
@@ -179,7 +179,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="phone" class="form-label">Mobile Number</label>
-                                                        <input type="number" class="form-control" name="phone" id="phone" placeholder="phone" required value="<%= address.phone || '' %>" >
+                                                        <input type="number" class="form-control" name="phone" id="phoneEdit" placeholder="phone" maxlength="10" required value="<%= address.phone || '' %>" >
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="pincode">Pincode</label>
@@ -237,7 +237,7 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
 
-                                            <form action="/profile/add-address" method="POST">
+                                            <form action="/profile/add-address" method="POST" id="addAddress">
                                                 <div class="modal-body">
                                                     <div class="mb-3">
                                                         <label for="fullName" class="form-label">Full Name</label>
@@ -245,11 +245,13 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="phone" class="form-label">Mobile Number</label>
-                                                        <input type="number" class="form-control" name="phone" id="phone" placeholder="phone" required>
+                                                        <input type="number" class="form-control" name="phone" id="addPhone" placeholder="phone" minlength="10" required>
+                                                        <p class="text-danger small mb-0" id="phoneError"></p>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="pincode">Pincode</label>
-                                                        <input type="number" class="form-control" name="pincode" id="pincode" placeholder="pincode" required>
+                                                        <input type="number" class="form-control" name="pincode" id="addPincode" placeholder="pincode" minlength="6" required>
+                                                        <p class="text-danger small mb-0 mt-1" id="pincodeError"></p>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="house" class="form-label">House No / Building / Apartment</label>
@@ -290,9 +292,9 @@
 
             <% if (locals.toast) { %>
                 <div class="toast-container position-fixed bottom-0 end-0 p-3 m-2">
-                    <div id="actionToast" class="toast align-items-center glass" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div id="actionToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="d-flex">
-                            <div class="toast-body">
+                            <div class="toast-body fw-semibold <%= locals.toast.type === 'success' ? 'text-success' : 'text-danger' %>">
                                 <%= locals.toast.message %>
                             </div>
                         </div>

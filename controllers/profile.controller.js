@@ -6,11 +6,17 @@ export const getProfile = async (req, res) => {
     try {
         const currentSection = req.query.section || "profile";
         const toast = req.flash("toast")[0];
+        const phoneError = req.flash("phonError")[0];
         let addresses = [];
         if (currentSection === "address") {
-            addresses = await Address.find({ user: req.user._id });
+            addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
         }
-        res.render("profile", { section: currentSection, addresses: addresses, toast: toast ? JSON.parse(toast) : null });
+        res.render("profile", {
+            section: currentSection,
+            addresses: addresses,
+            toast: toast ? JSON.parse(toast) : null,
+            phoneError: phoneError,
+        });
     } catch (err) {
         console.error("Error rendering profile.", err);
         return res.redirect("/profile?section=profile");
@@ -78,6 +84,22 @@ export const addAddress = async (req, res) => {
         const { fullName, phone, pincode, house, street, city, state, isDefault } = req.body;
 
         const makeDefault = isDefault === "on" || isDefault === "true";
+
+        if (fullName === "" || phone === "" || pincode === "" || house === "" || city === "" || state === "") {
+            req.flash("toast", JSON.stringify({ type: "error", message: "Address failed to save" }));
+            return res.redirect("/profile?section=address");
+        }
+
+        const regex = /^\d{10}$/;
+
+        if (!regex.test(phone)) {
+            req.flash("phoneError", "Please enter a valid phone");
+        }
+
+        // if (!regex.test(phone)) {
+        //     req.flash("toast", JSON.stringify({ type: "error", message: "Address failed to save" }));
+        //     return res.redirect("/profile?section=address");
+        // }
 
         if (makeDefault) {
             await Address.updateMany({ user: req.user._id }, { isDefault: false });

@@ -16,6 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPassError = document.getElementById("confirmPasswordError");
     const passwordForm = document.getElementById("passwordForm");
 
+    const addressForm = document.getElementById("addAddress");
+    const phoneNumber = document.getElementById("addPhone");
+    const phoneError = document.getElementById("phoneError");
+    const pincodeInput = document.getElementById("addPincode");
+    const pincodeError = document.getElementById("pincodeError");
+
     if (editBtn && updateDiv && cancelBtn) {
         editBtn.addEventListener("click", () => {
             editBtn.classList.add("d-none");
@@ -91,8 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
             newPassError.innerText = "Password must contain 1 special character.";
             newPassError.style.visibility = "visible";
         } else {
-            passwordError.innerText = "placeholder";
-            passwordError.style.visibility = "hidden";
+            newPassError.innerText = "placeholder";
+            newPassError.style.visibility = "hidden";
             return true;
         }
     }
@@ -116,26 +122,71 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    currentPasswordInput.addEventListener("blur", validatePassword);
-    newPasswordInput.addEventListener("blur", validateNewPassword);
-    confirmPasswordInput.addEventListener("blur", validateConfirmPassword);
+    if (currentPasswordInput) currentPasswordInput.addEventListener("blur", validatePassword);
+    if (newPasswordInput) newPasswordInput.addEventListener("blur", validateNewPassword);
+    if (confirmPasswordInput) confirmPasswordInput.addEventListener("blur", validateConfirmPassword);
 
-    passwordForm.addEventListener("submit", (e) => {
-        const isPasswordValid = validatePassword();
-        const isNewPassValid = validateNewPassword();
-        const isConfirmPassValid = validateConfirmPassword();
+    if (passwordForm) {
+        passwordForm.addEventListener("submit", (e) => {
+            const isPasswordValid = validatePassword();
+            const isNewPassValid = validateNewPassword();
+            const isConfirmPassValid = validateConfirmPassword();
 
-        if (!isPasswordValid || !isNewPassValid || !isConfirmPassValid) {
-            e.preventDefault();
+            if (!isPasswordValid || !isNewPassValid || !isConfirmPassValid) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    if (emailInput) emailInput.addEventListener("blur", validateEmail);
+
+    if (profileForm) {
+        profileForm.addEventListener("submit", (e) => {
+            const isEmailValid = validateEmail();
+            if (!isEmailValid) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    function validatePhoneNumber() {
+        const phone = phoneNumber.value.trim();
+        const regex = /^\d{10}$/;
+        if (!regex.test(phone)) {
+            phoneError.innerText = "Please enter a valid phone number";
+            phoneError.style.visibility = "visible";
+            return false;
+        } else {
+            phoneError.innerText = "";
+            phoneError.style.visibility = "hidden";
+            return true;
         }
-    });
+    }
 
-    emailInput.addEventListener("blur", validateEmail);
-
-    profileForm.addEventListener("submit", (e) => {
-        const isEmailValid = validateEmail();
-        if (!isEmailValid) {
-            e.preventDefault();
+    function validatePincode() {
+        const pincode = pincodeInput.value.trim();
+        const regex = /^\d{6}$/;
+        if (!regex.test(pincode)) {
+            pincodeError.innerText = "Please enter a valid pincode";
+            pincodeError.style.visibility = "visible";
+            return false;
+        } else {
+            pincode.innerText = "";
+            pincode.style.visibility = "hidden";
+            return true;
         }
-    });
+    }
+
+    if (addressForm && phoneNumber && pincodeInput) {
+        phoneNumber.addEventListener("blur", validatePhoneNumber);
+        pincodeInput.addEventListener("blur", validatePincode);
+        addressForm.addEventListener("submit", (e) => {
+            const isPhoneValid = validatePhoneNumber();
+            const isPincodeValid = validatePincode();
+
+            if (!isPhoneValid || !isPincodeValid) {
+                e.preventDefault();
+            }
+        });
+    }
 });

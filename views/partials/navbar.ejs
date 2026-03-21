@@ -9,10 +9,9 @@
 
             <div class="d-none d-md-flex col-md-6 col-lg-8 justify-content-between align-items-center gap-5">
                 <ul class="d-none d-lg-flex align-items-center mb-0 gap-4 list-unstyled">
-                    <li><a href="/women" class="text-decoration-none text-black fw-semibold">Women</a></li>
-                    <li><a href="/men" class="text-decoration-none text-black fw-semibold">Men</a></li>
-                    <li><a href="/kids" class="text-decoration-none text-black fw-semibold">Kids</a></li>
-                    <li><a href="/accessories" class="text-decoration-none text-black fw-semibold">Accessories</a></li>
+                    <% categories.forEach((category) => { %>
+                        <li><a href="/<%= category.name %>" class="text-decoration-none text-black fw-semibold"> <%= category.name %> </a></li>
+                    <% }) %>
                 </ul>
 
                 <div class="d-flex align-items-center gap-2 py-1 px-3 rounded-2 bg-white w-50 search-bar">

@@ -51,41 +51,64 @@
                         <th scope="col">Price</th>
                         <th scope="col">Stock</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Sales</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <% locals.products.forEach((product) => { %>
                     <tr>
                         <th scope="row">1</th>
-                        <td>Classic White t-shirt</td>
-                        <td>Men's Clothing</td>
+                        <td> <%= product.name%> </td>
+                        <td> <%= product.category.name %> </td>
                         <td>₹599.00</td>
-                        <td>145</td>
+                        <td> <%= product.totalStock %> </td>
                         <td>
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-dark rounded-2">In Stock</button>
+                            <div class="btn-group gap-3">
+                                <div>
+                                    <% if (product.totalStock > 10) { %>
+                                    <button class="btn btn-dark btn-sm small rounded-3">In Stock</button>
+                                    <% } else if (product.totalStock <= 10 && product.totalStock >= 1){ %>
+                                    <button class="btn btn-warning btn-sm small rounded-3">Low Stock</button>
+                                    <% } else { %>
+                                    <button class="btn btn-danger btn-sm small rounded-3">Out of stock</button>
+                                    <% } %>
+                                </div>
+                                <div>
+                                    <% if (product.isListed) { %>
+                                    <button class="btn btn-dark btn-sm small rounded-3">Listed</button>
+                                    <% } else { %>
+                                    <button class="btn btn-light btn-sm border small rounded-3">Unlisted</button>
+                                    <% } %>
+                                </div>
                             </div>
                         </td>
-                        <td>854</td>
                         <td>
                             <div class="btn-group ms-4">
-                                <button class="btn btn-light rounded-2" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
+                                <button class="btn btn-light rounded-2 border-0" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
                                 <ul class="dropdown-menu">
-                                    <li>
-                                        <a href="#" class="dropdown-item">
-                                        <img src="/images/view-details.svg" alt="open eye icon" class="me-2">
-                                        List</a>
-                                    </li>
+                                    <% if (product.isListed) {%>
+                                        <li>
+                                            <a href="/admin/products/unlist/<%= product._id %> " class="dropdown-item small py-2">
+                                                <img src="/images/close-details.svg" alt="close eye icon" class="me-2">
+                                                Unlist
+                                            </a>
+                                        </li>
+                                    <% } else { %>
+                                        <li>
+                                            <a href="/admin/products/list/<%= product._id %> " class="dropdown-item small py-2">
+                                                <img src="/images/view-details.svg" alt="open eye icon" class="me-2">
+                                                List</a>
+                                        </li>
+                                    <% } %>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a href="#" class="dropdown-item">
+                                        <a href="/admin/products/edit/<%= product._id %>" class="dropdown-item small py-2">
                                             <img src="/images/edit.svg" alt="edit icon" class="me-2">
                                             Edit
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#" class="dropdown-item">
+                                        <a href="/admin/products/delete/<%= product._id %> " class="dropdown-item small py-2">
                                             <img src="/images/delete.svg" alt="trash icon" class="me-2">
                                             <span class="text-danger">Delete</span>
                                         </a>
@@ -95,18 +118,21 @@
                         </td>
                     </tr>
                 </tbody>
+                <% }) %>
             </table>
         </div>
         <nav aria-label="Product page navigation" class="mt-2">
             <ul class="pagination justify-content-center mb-0">
-                <li class="page-item">
-                    <a href="#" class="page-link">Previous</a>
+                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                    <a href="?page=<%= currentPage - 1 %>" class="page-link">Previous</a>
                 </li>
+                <% for (let  i = 1; i <= totalPage; i++) { %>
                 <li class="page-item">
-                    <a href="#" class="page-link">1</a>
+                    <a href="?page=<%= i %>" class="page-link">1</a>
                 </li>
-                <li class="page-item">
-                    <a href="#" class="page-link">Next</a>
+                <% } %>
+                <li class="page-item <%= currentPage === totalPage ? 'disabled' : '' %>">
+                    <a href="?page=<%= currentPage + 1 %>" class="page-link">Next</a>
                 </li>
             </ul>
         </nav>

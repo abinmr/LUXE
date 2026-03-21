@@ -18,7 +18,7 @@
         <link rel="stylesheet" href="/styles/navbar.css" />
     </head>
     <body>
-        <%- include('partials/navbar.ejs') %>
+        <%- include('partials/navbar.ejs'), { categories } %>
         <section class="position-relative overflow-hidden" style="height: 600px">
             <img src="/images/hero-banner.png" alt="hero section image" class="w-100 object-fit-cover" />
             <div class="position-absolute d-flex align-items-center text-white" style="inset: 0px; background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)">
@@ -34,29 +34,37 @@
         <section class="bg-danger py-2 mb-5 text-center">
             <p class="text-white mb-0 fw-semibold">🎉 Flat 40% Off on All Items | Free Shipping on Orders Over $100</p>
         </section>
-        <section class="mb-5">
-            <div class="container px-0">
-                <h3 class="fs-2 fw-bolder text-center">Shop by Category</h3>
-                <div class="row categories mt-5">
-                    <a href="#" class="col-3 rounded-2 overflow-hidden">
-                        <img src="/images/category-women.png" alt="" />
-                    </a>
-                    <a href="#" class="col-3 rounded-2 overflow-hidden">
-                        <img src="/images/category-men.png" alt="" />
-                    </a>
-                    <a href="#" class="col-3 rounded-2 overflow-hidden">
-                        <img src="/images/category-kids.png" alt="" />
-                    </a>
-                    <a href="#" class="col-3 rounded-2 overflow-hidden">
-                        <img src="/images/category-accessories.png" alt="" />
-                    </a>
-                </div>
-            </div>
-        </section>
+<section class="mb-5">
+    <div class="container">
+        <h3 class="fs-2 fw-bolder text-center">Shop by Category</h3>
+        <div class="d-flex gap-3 mt-4 overflow-x-auto pb-2">
+            <% categories.forEach((category) => { %>
+                <a href="#" class="rounded-3 overflow-hidden position-relative d-block text-decoration-none flex-shrink-0" style="height: 410px; width: 310px;">
+                    <img src="<%= category.image %>" alt="<%= category.name %>"
+                         class="w-100 h-100 object-fit-cover" />
+                    <div class="position-absolute bottom-0 start-0 w-100"
+                         style="background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); height: 80px;"></div>
+                    <h5 class="position-absolute bottom-0 start-0 text-white fw-semibold m-0 p-3 z-3">
+                        <%= category.name %>
+                    </h5>
+                </a>
+            <% }) %>
+        </div>
+    </div>
+</section>
 
         <section>
             <div class="container">
-                <h3 class="fw-bolder">Tranding Now</h3>
+                <h3 class="fw-bolder">Products</h3>
+                <div class="d-flex gap-3 mt-4 pb-2">
+                    <% locals.products.forEach((product) => { %>
+                    <% if (product.variants && product.variants.length > 0) { %>
+                    <a href="/product/<%= product._id %>" class="rounded-3" style="height: 410px; width: 310px;">
+                        <img src="<%= product.variants[0].image %>" alt="<%= product.name %>">
+                    </a>
+                    <% } %>
+                    <% }) %>
+                </div>
             </div>
         </section>
     </body>

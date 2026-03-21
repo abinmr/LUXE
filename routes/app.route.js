@@ -1,6 +1,8 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import Category from "../models/category.model.js";
+import Product from "../models/product.model.js";
 
 const router = express.Router();
 
@@ -34,8 +36,21 @@ router.use(async (req, res, next) => {
     }
 });
 
-router.get("/home", (req, res) => {
-    res.render("home");
+router.get("/home", async (req, res) => {
+    const categories = await Category.find({ $and: [{ isActive: true, isDeleted: false }] });
+    // const products = await Product.find();
+    const products = await Product.aggregate([
+        {
+            $lookup: {
+                from: "varients",
+                localField: "_id",
+                foreignField: "productId",
+                as: "variants",
+            },
+        },
+    ]);
+    console.log(JSON.stringify(products));
+    res.render("home", { categories, products });
 });
 
 export default router;
