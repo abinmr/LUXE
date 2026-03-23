@@ -32,6 +32,10 @@ const userModel = new mongoose.Schema(
             type: Number,
         },
 
+        profile: {
+            type: String,
+        },
+
         isVerified: {
             type: Boolean,
             default: false,

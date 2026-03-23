@@ -26,7 +26,7 @@
                     <h4 class="fw-semibold">Verify Your Email</h4>
                 </div>
                 <p class="text-center mb-0 mt-1 text-danger" style="visibility: <%= locals.error ? 'visible' : 'hidden' %>;"><%= locals.error || 'Placeholder' %></p>
-                <form action="/auth/register/otp" method="post" class="d-flex flex-column align-items-center py-2 mt-4" id="otpForm">
+                <form action="/profile/verify-email-otp" method="post" class="d-flex flex-column align-items-center py-2 mt-4" id="otpForm">
                     <label class="form-label fw-bold">Enter the 4-digit verification code</label>
                     
                     <div class="d-flex justify-content-center gap-3 mt-4 mb-2">

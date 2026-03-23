@@ -2,7 +2,6 @@ import express from "express";
 import fs from "fs/promises";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
 import Product from "../models/product.model.js";
-import Variants from "../models/variant.model.js";
 import Category from "../models/category.model.js";
 import upload from "../lib/multer.js";
 import cloudinary from "../lib/cloudinary.js";
@@ -10,25 +9,29 @@ import cloudinary from "../lib/cloudinary.js";
 const router = express.Router();
 
 router.get("/", requireAdminAuth, async (req, res) => {
-    const page = parseInt(req.params.page) || 1;
+    const page = parseInt(req.query.page) || 1;
+    const search = req.query.search || "";
+    const dbQuery = { isDeleted: false };
     const limit = 6;
-    const skip = (page - 1) * limit;
+    let skip = (page - 1) * limit;
     const productError = req.flash("productError")[0];
-    const products = await Product.find({ isDeleted: false }).populate("category").lean();
-    for (const product of products) {
-        const variants = await Variants.find({ productId: product._id }).lean();
-        const allVariants = variants.flatMap((v) => v.sizes);
-        product.variants = variants;
-        product.totalStock = allVariants.reduce((sum, s) => sum + s.stock, 0);
+    if (search) {
+        JSON.stringify((dbQuery.$or = [{ name: { $regex: search, $options: "i" } }]));
     }
-    const totalPage = products.length;
+    console.log("dbQuery:", dbQuery);
+    const products = await Product.find(dbQuery).populate("category").lean().skip(skip).limit(limit);
+    for (const product of products) {
+        const allSizes = (product.variants || []).flatMap((v) => v.sizes);
+        product.totalStock = allSizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
+    }
+    const totalPage = Math.ceil(products.length / limit);
+    console.log("products: ", JSON.stringify(products, null, 2));
     return res.render("products", {
-        currentPage: "products",
-        productError: productError,
+        productError: productError || null,
         products,
         currentPage: page,
-        totalPage: totalPage,
-        limit: limit,
+        totalPage,
+        limit,
     });
 });
 
@@ -39,96 +42,101 @@ router.get("/add", requireAdminAuth, async (req, res) => {
 
 router.post("/add", upload.any(), async (req, res) => {
     try {
+        for (let key in req.body) {
+            if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
+        }
         const { productName, productDescription, category, listing } = req.body;
-        const variants = Array.isArray(req.body.variants) ? req.body.variants : [req.body.variants];
-        console.log("variants", variants);
-        console.log("files", req.files);
-        // return res.redirect("/admin/products/add");
-        const isListed = listing === "list" ? true : false;
-        const product = await Product.create({ name: productName, description: productDescription, category: category, isListed: isListed });
-        await product.save();
-        const imageUrls = [];
+        const isListed = listing === "list";
+        const rawVariants = req.body.variants || {};
+
+        const variantImages = {};
         for (const file of req.files) {
-            const uploadResult = await cloudinary.uploader.upload(file.path, {
-                folder: "products",
-                allowed_formats: ["jpg", "png", "webp"],
-            });
-            await fs.unlink(file.path).catch((err) => console.console.error(err));
-            imageUrls.push(uploadResult.secure_url);
+            console.log("file", file);
+            const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
+            if (match) {
+                const vi = parseInt(match[1]);
+                const uploadResult = await cloudinary.uploader.upload(file.path, {
+                    folder: "products",
+                    allowed_formats: ["jpg", "png", "webp"],
+                });
+                await fs.unlink(file.path).catch((err) => console.error(err));
+                if (!variantImages[vi]) variantImages[vi] = [];
+                variantImages[vi].push(uploadResult.secure_url);
+            }
         }
 
-        const variantWithProductId = variants.map((variant, i) => ({
-            productId: product._id,
+        const variants = Object.entries(rawVariants).map(([i, variant]) => ({
             color: variant.color,
-            image: imageUrls[i] || "",
-            sizes: Array.isArray(variant.sizes) ? variant.sizes : [variant.sizes],
+            images: variantImages[parseInt(i)] || [],
+            sizes: Array.isArray(variant.sizes) ? variant.sizes : variant.sizes ? [variant.sizes] : [],
         }));
-        const variantCollection = await Variants.insertMany(variantWithProductId);
-        console.log(variantCollection);
+
+        await Product.create({
+            name: productName,
+            description: productDescription,
+            category,
+            isListed,
+            variants,
+        });
+
         return res.redirect("/admin/products");
     } catch (err) {
-        req.flash("productError", "Error saving products");
+        req.flash("productError", "Error saving product");
         console.error(err);
         return res.redirect("/admin/products");
     }
 });
 
-router.get("/edit/:id", async (req, res) => {
-    const id = req.params.id;
-    const product = await Product.findById(id).populate("category");
-    const category = await Category.find({ isDeleted: false });
-    const variants = await Variants.find({ productId: product._id });
-    return res.render("productEdit", { product: product, categories: category, variants: variants });
+router.get("/edit/:id", requireAdminAuth, async (req, res) => {
+    const product = await Product.findById(req.params.id).populate("category").lean();
+    const categories = await Category.find({ isDeleted: false });
+    return res.render("productEdit", { product, categories });
 });
 
 router.post("/edit/:id", upload.any(), async (req, res) => {
     try {
+        for (let key in req.body) {
+            if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
+        }
         const id = req.params.id;
         const { productName, productDescription, category, listing } = req.body;
-        const isListed = listing === "list" ? true : false;
-        const result = await Product.findByIdAndUpdate(id, { name: productName, description: productDescription, category: category, isListed: isListed });
-        const variants = Array.isArray(req.body.variants) ? req.body.variants : [req.body.variants];
-        const imageUrls = [];
+        const isListed = listing === "list";
+        const rawVariants = req.body.variants || {};
+
+        const variantNewImages = {};
         for (const file of req.files) {
-            const uploadResult = await cloudinary.uploader.upload(file.path, {
-                folder: "products",
-                allowed_formats: ["jpg", "png", "webp"],
-            });
-            await fs.unlink(file.path).catch((err) => console.error(err));
-            imageUrls.push(uploadResult.secure_url);
+            const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
+            if (match) {
+                const vi = parseInt(match[1]);
+                const uploadResult = await cloudinary.uploader.upload(file.path, {
+                    folder: "products",
+                    allowed_formats: ["jpg", "png", "webp"],
+                });
+                await fs.unlink(file.path).catch((err) => console.error(err));
+                if (!variantNewImages[vi]) variantNewImages[vi] = [];
+                variantNewImages[vi].push(uploadResult.secure_url);
+            }
         }
 
-        const currentVariants = await Variants.find({ productId: id }).lean();
-        await Variants.deleteMany({ productId: id });
-        const updatedVariants = variants.map((variant, i) => ({
-            productId: id,
-            color: variant.color,
-            image: imageUrls[i] || currentVariants[i]?.image || "",
-            sizes: Array.isArray(variant.sizes) ? variant.sizes : [variant.sizes],
-        }));
+        const variants = Object.entries(rawVariants).map(([i, variant]) => {
+            const vi = parseInt(i);
+            const existingImages = variant.existingImages ? (Array.isArray(variant.existingImages) ? variant.existingImages : [variant.existingImages]) : [];
+            const newImages = variantNewImages[vi] || [];
+            return {
+                color: variant.color,
+                images: [...existingImages, ...newImages],
+                sizes: Array.isArray(variant.sizes) ? variant.sizes : variant.sizes ? [variant.sizes] : [],
+            };
+        });
 
-        await Variants.insertMany(updatedVariants);
-        return res.redirect("/admin/products");
-    } catch (err) {
-        console.error(err);
-    }
-});
+        await Product.findByIdAndUpdate(id, {
+            name: productName,
+            description: productDescription,
+            category,
+            isListed,
+            variants,
+        });
 
-router.get("/list/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        const result = await Product.findByIdAndUpdate(id, { isListed: true });
-        return res.redirect("/admin/products");
-    } catch (err) {
-        console.error(err);
-        return res.redirect("/admin/products");
-    }
-});
-
-router.get("/unlist/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        const result = await Product.findByIdAndUpdate(id, { isListed: false });
         return res.redirect("/admin/products");
     } catch (err) {
         console.error(err);
@@ -136,11 +144,29 @@ router.get("/unlist/:id", async (req, res) => {
     }
 });
 
-router.get("/delete/:id", async (req, res) => {
+router.get("/list/:id", requireAdminAuth, async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await Product.findByIdAndUpdate(id, { isDeleted: true });
-        console.log(result);
+        await Product.findByIdAndUpdate(req.params.id, { isListed: true });
+        return res.redirect("/admin/products");
+    } catch (err) {
+        console.error(err);
+        return res.redirect("/admin/products");
+    }
+});
+
+router.get("/unlist/:id", requireAdminAuth, async (req, res) => {
+    try {
+        await Product.findByIdAndUpdate(req.params.id, { isListed: false });
+        return res.redirect("/admin/products");
+    } catch (err) {
+        console.error(err);
+        return res.redirect("/admin/products");
+    }
+});
+
+router.get("/delete/:id", requireAdminAuth, async (req, res) => {
+    try {
+        await Product.findByIdAndUpdate(req.params.id, { isDeleted: true });
         return res.redirect("/admin/products");
     } catch (err) {
         console.error(err);

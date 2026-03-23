@@ -1,6 +1,11 @@
 import bcrypt from "bcrypt";
+import fs from "fs";
 import User from "../models/user.model.js";
 import Address from "../models/address.model.js";
+import Category from "../models/category.model.js";
+import cloudinary from "../lib/cloudinary.js";
+import { sendOtpVerification } from "./userAuth.controller.js";
+import Otp from "../models/otp.model.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -11,16 +16,110 @@ export const getProfile = async (req, res) => {
         if (currentSection === "address") {
             addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
         }
+        const categories = await Category.find({ isDeleted: false });
         res.render("profile", {
             section: currentSection,
             addresses: addresses,
             toast: toast ? JSON.parse(toast) : null,
             phoneError: phoneError,
+            categories: categories,
         });
     } catch (err) {
         console.error("Error rendering profile.", err);
         return res.redirect("/profile?section=profile");
     }
+};
+
+export const updateProfile = async (req, res) => {
+    try {
+        for (let key in req.body) {
+            if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
+        }
+        const { fullname, email, phone } = req.body;
+
+        if (!fullname) {
+            req.flash("toast", JSON.stringify({ type: "error", message: "full name is required" }));
+            return res.redirect("/profile?section=profile");
+        }
+
+        if (!email) {
+            req.flash("toast", JSON.stringify({ type: "error", message: "email is required" }));
+            return res.redirect("/profile?section=profile");
+        }
+
+        const updateData = { fullname, email, phone };
+        const file = req.file;
+        if (file) {
+            const result = await cloudinary.uploader.upload(file.path, {
+                folder: "profile",
+                allowed_formats: ["jpg", "png", "webp"],
+            });
+            await fs.promises.unlink(file.path).catch((err) => console.error(err));
+            updateData.profile = result.secure_url;
+        }
+
+        const currentUser = await User.findById(req.user._id);
+        if (email !== currentUser.email) {
+            req.session.pendingProfileUpdate = { fullname, email, phone, profile: updateData.profile };
+            await Otp.deleteMany({ userId: currentUser._id });
+            await sendOtpVerification(req.user._id, email);
+            return res.redirect("/profile/verify-email-otp");
+        }
+
+        const updateDetails = await User.updateOne({ _id: req.user._id }, updateData);
+
+        if (updateDetails) {
+            req.flash("toast", JSON.stringify({ type: "success", message: "Details updated" }));
+        }
+
+        return res.redirect("/profile?section=profile");
+    } catch (err) {
+        req.flash("toast", JSON.stringify({ type: "error", message: "profile update failed" }));
+        console.error("Error updating user profile:", err);
+        return res.redirect("/profile?section=profile");
+    }
+};
+
+export const getEmailOtpPage = async (req, res) => {
+    const profileDetails = req.session.pendingProfileUpdate;
+    if (!profileDetails) {
+        req.flash("toast", JSON.stringify({ type: "error", message: "Verification failed" }));
+        return res.redirect("/profile?section=profile");
+    }
+    const userId = req.user._id;
+
+    if (!userId) {
+        req.flash("toast", JSON.stringify({ type: "error", message: "Verification failed" }));
+        return res.redirect("/profile?section=profile");
+    }
+    const otpRecord = await Otp.findOne({ userId: userId });
+
+    const error = req.flash("profileError")[0];
+    let secondsLeft = 0;
+    if (otpRecord) {
+        secondsLeft = Math.floor((otpRecord.expiresAt - Date.now()) / 1000);
+        secondsLeft = Math.max(0, secondsLeft);
+    }
+    return res.render("profileOtp", { secondsLeft, error });
+};
+
+export const verifyEmailOtp = async (req, res) => {
+    const { otp } = req.body;
+    const pendingUpdate = req.session.pendingProfileUpdate;
+    if (!pendingUpdate) {
+        req.flash("toast", JSON.stringify({ type: "error", message: "Verification failed" }));
+        return res.redirect("/profile?section=profile");
+    }
+    const otpDetails = await Otp.findOne({ userId: req.user._id });
+    const isMatch = await bcrypt.compare(otp, otpDetails.otp);
+    if (!isMatch) {
+        req.flash("profileError", "Invalid otp");
+        return res.redirect("/profile/verify-email-otp");
+    }
+    await User.updateOne({ _id: req.user._id }, pendingUpdate);
+    delete req.session.pendingProfileUpdate;
+    req.flash("toast", JSON.stringify({ type: "success", message: "profile updated" }));
+    return res.redirect("/profile?section=profile");
 };
 
 export const changePassword = async (req, res) => {
@@ -41,7 +140,6 @@ export const changePassword = async (req, res) => {
 
             const newHashPassword = await bcrypt.hash(newPassword, 10);
             const updateResult = await User.findByIdAndUpdate(req.user._id, { password: newHashPassword });
-            console.log("user: ", req.user);
             console.log("update success:", updateResult);
             req.flash("toast", JSON.stringify({ type: "success", message: "Password Updated" }));
             return res.redirect("/profile?section=password");
@@ -53,26 +151,6 @@ export const changePassword = async (req, res) => {
         req.flash("toast", JSON.stringify({ type: "error", message: "Error in changing password" }));
         console.error("Error in changing password", err);
         return res.redirect("/profile?section=password");
-    }
-};
-
-export const updateProfile = async (req, res) => {
-    try {
-        for (let key in req.body) {
-            if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
-        }
-
-        const { fullname, email, phone } = req.body;
-
-        const updateDetails = await User.updateOne({ _id: req.user._id }, { fullname: fullname, email: email, phone: phone });
-
-        if (updateDetails) {
-            req.flash("toast", JSON.stringify({ type: "success", message: "Details updated" }));
-        }
-
-        return res.redirect("/profile?section=profile");
-    } catch (err) {
-        console.err("Error updating user profile:", err);
     }
 };
 
@@ -94,12 +172,8 @@ export const addAddress = async (req, res) => {
 
         if (!regex.test(phone)) {
             req.flash("phoneError", "Please enter a valid phone");
+            return res.redirect("/profile?section=address");
         }
-
-        // if (!regex.test(phone)) {
-        //     req.flash("toast", JSON.stringify({ type: "error", message: "Address failed to save" }));
-        //     return res.redirect("/profile?section=address");
-        // }
 
         if (makeDefault) {
             await Address.updateMany({ user: req.user._id }, { isDefault: false });

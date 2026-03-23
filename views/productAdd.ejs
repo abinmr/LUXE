@@ -7,6 +7,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         <title>LUXE</title>
         <link rel="stylesheet" href="/styles/admin-nav.css" />
+        <link rel="stylesheet" href="/styles/adminProduct.css">
     </head>
     <body>
         <%- include('partials/admin-header.ejs', { activePage: 'products' }) %>
@@ -81,8 +82,17 @@
                                         <input type="text" class="form-control bg-light" name="variants[0][color]" placeholder="e.g., Black, Navy Blue, Red">
                                     </div>
                                     <div class="col">
-                                        <label class="form-label small fw-semibold text-muted">Variant Image</label>
-                                        <input type="file" class="form-control bg-light" name="variants[0][image]" accept="image/*">
+                                        <label class="form-label small fw-semibold text-muted">
+                                            Variant Images <span class="image-count text-muted fw-normal">(0/8)</span>
+                                        </label>
+                                        <div class="image-picker-area">
+                                            <div class="image-preview-grid"></div>
+                                            <button type="button" class="btn btn-light border btn-sm add-images-btn d-flex align-items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                                Add Images
+                                            </button>
+                                            <input type="file" class="image-file-input d-none" name="variants[0][newImages]" accept="image/*" multiple>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -126,7 +136,59 @@
         <%- include('partials/admin-footer.ejs') %>
 
         <script>
+            const MAX_IMAGES = 8;
             let colorCount = 1;
+
+            function setupImagePicker(block, ci) {
+                const fileInput   = block.querySelector('.image-file-input');
+                const previewGrid = block.querySelector('.image-preview-grid');
+                const addBtn      = block.querySelector('.add-images-btn');
+                const counter     = block.querySelector('.image-count');
+
+                fileInput.name = `variants[${ci}][newImages]`;
+
+                let files = [];
+
+                addBtn.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', () => {
+                    const remaining = MAX_IMAGES - files.length;
+                    const incoming  = [...fileInput.files].slice(0, remaining);
+                    files.push(...incoming);
+                    fileInput.value = ''; 
+                    sync();
+                    render();
+                });
+
+                function sync() {
+                    const dt = new DataTransfer();
+                    files.forEach(f => dt.items.add(f));
+                    fileInput.files = dt.files;
+                    counter.textContent = `(${files.length}/8)`;
+                    addBtn.disabled = files.length >= MAX_IMAGES;
+                }
+
+                function render() {
+                    previewGrid.innerHTML = '';
+                    files.forEach((file, idx) => {
+                        const url  = URL.createObjectURL(file);
+                        const item = document.createElement('div');
+                        item.className = 'preview-item';
+                        item.innerHTML = `
+                            <img src="${url}" alt="preview">
+                            <button type="button" class="remove-preview-btn" title="Remove">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                            </button>`;
+                        item.querySelector('.remove-preview-btn').addEventListener('click', () => {
+                            URL.revokeObjectURL(url);
+                            files.splice(idx, 1);
+                            sync();
+                            render();
+                        });
+                        previewGrid.appendChild(item);
+                    });
+                }
+            }
 
             function sizeRowHTML(ci, si) {
                 return `
@@ -143,6 +205,7 @@
                     </div>`;
             }
 
+            // ── New variant block HTML ────────────────────────────────────────────────
             function colorVariantHTML(ci) {
                 return `
                     <div class="color-variant-block border rounded-4 bg-white mb-3">
@@ -160,8 +223,17 @@
                                     <input type="text" class="form-control bg-light" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red">
                                 </div>
                                 <div class="col">
-                                    <label class="form-label small fw-semibold text-muted">Variant Image</label>
-                                    <input type="file" class="form-control bg-light" name="variants[${ci}][image]" accept="image/*">
+                                    <label class="form-label small fw-semibold text-muted">
+                                        Variant Images <span class="image-count text-muted fw-normal">(0/8)</span>
+                                    </label>
+                                    <div class="image-picker-area">
+                                        <div class="image-preview-grid"></div>
+                                        <button type="button" class="btn btn-light border btn-sm add-images-btn d-flex align-items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                            Add Images
+                                        </button>
+                                        <input type="file" class="image-file-input d-none" name="variants[${ci}][newImages]" accept="image/*" multiple>
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -185,11 +257,12 @@
                     </div>`;
             }
 
+            // ── Reindex all names after variant add/remove ────────────────────────────
             function reindex() {
                 document.querySelectorAll('.color-variant-block').forEach((block, ci) => {
-                    block.querySelector('.fw-semibold').textContent = `Variant ${ci + 1}`;
-                    block.querySelector('[name*="[color]"]').name = `variants[${ci}][color]`;
-                    block.querySelector('[name*="[image]"]').name = `variants[${ci}][image]`;
+                    block.querySelector('.fw-semibold').textContent       = `Variant ${ci + 1}`;
+                    block.querySelector('[name*="[color]"]').name         = `variants[${ci}][color]`;
+                    block.querySelector('.image-file-input').name         = `variants[${ci}][newImages]`;
                     block.querySelectorAll('.size-row').forEach((row, si) => {
                         row.querySelector('[name*="][size]"]').name          = `variants[${ci}][sizes][${si}][size]`;
                         row.querySelector('[name*="[price]"]').name          = `variants[${ci}][sizes][${si}][price]`;
@@ -205,12 +278,19 @@
                     const ci = [...document.querySelectorAll('.color-variant-block')].indexOf(block);
                     const sizesContainer = block.querySelector('.sizes-container');
                     const si = sizesContainer.querySelectorAll('.size-row').length;
-
                     sizesContainer.insertAdjacentHTML('beforeend', sizeRowHTML(ci, si));
-
                     const newRow = sizesContainer.querySelectorAll('.size-row')[si];
                     newRow.querySelector('.remove-size-btn').addEventListener('click', () => {
                         newRow.remove();
+                        reindex();
+                    });
+                });
+            }
+
+            function attachRemoveSizeBtns(block) {
+                block.querySelectorAll('.remove-size-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btn.closest('.size-row').remove();
                         reindex();
                     });
                 });
@@ -227,15 +307,19 @@
                 const ci = colorCount;
                 const container = document.getElementById('variantsContainer');
                 container.insertAdjacentHTML('beforeend', colorVariantHTML(ci));
-
                 const newBlock = container.querySelectorAll('.color-variant-block')[ci];
+                setupImagePicker(newBlock, ci);
                 attachSizeBtn(newBlock);
+                attachRemoveSizeBtns(newBlock);
                 attachRemoveVariantBtn(newBlock);
                 colorCount++;
             });
 
+            // Init first (static) block
             const firstBlock = document.querySelector('.color-variant-block');
+            setupImagePicker(firstBlock, 0);
             attachSizeBtn(firstBlock);
+            attachRemoveSizeBtns(firstBlock);
             attachRemoveVariantBtn(firstBlock);
         </script>
     </body>

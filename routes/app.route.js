@@ -37,20 +37,19 @@ router.use(async (req, res, next) => {
 });
 
 router.get("/home", async (req, res) => {
-    const categories = await Category.find({ $and: [{ isActive: true, isDeleted: false }] });
-    // const products = await Product.find();
-    const products = await Product.aggregate([
-        {
-            $lookup: {
-                from: "varients",
-                localField: "_id",
-                foreignField: "productId",
-                as: "variants",
-            },
-        },
-    ]);
-    console.log(JSON.stringify(products));
-    res.render("home", { categories, products });
+    try {
+        const categories = await Category.find({ $and: [{ isActive: true, isDeleted: false }] });
+        const products = await Product.find({ isDeleted: false, isListed: true });
+        res.render("home", { categories, products });
+    } catch (err) {
+        console.error(err);
+        return res.render("home");
+    }
+});
+
+router.get("/product/:id", async (req, res) => {
+    const id = req.params.id;
+    const product = await Product.findOne({ _id: id });
 });
 
 export default router;

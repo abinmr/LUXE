@@ -7,6 +7,54 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
         <title>LUXE</title>
         <link rel="stylesheet" href="/styles/admin-nav.css" />
+        <style>
+            .image-picker-area {
+                border: 2px dashed #dee2e6;
+                border-radius: 8px;
+                padding: 12px;
+                background: #f8f9fa;
+            }
+            .image-preview-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            /* Every thumbnail — existing or pending — looks the same */
+            .preview-item {
+                position: relative;
+                width: 80px;
+                height: 80px;
+                flex-shrink: 0;
+            }
+            .preview-item img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 6px;
+                border: 1px solid #dee2e6;
+            }
+            .remove-preview-btn {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #dc3545;
+                border: none;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                padding: 0;
+            }
+            .add-images-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        </style>
     </head>
     <body>
         <%- include('partials/admin-header.ejs', { activePage: 'products' }) %>
@@ -16,8 +64,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
                 </a>
                 <div>
-                    <h2>Add New Product</h2>
-                    <p class="mb-0 text-muted">Add a new product to your inventory</p>
+                    <h2>Edit Product</h2>
+                    <p class="mb-0 text-muted">Update product details and variants</p>
                 </div>
             </div>
 
@@ -31,27 +79,22 @@
                     </div>
                     <div class="mb-3">
                         <label for="productDescription" class="form-label">Description</label>
-                        <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize: none;" required> <%= product.description %> </textarea>
+                        <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize: none;" required><%= product.description %></textarea>
                     </div>
                     <div class="row g-3">
                         <div class="col">
                             <label for="categorySelect" class="form-label">Category</label>
                             <select class="form-select bg-light" name="category" id="categorySelect">
                                 <% categories.forEach((cat) => { %>
-                                    <option value="<%= cat._id %>" <%= product.category.name === cat.name ? 'selected' : ''  %> > <%= cat.name %> </option>
+                                    <option value="<%= cat._id %>" <%= product.category._id.toString() === cat._id.toString() ? 'selected' : '' %>><%= cat.name %></option>
                                 <% }) %>
                             </select>
                         </div>
                         <div class="col">
                             <label for="listing" class="form-label">Listing Status</label>
                             <select class="form-select bg-light" name="listing" id="listing">
-                                <% if (product.isListed) { %>
-                                <option value="list" selected>Listed</option>
-                                <option value="unlist">Unlisted</option>
-                                <% } else { %>
-                                <option value="list">Listed</option>
-                                <option value="unlist" selected>Unlisted</option>
-                                <% } %>
+                                <option value="list"   <%= product.isListed  ? 'selected' : '' %>>Listed</option>
+                                <option value="unlist" <%= !product.isListed ? 'selected' : '' %>>Unlisted</option>
                             </select>
                         </div>
                     </div>
@@ -71,11 +114,10 @@
 
                     <div id="variantsContainer">
 
-                        <% variants.forEach((variant, vi) => { %>
+                        <% (product.variants || []).forEach((variant, vi) => { %>
                         <div class="color-variant-block border rounded-4 bg-white mb-3">
-                                
                             <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-                                <span class="fw-semibold">Variant <%= vi + 1 %> </span>
+                                <span class="fw-semibold">Variant <%= vi + 1 %></span>
                                 <button type="button" class="btn btn-link text-danger text-decoration-none p-0 remove-variant-btn d-flex align-items-center gap-1 small">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
                                     Remove Variant
@@ -88,25 +130,30 @@
                                         <input type="text" class="form-control bg-light" name="variants[<%= vi %>][color]" placeholder="e.g., Black, Navy Blue, Red" value="<%= variant.color %>">
                                     </div>
                                     <div class="col">
-                                        <label class="form-label small fw-semibold text-muted">Variant Image</label>
-                                        <input type="file" class="form-control bg-light" name="variants[<%= vi %>][image]" accept="image/*">
-                                        <% if (variant.image) { %>
-                                        <div class="d-flex justify-content-center">
-                                            <img src="<%= variant.image %>" class="img-thumbnail rounded my-2" alt="variant Image" style="height: 100px;" data-bs-toggle="modal" data-bs-target="#image-<%= variant._id %>">
-                                        </div>
-                                        <% } %>
-                                        <div class="modal fade" id="image-<%= variant._id %>" tabindex="-1">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                <div class="modal-content bg-transparent border-0">
-                                                    <div class="modal-body text-center p-0">
-                                                        <img src="<%= variant.image %>" alt="modal image">
-                                                    </div>
+                                        <label class="form-label small fw-semibold text-muted">
+                                            Variant Images <span class="image-count text-muted fw-normal">(<%= (variant.images || []).length %>/8)</span>
+                                        </label>
+                                        <div class="image-picker-area">
+                                            <%# All images (existing + new) render in one unified grid %>
+                                            <div class="image-preview-grid">
+                                                <% (variant.images || []).forEach((img) => { %>
+                                                <div class="preview-item existing-image-item">
+                                                    <img src="<%= img %>" alt="variant image">
+                                                    <input type="hidden" name="variants[<%= vi %>][existingImages][]" value="<%= img %>">
+                                                    <button type="button" class="remove-preview-btn remove-existing-image" title="Remove">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                                    </button>
                                                 </div>
+                                                <% }) %>
                                             </div>
+                                            <button type="button" class="btn btn-light border btn-sm add-images-btn d-flex align-items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                                Add Images
+                                            </button>
+                                            <input type="file" class="image-file-input d-none" name="variants[<%= vi %>][newImages]" accept="image/*" multiple>
                                         </div>
                                     </div>
                                 </div>
-
 
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="small fw-semibold text-muted">Sizes & Pricing</span>
@@ -124,19 +171,24 @@
                                         <div class="col"><span class="small text-muted">Stock</span></div>
                                         <div style="width:36px;"></div>
                                     </div>
-                                    <% variant.sizes.forEach((size, si) => { %>
+                                    <% (variant.sizes || []).forEach((size, si) => { %>
                                     <div class="size-row row g-2 align-items-center mb-2">
-                                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][size]"           placeholder="e.g., M" value="<%= size.size %>"></div>
+                                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][size]"           placeholder="e.g., M"    value="<%= size.size %>"></div>
                                         <div class="col"><input type="number" class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][price]"          placeholder="0.00" step="0.01" min="0" value="<%= size.price %>"></div>
-                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][compareAtPrice]" placeholder="0.00" step="0.01" min="0" value="<%= size.compareAtPrice %>"></div>
+                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][compareAtPrice]" placeholder="0.00" step="0.01" min="0" value="<%= size.compareAtPrice || '' %>"></div>
                                         <div class="col"><input type="number" class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][stock]"          placeholder="0"    min="0" value="<%= size.stock %>"></div>
-                                        <div style="width:36px;"></div>
+                                        <div style="width:36px;">
+                                            <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <% }); %>
+                                    <% }) %>
                                 </div>
                             </div>
                         </div>
-                        <% }); %>
+                        <% }) %>
+
                     </div>
                 </div>
 
@@ -149,5 +201,223 @@
         </div>
         <%- include('partials/admin-footer.ejs') %>
 
+        <script>
+            const MAX_IMAGES = 8;
+            let colorCount = document.querySelectorAll('.color-variant-block').length;
+
+            // ── Image picker ──────────────────────────────────────────────────────────
+            // Existing images are EJS-rendered .preview-item nodes already in the grid.
+            // New files are appended to the same grid as identical-looking .preview-item nodes.
+            // The cap is: existingCount + newFilesCount <= 8.
+            function setupImagePicker(block, ci) {
+                const fileInput   = block.querySelector('.image-file-input');
+                const grid        = block.querySelector('.image-preview-grid');
+                const addBtn      = block.querySelector('.add-images-btn');
+                const counter     = block.querySelector('.image-count');
+
+                fileInput.name = `variants[${ci}][newImages]`;
+
+                let newFiles = []; // pending File objects (not yet on server)
+
+                function existingCount() {
+                    return grid.querySelectorAll('.existing-image-item').length;
+                }
+
+                function totalCount() {
+                    return existingCount() + newFiles.length;
+                }
+
+                function updateUI() {
+                    counter.textContent = `(${totalCount()}/8)`;
+                    addBtn.disabled = totalCount() >= MAX_IMAGES;
+                    // Sync newFiles array → actual file input via DataTransfer
+                    const dt = new DataTransfer();
+                    newFiles.forEach(f => dt.items.add(f));
+                    fileInput.files = dt.files;
+                }
+
+                // Append a new-file preview tile to the grid
+                function appendNewPreview(file, idx) {
+                    const url  = URL.createObjectURL(file);
+                    const item = document.createElement('div');
+                    item.className = 'preview-item new-image-item';
+                    item.dataset.idx = idx;
+                    item.innerHTML = `
+                        <img src="${url}" alt="preview">
+                        <button type="button" class="remove-preview-btn" title="Remove">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                        </button>`;
+                    item.querySelector('.remove-preview-btn').addEventListener('click', () => {
+                        URL.revokeObjectURL(url);
+                        // Find current index since earlier removals shift it
+                        const currentIdx = newFiles.indexOf(file);
+                        if (currentIdx !== -1) newFiles.splice(currentIdx, 1);
+                        item.remove();
+                        updateUI();
+                    });
+                    grid.appendChild(item);
+                }
+
+                // Wire up remove buttons on all existing EJS-rendered thumbnails
+                grid.querySelectorAll('.remove-existing-image').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btn.closest('.existing-image-item').remove();
+                        updateUI();
+                    });
+                });
+
+                addBtn.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', () => {
+                    const remaining = MAX_IMAGES - totalCount();
+                    const incoming  = [...fileInput.files].slice(0, remaining);
+                    incoming.forEach(file => {
+                        newFiles.push(file);
+                        appendNewPreview(file, newFiles.length - 1);
+                    });
+                    fileInput.value = ''; // reset so same file can be re-picked if needed
+                    updateUI();
+                });
+
+                updateUI(); // set initial counter & button state on page load
+            }
+
+            // ── Size rows ─────────────────────────────────────────────────────────────
+            function sizeRowHTML(ci, si) {
+                return `
+                    <div class="size-row row g-2 align-items-center mb-2">
+                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[${ci}][sizes][${si}][size]"           placeholder="e.g., M"></div>
+                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][price]"          placeholder="0.00" step="0.01" min="0"></div>
+                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
+                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][stock]"          placeholder="0"    min="0"></div>
+                        <div style="width:36px;">
+                            <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                            </button>
+                        </div>
+                    </div>`;
+            }
+
+            // ── New variant block HTML ────────────────────────────────────────────────
+            function colorVariantHTML(ci) {
+                return `
+                    <div class="color-variant-block border rounded-4 bg-white mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                            <span class="fw-semibold">Variant ${ci + 1}</span>
+                            <button type="button" class="btn btn-link text-danger text-decoration-none p-0 remove-variant-btn d-flex align-items-center gap-1 small">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                Remove Variant
+                            </button>
+                        </div>
+                        <div class="p-3">
+                            <div class="row g-3 mb-3">
+                                <div class="col">
+                                    <label class="form-label small fw-semibold text-muted">Color Name</label>
+                                    <input type="text" class="form-control bg-light" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label small fw-semibold text-muted">
+                                        Variant Images <span class="image-count text-muted fw-normal">(0/8)</span>
+                                    </label>
+                                    <div class="image-picker-area">
+                                        <div class="image-preview-grid"></div>
+                                        <button type="button" class="btn btn-light border btn-sm add-images-btn d-flex align-items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                            Add Images
+                                        </button>
+                                        <input type="file" class="image-file-input d-none" name="variants[${ci}][newImages]" accept="image/*" multiple>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small fw-semibold text-muted">Sizes & Pricing</span>
+                                <button type="button" class="btn btn-link text-primary text-decoration-none p-0 small add-size-btn d-flex align-items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                    Add Size
+                                </button>
+                            </div>
+                            <div class="sizes-container">
+                                <div class="row g-2 mb-1 px-1">
+                                    <div class="col"><span class="small text-muted">Size</span></div>
+                                    <div class="col"><span class="small text-muted">Price (INR)</span></div>
+                                    <div class="col"><span class="small text-muted">Compare at (INR)</span></div>
+                                    <div class="col"><span class="small text-muted">Stock</span></div>
+                                    <div style="width:36px;"></div>
+                                </div>
+                                ${sizeRowHTML(ci, 0)}
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            // ── Reindex names after variant add/remove ────────────────────────────────
+            function reindex() {
+                document.querySelectorAll('.color-variant-block').forEach((block, ci) => {
+                    block.querySelector('.fw-semibold').textContent = `Variant ${ci + 1}`;
+                    block.querySelector('[name*="[color]"]').name   = `variants[${ci}][color]`;
+                    block.querySelector('.image-file-input').name   = `variants[${ci}][newImages]`;
+                    block.querySelectorAll('[name*="[existingImages]"]').forEach(inp => {
+                        inp.name = `variants[${ci}][existingImages][]`;
+                    });
+                    block.querySelectorAll('.size-row').forEach((row, si) => {
+                        row.querySelector('[name*="][size]"]').name          = `variants[${ci}][sizes][${si}][size]`;
+                        row.querySelector('[name*="[price]"]').name          = `variants[${ci}][sizes][${si}][price]`;
+                        row.querySelector('[name*="[compareAtPrice]"]').name = `variants[${ci}][sizes][${si}][compareAtPrice]`;
+                        row.querySelector('[name*="[stock]"]').name          = `variants[${ci}][sizes][${si}][stock]`;
+                    });
+                });
+                colorCount = document.querySelectorAll('.color-variant-block').length;
+            }
+
+            function attachSizeBtn(block) {
+                block.querySelector('.add-size-btn').addEventListener('click', () => {
+                    const ci = [...document.querySelectorAll('.color-variant-block')].indexOf(block);
+                    const sizesContainer = block.querySelector('.sizes-container');
+                    const si = sizesContainer.querySelectorAll('.size-row').length;
+                    sizesContainer.insertAdjacentHTML('beforeend', sizeRowHTML(ci, si));
+                    const newRow = sizesContainer.querySelectorAll('.size-row')[si];
+                    newRow.querySelector('.remove-size-btn').addEventListener('click', () => {
+                        newRow.remove();
+                        reindex();
+                    });
+                });
+            }
+
+            function attachRemoveSizeBtns(block) {
+                block.querySelectorAll('.remove-size-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btn.closest('.size-row').remove();
+                        reindex();
+                    });
+                });
+            }
+
+            function attachRemoveVariantBtn(block) {
+                block.querySelector('.remove-variant-btn').addEventListener('click', () => {
+                    block.remove();
+                    reindex();
+                });
+            }
+
+            document.getElementById('addVariantBtn').addEventListener('click', () => {
+                const ci = colorCount;
+                const container = document.getElementById('variantsContainer');
+                container.insertAdjacentHTML('beforeend', colorVariantHTML(ci));
+                const newBlock = container.querySelectorAll('.color-variant-block')[ci];
+                setupImagePicker(newBlock, ci);
+                attachSizeBtn(newBlock);
+                attachRemoveSizeBtns(newBlock);
+                attachRemoveVariantBtn(newBlock);
+                colorCount++;
+            });
+
+            // Init all EJS-rendered blocks on page load
+            document.querySelectorAll('.color-variant-block').forEach((block, ci) => {
+                setupImagePicker(block, ci);
+                attachSizeBtn(block);
+                attachRemoveSizeBtns(block);
+                attachRemoveVariantBtn(block);
+            });
+        </script>
     </body>
 </html>

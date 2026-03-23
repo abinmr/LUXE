@@ -7,6 +7,10 @@ a {
     backdrop-filter: blur(8px);
 }
 
+.socials:hover {
+    color: #000000 !important;
+}
+
 .search-bar {
     border: 2px solid #e3ddd8;
     transition: all 0.3s ease;

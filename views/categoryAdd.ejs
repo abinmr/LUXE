@@ -7,14 +7,16 @@
         <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <title>LUXE</title>
         <link rel="stylesheet" href="/styles/admin-nav.css" />
+        <link rel="stylesheet" href="/styles/adminCategory.css">
+        </style>
     </head>
     <body style="background-color: #f9fafb;">
 
         <%- include('partials/admin-header.ejs', { activePage: 'categories' }) %>
         <div class="my-4 mx-5">
             <div class="d-flex mb-4">
-                <a href="/admin/categories" class="btn btn-light border-0 me-3" style="align-self: center;" >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                <a href="/admin/categories" class="btn btn-light border-0 me-3" style="align-self: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
                 </a>
                 <div>
                     <h2>Add New Category</h2>
@@ -25,67 +27,111 @@
             <form action="/admin/categories/add" method="POST" enctype="multipart/form-data">
                 <div class="p-4 border rounded-4 bg-white">
                     <h5 class="mb-3">Category Details</h5>
+
                     <div class="error-container text-center text-danger">
-                        <p class="mb-0 fw-semibold"> <%= locals.categoryError %></p>
+                        <p class="mb-0 fw-semibold" style="font-size: 18px;"><%= locals.categoryError %></p>
                     </div>
+
                     <div class="mb-2">
-                        <label for="category-name" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" name="categoryName" id="categoryName" placeholder="category name" required>
-                        <div class="error-container text-danger">
-                            <p class="mb-0 fw-semibold"> <%= locals.nameError %> </p>
-                        </div>
+                        <label for="categoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" name="categoryName" id="categoryName" placeholder="Category name" required>
+                        <div class="text-danger mt-1"><p class="mb-0 fw-semibold"><%= locals.nameError %></p></div>
                     </div>
+
                     <div class="mb-2">
                         <label for="slug" class="form-label">Slug</label>
                         <input type="text" class="form-control" name="slug" id="slug" placeholder="slug">
-                        <div class="error-container text-danger">
-                            <p class="mb-0 fw-semibold"> <%= locals.slugError %> </p>
-                        </div>
+                        <div class="text-danger mt-1"><p class="mb-0 fw-semibold"><%= locals.slugError %></p></div>
                     </div>
+
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" name="description" id="description" placeholder="description" required>
+                        <input type="text" class="form-control" name="description" id="description" placeholder="Description" required>
                     </div>
+
                     <div class="mb-3">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" accept=".png, .jpg, .webp" class="form-control" name="image" id="image">
+                        <label class="form-label">Image</label>
+                        <div class="image-picker-area" id="imagePickerArea">
+                            <%# Preview tile injected here by JS %>
+                            <div id="previewContainer"></div>
+                            <button type="button" class="btn btn-light border btn-sm d-flex align-items-center gap-1" id="addImageBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                Choose Image
+                            </button>
+                            <%# One dedicated hidden input per selected file — most reliable across browsers %>
+                            <div id="hiddenInputContainer"></div>
+                            <%# Trigger-only file input, no name so it won't be submitted %>
+                            <input type="file" id="triggerInput" class="d-none" accept=".png,.jpg,.webp">
+                        </div>
+                        <div class="text-danger mt-1"><p class="mb-0 fw-semibold"><%= locals.imageError %></p></div>
                     </div>
-                    <div class="mb-3">
-                        <img id="preview" src="" alt="Image preview" class="img-fluid rounded-2 d-none" style="max-height: 200px;">
-                    </div>
+
                     <div class="mb-2 form-check">
-                        <label for="active" class="form-check-label">Set as Active</label>
+                        <label for="isActive" class="form-check-label">Set as Active</label>
                         <input type="checkbox" class="form-check-input" name="active" id="isActive">
                     </div>
                 </div>
-                    <div class="mt-4 d-flex justify-content-end gap-4">
-                        <a href="/admin/categories/" class="btn btn-light border rounded-3">Cancel</a>
-                        <button type="submit" class="btn btn-primary rounded-3">Create Category</button>
-                    </div>
+
+                <div class="mt-4 d-flex justify-content-end gap-4">
+                    <a href="/admin/categories/" class="btn btn-light border rounded-3">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-3">Create Category</button>
+                </div>
             </form>
         </div>
         <%- include('partials/admin-footer.ejs') %>
+
         <script>
-            const imageInput = document.getElementById('image');
-            const preview = document.getElementById('preview');
+            const addImageBtn       = document.getElementById('addImageBtn');
+            const triggerInput      = document.getElementById('triggerInput');
+            const previewContainer  = document.getElementById('previewContainer');
+            const hiddenInputContainer = document.getElementById('hiddenInputContainer');
 
-            imageInput.addEventListener('change', function () {
-                const file = this.files[0];
+            let currentHiddenInput = null; // only one at a time
 
-                if (file) {
-                    const reader = new FileReader();
+            addImageBtn.addEventListener('click', () => triggerInput.click());
 
-                    reader.addEventListener('load', function () {
-                        preview.src = this.result;
-                        preview.classList.remove('d-none'); // show image
-                    });
+            triggerInput.addEventListener('change', () => {
+                const file = triggerInput.files[0];
+                if (!file) return;
+                triggerInput.value = '';
 
-                    reader.readAsDataURL(file);
-                } else {
-                    preview.src = "";
-                    preview.classList.add('d-none'); // hide if no file
-                }
+                // Clear any previous selection
+                clearSelection();
+
+                // Create dedicated hidden file input for this file
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                currentHiddenInput = document.createElement('input');
+                currentHiddenInput.type = 'file';
+                currentHiddenInput.name = 'image';
+                currentHiddenInput.style.display = 'none';
+                currentHiddenInput.files = dt.files;
+                hiddenInputContainer.appendChild(currentHiddenInput);
+
+                // Show preview
+                const url  = URL.createObjectURL(file);
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                item.innerHTML = `
+                    <img src="${url}" alt="preview">
+                    <button type="button" class="remove-preview-btn" title="Remove">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>`;
+                item.querySelector('.remove-preview-btn').addEventListener('click', () => {
+                    URL.revokeObjectURL(url);
+                    clearSelection();
+                });
+                previewContainer.appendChild(item);
+
+                addImageBtn.disabled = true;
             });
+
+            function clearSelection() {
+                previewContainer.innerHTML = '';
+                hiddenInputContainer.innerHTML = '';
+                currentHiddenInput = null;
+                addImageBtn.disabled = false;
+            }
         </script>
     </body>
 </html>

@@ -20,7 +20,7 @@
         <script defer src="/scripts/profile.js"></script>
     </head>
     <body style="background-color: #fefbf8;">
-        <%- include('partials/navbar.ejs') %>
+        <%- include('partials/navbar.ejs'), { categories } %>
         <hr class="my-0" />
 
         <div class="container my-5">
@@ -54,7 +54,19 @@
                         <div class="card-body p-4">
                             <% if (section === 'profile') { %>
                                 <h4 class="fw-bold mb-4">Profile Details</h4>
-                                <form action="/profile/update-profile" method="POST" id="profileForm">
+                                <form action="/profile/update-profile" method="POST" enctype="multipart/form-data" id="profileForm">
+                                    <div class="mb-2 d-flex flex-column justify-content-center align-items-center">
+                                        <div style="position: relative; width: 80px; height: 80px; cursor: pointer;" id="avatarWrapper">
+                                            <img id="avatarImg"
+                                             src="<%= user.profile || '/images/profile.jpg' %>" 
+                                             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                                             <div class="d-flex justify-content-center align-items-center position-absolute bottom-0 end-0">
+                                                <i class="bi bi-pencil"></i>
+                                             </div>
+                                        </div>
+                                        <small class="text-muted mt-1">Profile photo</small>
+                                        <input type="file" class="d-none" accept="image/*" name="profile" id="profileImageInput" disabled>
+                                    </div>
                                     <div class="mb-1">
                                         <label for="fullName" class="form-label">Full Name</label>
                                         <input type="text" class="form-control text-muted" name="fullname" id="fullname" value="<%= locals.user.fullname %>" readonly>
@@ -138,7 +150,7 @@
                                                         </div>
                                                         <div data-bs-toggle="modal" data-bs-target="#deleteModal-<%= address._id %>">
                                                             <button class="btn btn-light text-danger border">
-                                                                <i class="bi bi-trash"></i>
+                                                                <i class="bi bi-trash3"></i>
                                                             </button>
                                                         </div>
                                                     </div>
@@ -311,5 +323,17 @@
 
             <% } %>
 
+            <script>
+                const avatarWrapper = document.getElementById("avatarWrapper");
+                const profileImageInput = document.getElementById("profileImageInput")
+                const avatarImg = document.getElementById("avatarImg");
+
+                avatarImg.addEventListener("click", () => profileImageInput.click())
+
+                profileImageInput.addEventListener("change", () => {
+                    const file = profileImageInput.files[0];
+                    if (file) avatarImg.src = URL.createObjectURL(file);
+                })
+            </script>
     </body>
 </html>

@@ -59,7 +59,10 @@
 
                         <tr>
                             <th scope="row"> <%= (currentPage - 1) * limit + index + 1 %></th>
-                            <td> <%= category.name %></td>
+                            <td class="d-flex gap-4">
+                                <%= category.name %>
+                                <img src="<%= category.image %>" alt="category image" class="rounded-2" style="height: 45px;">
+                            </td>
                             <td> <%= category.slug %> </td>
                             <% if (category.isActive) { %>
                                 <td><button class="btn btn-sm btn-dark rounded-2">Active</button></td>

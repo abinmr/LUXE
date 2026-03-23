@@ -28,7 +28,7 @@ export const setCookies = async (userId, res) => {
     });
 };
 
-const sendOtpVerification = async (userId, email) => {
+export const sendOtpVerification = async (userId, email) => {
     try {
         const otp = otpGenerator.generate(4, {
             upperCaseAlphabets: false,
@@ -42,14 +42,13 @@ const sendOtpVerification = async (userId, email) => {
             subject: "Verify your account",
             html: `
                 <div style="font-family: Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto;">
-                    <p>Hello,</p>
-                    <p>Thank you for choosing LUXE. Please use the following code to verify your account:</p>
+                    <p>Your verification code is:</p>
                     
                     <h2 style="color: #000; letter-spacing: 3px; font-size: 32px; margin: 20px 0;">
                         ${otp}
                     </h2>
                     
-                    <p>For your security, this code will expire in 5 minutes. If you did not request this, please safely ignore this email.</p>
+                    <p>For your security, this code will expire in 5 minutes.</p>
                 </div>
                 `,
         };

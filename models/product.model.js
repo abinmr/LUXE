@@ -23,6 +23,21 @@ const productModel = new mongoose.Schema(
             required: true,
         },
 
+        variants: [
+            {
+                color: { type: String },
+                images: [{ type: String }],
+                sizes: [
+                    {
+                        size: { type: String, required: true },
+                        price: { type: Number, required: true },
+                        compareAtPrice: { type: Number },
+                        stock: { type: Number, required: true },
+                    },
+                ],
+            },
+        ],
+
         isDeleted: {
             type: Boolean,
             default: false,

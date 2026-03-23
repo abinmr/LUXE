@@ -22,10 +22,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const pincodeInput = document.getElementById("addPincode");
     const pincodeError = document.getElementById("pincodeError");
 
+    const avatarWrapper = document.getElementById("avatarWrapper");
+    const profileImageInput = document.getElementById("profileImageInput");
+    const avatarImg = document.getElementById("avatarImg");
+
+    avatarWrapper.addEventListener("click", () => profileImageInput.click());
+
+    profileImageInput.addEventListener("change", () => {
+        const file = profileImageInput.files[0];
+        if (file) avatarImg.src = URL.createObjectURL(file);
+    });
+
     if (editBtn && updateDiv && cancelBtn) {
         editBtn.addEventListener("click", () => {
             editBtn.classList.add("d-none");
-
+            profileImageInput.removeAttribute("disabled");
             updateDiv.classList.remove("d-none");
             updateDiv.classList.add("d-flex", "gap-3");
 
@@ -40,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateDiv.classList.add("d-none");
 
             editBtn.classList.remove("d-none");
+            profileImageInput.setAttribute("disabled", "disabled");
 
             profileInputs.forEach((input) => {
                 input.setAttribute("readonly", true);
