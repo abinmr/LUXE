@@ -42,7 +42,10 @@ router.get("/home", async (req, res) => {
         let userWishlist = [];
         const categories = await Category.find({ $and: [{ isActive: true, isDeleted: false }] });
         const products = await Product.find({ isDeleted: false, isListed: true });
-        const wishlist = await Wishlist.findOne({ userId: req.user._id });
+        let wishlist = null;
+        if (req.user) {
+            wishlist = await Wishlist.findOne({ userId: req.user._id });
+        }
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }

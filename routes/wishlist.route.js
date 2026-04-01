@@ -26,6 +26,7 @@ router.get("/add/:id", protectedRoute, async (req, res) => {
             wishlist.products.push({ productId: req.params.id });
             await wishlist.save();
         }
+        req.flash("toast", JSON.stringify({ type: "success", message: "Added to wishlist" }));
         return res.status(200).json({ success: true, message: "Add to wishlist" });
     } catch (err) {
         console.error(err);

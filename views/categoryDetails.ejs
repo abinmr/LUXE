@@ -23,9 +23,10 @@
         />
         <link rel="stylesheet" href="/styles/navbar.css" />
         <link rel="stylesheet" href="/styles/categoryDetails.css">
+        <script defer src="/scripts/home.js"></script>
     </head>
     <body>
-<%- include('partials/navbar.ejs'), { categories } %>
+<%- include('partials/navbar.ejs', { categories }) %>
     <% const category = categories.find((cat) => String(cat._id) === String(id)) %>
     
     <div class="container-xl mt-5">
@@ -95,9 +96,16 @@
                                         <% } %>
 
                                         <img src="<%= product.variants[0].images[0] %>" class="card-img-top" alt="<%= product.name %>">
-                                        <a href="/wishlist/add/<%= product._id %>" class="btn btn-link text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none" aria-label="Add to wishlist">
-                                            <i class="bi bi-heart fs-5"></i>
-                                        </a>
+                                        <% const isInWishlist = locals.userWishlist.includes(product._id.toString()) %>
+                                        <% if (isInWishlist) {%>
+                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
+                                                <i class="bi bi-heart-fill text-danger fs-5"></i>
+                                            </button>
+                                        <% } else { %>
+                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
+                                                <i class="bi bi-heart fs-5"></i>
+                                            </button>
+                                        <% } %>
                                     </div>
 
                                     <div class="card-body">

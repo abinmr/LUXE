@@ -24,7 +24,7 @@
         <link rel="stylesheet" href="/styles/navbar.css" />
     </head>
     <body>
-        <%- include('partials/navbar.ejs'), { categories } %>
+        <%- include('partials/navbar.ejs', { categories }) %>
         <section class="position-relative overflow-hidden" style="height: 600px">
             <img src="/images/hero-banner.png" alt="hero section image" class="w-100 object-fit-cover" />
             <div class="position-absolute d-flex align-items-center text-white" style="inset: 0px; background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)">
@@ -97,14 +97,14 @@
 
                                 <% const isInWishlist = locals.userWishlist.includes(product._id.toString()) %>
                                 <% if (isInWishlist) {%>
-                                <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
-                                    <i class="bi bi-heart-fill text-danger fs-5"></i>
-                                </button>
+                                    <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
+                                        <i class="bi bi-heart-fill text-danger fs-5"></i>
+                                    </button>
                                 <% } else { %>
                                     <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
                                         <i class="bi bi-heart fs-5"></i>
                                     </button>
-                                    <% } %>
+                                <% } %>
                             </div>
 
                             <div class="card-body d-flex flex-column p-3">

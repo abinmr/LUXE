@@ -14,7 +14,7 @@ wishlistBtns.forEach((button) => {
 
         try {
             if (isAdded) {
-                const result = await fetch(`/wishlist/remove/${itemId}`);
+                const result = await fetch(`/wishlist/delete/${itemId}`, { method: "DELETE" });
                 const data = await result.json();
                 if (data.success) {
                     icon.classList.remove("bi-heart-fill", "text-danger");

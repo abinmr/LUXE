@@ -5,8 +5,6 @@ import { protectedRoute } from "../middlewares/user.auth.middleware.js";
 
 const router = express.Router();
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
 async function getCartItems(userId) {
     return Cart.aggregate([
         { $match: { userId } },
@@ -90,9 +88,6 @@ function calcPricing(cartItems) {
     return { subtotal, gst, shipping, total };
 }
 
-// ─── Routes ─────────────────────────────────────────────────────────────────
-
-// AJAX endpoint — returns pricing for selected items
 router.get("/details", protectedRoute, async (req, res) => {
     try {
         const cartItems = await getCartItems(req.user._id);
@@ -104,7 +99,6 @@ router.get("/details", protectedRoute, async (req, res) => {
     }
 });
 
-// Page render
 router.get("/", protectedRoute, async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
@@ -117,7 +111,6 @@ router.get("/", protectedRoute, async (req, res) => {
     }
 });
 
-// Add item to cart
 router.post("/add", protectedRoute, async (req, res) => {
     try {
         const { productId, variantId, sizeId, quantity } = req.body;
@@ -148,7 +141,6 @@ router.post("/add", protectedRoute, async (req, res) => {
     }
 });
 
-// Increment quantity
 router.get("/quantityAdd/:id", protectedRoute, async (req, res) => {
     try {
         await Cart.updateOne({ userId: req.user._id, "items._id": req.params.id }, { $inc: { "items.$.quantity": 1 } });
@@ -159,7 +151,6 @@ router.get("/quantityAdd/:id", protectedRoute, async (req, res) => {
     }
 });
 
-// Decrement quantity
 router.get("/quantityMinus/:id", protectedRoute, async (req, res) => {
     try {
         await Cart.updateOne({ userId: req.user._id, "items._id": req.params.id }, { $inc: { "items.$.quantity": -1 } });
@@ -170,7 +161,6 @@ router.get("/quantityMinus/:id", protectedRoute, async (req, res) => {
     }
 });
 
-// Toggle item selection
 router.patch("/toggle-selection/:id", protectedRoute, async (req, res) => {
     try {
         const { isSelected } = req.body;
@@ -182,7 +172,6 @@ router.patch("/toggle-selection/:id", protectedRoute, async (req, res) => {
     }
 });
 
-// Delete item — supports both redirect (form) and AJAX (fetch)
 router.delete("/delete/:id", protectedRoute, async (req, res) => {
     try {
         await Cart.updateOne({ userId: req.user._id }, { $pull: { items: { _id: req.params.id } } });
