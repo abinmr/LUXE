@@ -98,11 +98,11 @@
                                         <img src="<%= product.variants[0].images[0] %>" class="card-img-top" alt="<%= product.name %>">
                                         <% const isInWishlist = locals.userWishlist.includes(product._id.toString()) %>
                                         <% if (isInWishlist) {%>
-                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
+                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-5 text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
                                                 <i class="bi bi-heart-fill text-danger fs-5"></i>
                                             </button>
                                         <% } else { %>
-                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
+                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-5 text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
                                                 <i class="bi bi-heart fs-5"></i>
                                             </button>
                                         <% } %>

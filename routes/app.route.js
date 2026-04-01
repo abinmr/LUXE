@@ -61,7 +61,15 @@ router.get("/product/:id", async (req, res) => {
     const product = await Product.findOne({ _id: id });
     const categories = await Category.find({ isActive: true, isDeleted: false });
     const otherProducts = await Product.find({ _id: { $ne: id } }).limit(4);
-    return res.render("productDetails", { categories, product, otherProducts });
+    let userWishlist = [];
+    let wishlist = null;
+    if (req.user) {
+        wishlist = await Wishlist.findOne({ userId: req.user._id });
+    }
+    if (wishlist) {
+        userWishlist = wishlist.products.map((item) => item.productId.toString());
+    }
+    return res.render("productDetails", { categories, product, otherProducts, userWishlist });
 });
 
 router.get("/search", async (req, res) => {
