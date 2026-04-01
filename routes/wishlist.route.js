@@ -9,7 +9,7 @@ router.get("/", protectedRoute, async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate("products.productId");
-        console.log(JSON.stringify(wishlist, null, 2));
+        // console.log(JSON.stringify(wishlist, null, 2));
         res.render("wishlist", { categories, wishlist });
     } catch (err) {
         console.error(err);
@@ -23,8 +23,14 @@ router.get("/add/:id", protectedRoute, async (req, res) => {
         if (!wishlist) {
             await Wishlist.create({ userId: req.user._id, products: [{ productId: req.params.id }] });
         } else {
-            wishlist.products.push({ productId: req.params.id });
-            await wishlist.save();
+            const isAvailable = wishlist.products.some((p) => p.productId.toString() === req.params.id);
+            if (!isAvailable) {
+                wishlist.products.push({ productId: req.params.id });
+                await wishlist.save();
+            } else {
+                console.log("already in wishlist");
+                return res.status(409).json({ success: false, message: "product already in wishlist" });
+            }
         }
         req.flash("toast", JSON.stringify({ type: "success", message: "Added to wishlist" }));
         return res.status(200).json({ success: true, message: "Add to wishlist" });

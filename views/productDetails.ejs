@@ -247,12 +247,12 @@
         renderImages();
         renderSizes();
         renderQuantity();
-document.querySelector('form[action="/cart/add"]').addEventListener('submit', function () {
-    console.log("Submitting:");
-    console.log("Product ID:", document.getElementById('inputProductId')?.value);
-    console.log("Variant ID:", document.getElementById('inputVariantId').value);
-    console.log("Size ID:", document.getElementById('inputSizeId').value);
-});
+        document.querySelector('form[action="/cart/add"]').addEventListener('submit', function () {
+            console.log("Submitting:");
+            console.log("Product ID:", document.getElementById('inputProductId')?.value);
+            console.log("Variant ID:", document.getElementById('inputVariantId').value);
+            console.log("Size ID:", document.getElementById('inputSizeId').value);
+        });
     </script>
 </body>
 </html>
