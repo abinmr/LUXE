@@ -89,7 +89,11 @@ router.post("/add", requireAdminAuth, upload.single("image"), async (req, res) =
 router.get("/edit/:id", requireAdminAuth, async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
-        return res.render("categoryEdit", { category });
+        const categoryError = req.flash("categoryError")[0];
+        const nameError = req.flash("nameError")[0];
+        const slugError = req.flash("slugError")[0];
+        const imageError = req.flash("imageError")[0];
+        return res.render("categoryEdit", { category, categoryError, nameError, slugError, imageError });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/categories");
@@ -103,6 +107,30 @@ router.post("/edit/:id", requireAdminAuth, upload.single("image"), async (req, r
         }
         const id = req.params.id;
         const { categoryName, slug, description, active } = req.body;
+        if (categoryName === "" || description === "") {
+            req.flash("categoryError", "All fields are required");
+            return res.redirect("/admin/categories/add");
+        }
+
+        const nameExist = await Category.findOne({
+            name: { $regex: `^${categoryName}$`, $options: "i" },
+            _id: { $ne: id },
+        });
+        if (nameExist) {
+            req.flash("nameError", "category name already exist");
+            return res.redirect(`/admin/categories/edit/${id}`);
+        }
+
+        const slugExist = await Category.findOne({ slug: slug, _id: { $ne: id } });
+        if (slugExist) {
+            req.flash("slugError", "slug already exist");
+            return res.redirect(`/admin/categories/edit/${id}`);
+        }
+
+        if (!req.file) {
+            req.flash("imageError", "Image is required");
+            return res.redirect(`/admin/categories/edit/${id}`);
+        }
         const updatedData = {
             name: categoryName,
             description: description,

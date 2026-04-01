@@ -48,7 +48,7 @@ router.post("/login", async (req, res) => {
         return res.status(400).render("admin-login", { error: "Incorrect email or password" });
     }
 
-    const token = jwt.sign({ adminId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ adminId: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
     res.cookie("admin_token", token, { httpOnly: true });
 
     return res.redirect("/admin/dashboard");

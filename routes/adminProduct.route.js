@@ -18,14 +18,12 @@ router.get("/", requireAdminAuth, async (req, res) => {
     if (search) {
         JSON.stringify((dbQuery.$or = [{ name: { $regex: search, $options: "i" } }]));
     }
-    console.log("dbQuery:", dbQuery);
     const products = await Product.find(dbQuery).populate("category").lean().skip(skip).limit(limit);
     for (const product of products) {
         const allSizes = (product.variants || []).flatMap((v) => v.sizes);
         product.totalStock = allSizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
     }
     const totalPage = Math.ceil(products.length / limit);
-    console.log("products: ", JSON.stringify(products, null, 2));
     return res.render("products", {
         productError: productError || null,
         products,
@@ -36,7 +34,7 @@ router.get("/", requireAdminAuth, async (req, res) => {
 });
 
 router.get("/add", requireAdminAuth, async (req, res) => {
-    const categories = await Category.find({ isDeleted: false });
+    const categories = await Category.find({ isDeleted: false, isActive: true });
     return res.render("productAdd", { categories });
 });
 
@@ -46,12 +44,15 @@ router.post("/add", upload.any(), async (req, res) => {
             if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
         }
         const { productName, productDescription, category, listing } = req.body;
+        if (!productName || !productDescription || !category || !listing) {
+            req.flash("productError", "Please provide all the details");
+            return res.redirect("/product/add");
+        }
         const isListed = listing === "list";
         const rawVariants = req.body.variants || {};
 
         const variantImages = {};
         for (const file of req.files) {
-            console.log("file", file);
             const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
             if (match) {
                 const vi = parseInt(match[1]);

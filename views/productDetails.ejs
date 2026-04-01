@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE</title>
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+            />
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+            ></script>
+    <link rel="stylesheet" href="/styles/navbar.css" />
+    <link rel="stylesheet" href="/styles/product.css">
+</head>
+<body>
+    <%- include('partials/navbar.ejs'), { categories } %>
+
+    <div class="container mt-4">
+        <div class="d-flex gap-5 pb-4 pt-2">
+
+            <div>
+                <div class="overflow-hidden rounded-3" style="height: 800px;">
+                    <img id="mainImage" src="<%= product.variants[0].images[0] %>" alt="Product Image" class="img-animation object-fit-cover h-100">
+                </div>
+                <div id="thumbnailContainer"></div>
+            </div>
+
+            <div class="flex-grow-1">
+                <h3><%= product.name %></h3>
+                <p class="fw-bold fs-5">
+                    ₹<span id="displayPrice"><%= product.variants[0].sizes[0].price %></span>
+                    <span id="displayCompareAtPrice" class="text-muted text-decoration-line-through fs-6">
+                        <% if (product.variants[0].sizes[0].compareAtPrice) { %>
+                            ₹<%= product.variants[0].sizes[0].compareAtPrice %>
+                        <% } %>
+                    </span>
+                </p>
+                <p class="text-muted"><%= product.description %></p>
+
+                <form action="/cart/add" method="POST">
+                    <input type="hidden" name="productId" id="inputProductId" value="<%= product._id %>">
+                    <input type="hidden" name="variantId" id="inputVariantId" value="<%= product.variants[0]._id %>">
+                    <input type="hidden" name="sizeId" id="inputSizeId" value="<%= product.variants[0].sizes[0]._id %>">
+
+                    <div class="mt-4">
+                        <label class="fw-bold">Size</label>
+                        <div class="d-flex gap-3 mt-2" id="sizeContainer"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="fw-bold">Color</label>
+                        <div class="d-flex align-items-center gap-3 mt-2">
+                            <% product.variants.forEach((variant, index) => { %>
+                                <button type="button"
+                                    class="btn btn-light btn-color border-2
+                                        <%= index === 0 ? 'border-danger' : 'border-light-subtle' %> px-4"
+                                    data-variant-id="<%= variant._id %>"
+                                    onclick="selectColor(this, '<%= variant._id %>')">
+                                    <%= variant.color %>
+                                </button>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="quantity" class="fw-bold">Quantity</label>
+                        <div class="d-flex align-items-center gap-3 mt-2">
+                            <select class="form-select shadow-none border-secondary-subtle w-auto" name="quantity" id="quantitySelect"></select>
+                            <span id="stockBadge" class="text-muted small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="mb-3 d-flex gap-3">
+                            <button type="submit" class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                                Add to Cart
+                            </button>
+                            <a href="/wishlist/add/<%= product._id %>" class="btn btn-light border-light-subtle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                            </a>
+                        </div>
+                        <button type="submit" formaction="/checkout/buy/" class="btn btn-light border-light-subtle w-100 d-flex justify-content-center align-items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                            Buy Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <h4 class="fw-bold mb-4">You might also like</h4>
+            <div class="row gap-0">
+                <% otherProducts.forEach((product) => { %>
+                    <div class="col-3">
+                        <div class="border rounded">
+                            <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                <img src="<%= product.variants[0].images[0] %>" class="rounded" width="304" height="410">
+                                <div class="px-2">
+                                    <p class="mt-3 fw-bold"><%= product.name %></p>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold">₹<%= product.variants[0].sizes[0].price %></span>
+                                        <span class="fw-bold text-muted text-decoration-line-through">₹<%= product.variants[0].sizes[0].compareAtPrice %></span>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="px-3">
+                                <form action="/cart/add" method="POST">
+                                    <input type="hidden" name="productId" value="<%= product._id %>">
+                                    <input type="hidden" name="variantId" id="inputVariantId" value="<%= product.variants[0]._id %>">
+                                    <input type="hidden" name="sizeId" id="inputSizeId" value="<%= product.variants[0].sizes[0]._id %>">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-danger my-4 w-100 d-flex justify-content-center align-items-center gap-2">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart h-4 w-4" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                                        </span>
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <%- include("partials/footer.ejs") %>
+
+    <script>
+        const productData = <%- JSON.stringify(product) %>;
+        let selectedVariant = productData.variants[0];
+        let selectedSize = selectedVariant.sizes[0];
+
+        function selectColor(buttonElement, variantId) {
+            selectedVariant = productData.variants.find(v => v._id === variantId);
+            selectedSize = selectedVariant.sizes[0];   // reset to first size
+
+            document.getElementById('inputVariantId').value = selectedVariant._id;
+            document.getElementById("inputSizeId").value = selectedSize._id;
+
+            document.querySelectorAll('.btn-color').forEach(btn => {
+                btn.classList.remove('border-danger');
+                btn.classList.add('border-light-subtle');
+            });
+            buttonElement.classList.remove('border-light-subtle');
+            buttonElement.classList.add('border-danger');
+
+            renderImages();  
+            renderSizes();    
+            renderQuantity();
+        }
+
+        function selectSize(sizeId) {
+            selectedSize = selectedVariant.sizes.find(s => s._id === sizeId);
+
+            document.getElementById('inputSizeId').value = selectedSize._id;
+            document.getElementById('displayPrice').innerText = selectedSize.price;
+            document.getElementById('displayCompareAtPrice').innerText =
+                selectedSize.compareAtPrice ? '₹' + selectedSize.compareAtPrice : '';
+
+            renderSizes();
+            renderQuantity();
+        }
+
+        function renderSizes() {
+            const container = document.getElementById('sizeContainer');
+            container.innerHTML = '';
+
+            selectedVariant.sizes.forEach(size => {
+                const isActive = size._id === selectedSize._id;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `btn ${isActive ? 'btn-danger' : 'btn-light'} border-light-subtle px-4`;
+                btn.textContent = size.size;
+                btn.onclick = () => selectSize(size._id);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('displayPrice').innerText = selectedSize.price;
+            document.getElementById('displayCompareAtPrice').innerText =
+                selectedSize.compareAtPrice ? '₹' + selectedSize.compareAtPrice : '';
+            document.getElementById('inputSizeId').value = selectedSize._id;
+        }
+
+        function renderQuantity() {
+            const stock = selectedSize.stock;
+            const maxStock = Math.min(10, stock);
+            const select = document.getElementById("quantitySelect");
+            const badge = document.getElementById("stockBadge");
+
+            select.innerHTML = '';
+            if (stock === 0) {
+                select.innerHTML = `<option value='0' disabled>Out of Stock</option>`
+                badge.innerHTML = "Out of Stock";
+                badge.className = "text-danger small fw-bold"
+                return;
+            }
+
+            for (let i = 1; i <= maxStock; i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = i;
+                select.appendChild(opt);
+            }
+
+            if (stock <= 10) {
+                badge.textContent = `Only ${stock} left!`;
+                badge.className = "text-warning small fw-bold";
+            } else {
+                badge.textContent = "In stock";
+                badge.className = "text-success small fw-bold";
+            }
+        }
+
+        function renderImages() {
+            const images = selectedVariant.images;
+            const mainImg = document.getElementById('mainImage');
+            const thumbContainer = document.getElementById('thumbnailContainer');
+
+            mainImg.src = images[0] || '';
+            thumbContainer.innerHTML = '';
+
+            images.forEach((imgSrc, i) => {
+                const thumb = document.createElement('img');
+                thumb.src = imgSrc;
+                thumb.className = 'thumbnail-img' + (i === 0 ? ' active' : '');
+                thumb.alt = 'Product thumbnail';
+                thumb.onclick = () => selectThumbnail(thumb, imgSrc);
+                thumbContainer.appendChild(thumb);
+            });
+        }
+
+        function selectThumbnail(thumbEl, imgSrc) {
+            document.getElementById('mainImage').src = imgSrc;
+            document.querySelectorAll('.thumbnail-img').forEach(t => t.classList.remove('active'));
+            thumbEl.classList.add('active');
+        }
+
+        renderImages();
+        renderSizes();
+        renderQuantity();
+document.querySelector('form[action="/cart/add"]').addEventListener('submit', function () {
+    console.log("Submitting:");
+    console.log("Product ID:", document.getElementById('inputProductId')?.value);
+    console.log("Variant ID:", document.getElementById('inputVariantId').value);
+    console.log("Size ID:", document.getElementById('inputSizeId').value);
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/styles/navbar.css" />
+</head>
+
+<body>
+    <%- include('partials/navbar.ejs', { categories }) %>
+
+        <div class="container mt-4">
+            <div class="d-flex gap-5">
+                <div>
+                    <h2 class="fw-bolder">All</h2>
+                    <p class="text-muted"> <%= products.length %> products</p>
+                    <form action="/categories">
+                        <label for="range" class="form-label">Price Range</label>
+                        <input type="range" class="form-range" min="0" max="1000" step="10" name="priceRange" id="priceRange">
+                    </form>
+                    <div class="mt-2">
+                        <label for="size">Size</label>
+                        <div class="d-flex flex-column">
+                            <div>
+                                <input type="checkbox" class="form-check-input" name="xs" id="xs">
+                                <label for="xs" class="form-label">XS</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-check-input" name="s" id="s">
+                                <label for="xs" class="form-label">S</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-check-input" name="m">
+                                <label for="m" class="form-label">M</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-check-input" name="m">
+                                <label for="m" class="form-label">L</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-check-input" name="m">
+                                <label for="xl">XL</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row gap-2">
+                    <% products.forEach((product) => { %>
+                        <div class="col-3" style="width: 310px;">
+                            <a href="/product/<%= product._id %>" class="text-decoration-none">
+                                <div class="card">
+                                    <img src="<%= product.variants[0].images[0] %>" class="rounded card-img-top" height="400" width="310">
+                                    <div class="px-2 card-body">
+                                        <p class="card-title fw-bold"><%= product.name %></p>
+                                        <div class="d-flex align-items-center gap-2 card-text">
+                                            <span class="fw-bold"><%= product.variants[0].sizes[0].price %></span>
+                                            <span class="fw-bold text-muted text-decoration-line-through"><%= product.variants[0].sizes[0].compareAtPrice %></span>
+                                        </div>
+                                        <form action="/cart/add/" method="POST">
+                                            <input type="hidden" name="productId" value="<%= product._id %>">
+                                            <input type="hidden" name="variantId" id="inputVariantId" value="<%= product.variants[0]._id %>">
+                                            <input type="hidden" name="sizeId" id="inputSizeId" value="<%= product.variants[0].sizes[0]._id %>">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button class="mt-2 btn btn-danger w-100">Add to Cart</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+
+    <%- include('partials/footer.ejs') %>
+</body>
+</html>
+

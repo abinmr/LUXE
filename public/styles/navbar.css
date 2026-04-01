@@ -46,6 +46,14 @@ a {
     border-radius: 8px;
 }
 
+.img-animation {
+    transition: all 0.3s ease-in-out;
+}
+
+.img-animation:hover {
+    transform: scale(1.1);
+}
+
 input[type="number"] {
     -moz-appearance: textfield;
 }

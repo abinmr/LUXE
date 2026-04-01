@@ -5,9 +5,35 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.js"></script>
         <title>LUXE</title>
         <link rel="stylesheet" href="/styles/admin-nav.css" />
         <style>
+            /* ── Crop modal ── */
+            #cropModal .modal-dialog { max-width: 600px; }
+            .img-container {
+                max-height: 60vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+            #cropImg {
+                display: block;
+                max-width: 100%;
+                max-height: 100%;
+            }
+            
+            /* ── Result modal ── */
+            #resultModal .modal-dialog { max-width: 480px; }
+            #resultModal #resultImg   {
+                display: block;
+                max-width: 100%;
+                max-height: 420px;
+                margin: 0 auto;
+                border-radius: 6px;
+            }
             .image-picker-area {
                 border: 2px dashed #dee2e6;
                 border-radius: 8px;
@@ -201,9 +227,149 @@
         </div>
         <%- include('partials/admin-footer.ejs') %>
 
+        <!-- ── Modal 1: Crop ──────────────────────────────────────────── -->
+        <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Crop Image</h6>
+                    </div>
+                    <div class="modal-body">
+                        <div class="img-container">
+                            <img id="cropImg" src="" alt="">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" id="cropCancelBtn">Cancel</button>
+                        <button type="button" class="btn btn-primary btn-sm"   id="cropConfirmBtn">Crop →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Modal 2: Result preview ───────────────────────────────── -->
+        <div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Cropped Result</h6>
+                    </div>
+                    <div class="modal-body text-center p-3">
+                        <img id="resultImg" src="" alt="Cropped">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" id="resultRetryBtn">← Re-crop</button>
+                        <button type="button" class="btn btn-primary btn-sm"   id="resultUseBtn">Use Image</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             const MAX_IMAGES = 8;
             let colorCount = document.querySelectorAll('.color-variant-block').length;
+
+            /* ── Shared cropper state ──────────────────────────────────── */
+            let cropperInstance = null;
+            let currentResolve  = null;   // resolves the promise for the active image
+            let currentFile     = null;   // the raw File being cropped
+            let currentObjURL   = null;   // object URL for the raw file
+            let croppedDataURL  = null;   // data-URL produced after cropping
+
+            const cropModalEl   = document.getElementById('cropModal');
+            const resultModalEl = document.getElementById('resultModal');
+            const cropModal     = new bootstrap.Modal(cropModalEl);
+            const resultModal   = new bootstrap.Modal(resultModalEl);
+            const cropImg       = document.getElementById('cropImg');
+            const resultImg     = document.getElementById('resultImg');
+
+            function destroyCropper() {
+                if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+            }
+
+            cropModalEl.addEventListener('shown.bs.modal', () => {
+                destroyCropper();
+                cropperInstance = new Cropper(cropImg, {
+                    viewMode: 1,
+                    dragMode: 'move',
+                    aspectRatio: NaN,
+                    autoCropArea: 0.85,
+                    movable: true,
+                    zoomable: true,
+                    rotatable: false,
+                    scalable: false,
+                    background: false,
+                    guides: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                });
+            });
+
+            cropModalEl.addEventListener('hidden.bs.modal', () => {
+                destroyCropper();
+            });
+
+            document.getElementById('cropConfirmBtn').addEventListener('click', () => {
+                if (!cropperInstance) return;
+                cropperInstance.getCroppedCanvas({
+                    maxWidth:  2048,
+                    maxHeight: 2048,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                }).toBlob((blob) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        croppedDataURL = e.target.result;
+                        resultImg.src  = croppedDataURL;
+                        cropModal.hide();
+                        resultModal.show();
+                    };
+                    reader.readAsDataURL(blob);
+                }, currentFile?.type || 'image/jpeg', 0.92);
+            });
+
+            document.getElementById('resultRetryBtn').addEventListener('click', () => {
+                resultModal.hide();
+                resultModalEl.addEventListener('hidden.bs.modal', () => {
+                    cropImg.src = currentObjURL;
+                    cropModal.show();
+                }, { once: true });
+            });
+
+            document.getElementById('cropCancelBtn').addEventListener('click', () => {
+                const resolve = currentResolve;
+                currentResolve = null;
+                cropModal.hide();
+                if (currentObjURL) { URL.revokeObjectURL(currentObjURL); currentObjURL = null; }
+                if (resolve) resolve(null);
+            });
+
+            document.getElementById('resultUseBtn').addEventListener('click', () => {
+                const resolve = currentResolve;
+                currentResolve = null;
+                resultModal.hide();
+                if (currentObjURL) { URL.revokeObjectURL(currentObjURL); currentObjURL = null; }
+
+                fetch(croppedDataURL)
+                    .then(r => r.blob())
+                    .then(blob => {
+                        const file = new File([blob], currentFile?.name ?? 'cropped.jpg', {
+                            type: currentFile?.type || 'image/jpeg',
+                        });
+                        if (resolve) resolve(file);
+                    });
+            });
+
+            function cropSingleFile(file) {
+                return new Promise((resolve) => {
+                    currentFile    = file;
+                    currentResolve = resolve;
+                    currentObjURL  = URL.createObjectURL(file);
+                    croppedDataURL = null;
+                    cropImg.src    = currentObjURL;
+                    cropModal.show();
+                });
+            }
 
             // ── Image picker ──────────────────────────────────────────────────────────
             // Existing images are EJS-rendered .preview-item nodes already in the grid.
@@ -268,14 +434,18 @@
 
                 addBtn.addEventListener('click', () => fileInput.click());
 
-                fileInput.addEventListener('change', () => {
+                fileInput.addEventListener('change', async () => {
                     const remaining = MAX_IMAGES - totalCount();
                     const incoming  = [...fileInput.files].slice(0, remaining);
-                    incoming.forEach(file => {
-                        newFiles.push(file);
-                        appendNewPreview(file, newFiles.length - 1);
-                    });
                     fileInput.value = ''; // reset so same file can be re-picked if needed
+                    
+                    for (const file of incoming) {
+                        const result = await cropSingleFile(file);
+                        if (result) {
+                            newFiles.push(result);
+                            appendNewPreview(result, newFiles.length - 1);
+                        }
+                    }
                     updateUI();
                 });
 

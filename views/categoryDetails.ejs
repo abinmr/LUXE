@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>LUXE</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+            integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD"
+            crossorigin="anonymous"
+        />
+        <link rel="stylesheet" href="/styles/navbar.css" />
+        <link rel="stylesheet" href="/styles/categoryDetails.css">
+    </head>
+    <body>
+<%- include('partials/navbar.ejs'), { categories } %>
+    <% const category = categories.find((cat) => String(cat._id) === String(id)) %>
+    
+    <div class="container-xl mt-5">
+        <div class="row">
+            
+            <aside class="col-md-3 pb-5">
+                <form action="/categories">
+                    
+                    <h1 class="fw-bolder mb-1"> <%= category.name %> </h1>
+                    <p class="text-muted mb-4"> <%= categories.length %> products</p>
+
+                    <h6 class="fw-bold mb-3">Price Range</h6>
+                    <div class="position-relative mb-4">
+                        <input type="range" class="form-range" min="0" max="500" step="10" name="priceRange" id="priceRange" value="500">
+                        <div class="d-flex justify-content-between text-muted small mt-1">
+                            <span>₹0</span>
+                            <span id="maxRange">₹500</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-4">
+                        <h6 class="fw-bold mb-3">Size</h6>
+                        <div class="d-flex flex-column gap-2">
+                            <% ['XS', 'S', 'M', 'L', 'XL', 'XXL'].forEach(size => { %>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="size" id="size-<%= size.toLowerCase() %>" value="<%= size %>">
+                                    <label for="size-<%= size.toLowerCase() %>" class="form-check-label text-black"><%= size %></label>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-4">
+                        <h6 class="fw-bold mb-3">Color</h6>
+                        <div class="d-flex flex-column gap-2">
+                            <% ['Black', 'White', 'Gray', 'Navy', 'Beige', 'Brown'].forEach(color => { %>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="color" id="color-<%= color.toLowerCase() %>" value="<%= color %>">
+                                    <label for="color-<%= color.toLowerCase() %>" class="form-check-label text-black"><label for="color-<%= color.toLowerCase() %>"><%= color %></label>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </form>
+            </aside>
+
+            <main class="col-md-9">
+                
+                <div class="d-flex justify-content-end mb-4">
+                    <form action="">
+                        <select name="filter" id="filter" class="form-select w-auto">
+                            <option value="featured">Featured</option>
+                            <option value="low-to-high">Price: Low to High</option>
+                            <option value="high-to-low">Price: High to Low</option>
+                        </select>
+                    </form>
+                </div>
+
+                <div class="row">
+                    <% products.forEach((product) => { %>
+                        <div class="col-md-4 mb-4"> <div class="card product-card position-relative shadow-sm">
+                                
+                                <a href="/product/<%= product._id %>" class="text-decoration-none text-dark">
+                                    <div class="img-container">
+                                        <% if (product.variants[0].sizes[0].compareAtPrice) { %>
+                                            <span class="badge bg-danger ms-2 sale-badge rounded-pill">-25%</span>
+                                        <% } %>
+
+                                        <img src="<%= product.variants[0].images[0] %>" class="card-img-top" alt="<%= product.name %>">
+                                        <a href="/wishlist/add/<%= product._id %>" class="btn btn-link text-dark position-absolute top-0 end-0 m-2 p-1 text-decoration-none" aria-label="Add to wishlist">
+                                            <i class="bi bi-heart fs-5"></i>
+                                        </a>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <p class="card-title fw-semibold mb-1"><%= product.name %></p>
+                                        
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <span class="fw-bold fs-5">₹<%= product.variants[0].sizes[0].price %></span>
+                                            <% if (product.variants[0].sizes[0].compareAtPrice) { %>
+                                                <span class="text-muted text-decoration-line-through">₹<%= product.variants[0].sizes[0].compareAtPrice %></span>
+                                            <% } %>
+                                        </div>
+                                    </a>
+                                    
+                                    <form action="/cart/add/" method="POST">
+                                        <input type="hidden" name="productId" value="<%= product._id %>">
+                                        <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
+                                        <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">
+                                        <input type="hidden" name="quantity" value="1">
+                                        
+                                        <button class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2" style="border-radius: 6px;">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart h-4 w-4" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                                            </span>
+                                            Add to Cart
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <%- include('partials/footer.ejs') %>
+    <script>
+        const priceRange = document.getElementById("priceRange");
+        const maxRange = document.getElementById("maxRange");
+        priceRange.addEventListener("change", () => {
+            maxRange.innerText = "₹" + priceRange.value;
+        });
+        
+    </script>
+    </body>
+</html>

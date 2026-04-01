@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
@@ -8,8 +7,10 @@ import dotevn from "dotenv";
 import adminRouter from "./routes/admin.route.js";
 import userAuthRouter from "./routes/userAuth.route.js";
 import appRouter from "./routes/app.route.js";
+import categoryRouter from "./routes/category.route.js";
 import profileRouter from "./routes/profile.route.js";
 import cartRouter from "./routes/cart.route.js";
+import wishlistRouter from "./routes/wishlist.route.js";
 import adminCategoryRouter from "./routes/adminCategory.route.js";
 import adminProductRouter from "./routes/adminProduct.route.js";
 import adminCustomerRouter from "./routes/adminCustomer.route.js";
@@ -21,7 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
@@ -43,7 +44,9 @@ app.use("/admin/customers", adminCustomerRouter);
 app.use("/auth", userAuthRouter);
 app.use("/", appRouter);
 app.use("/profile", profileRouter);
+app.use("/category", categoryRouter);
 app.use("/cart", cartRouter);
+app.use("/wishlist", wishlistRouter);
 
 app.get("/", (req, res) => {
     return res.redirect("/home");

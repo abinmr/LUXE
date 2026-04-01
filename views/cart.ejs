@@ -25,52 +25,77 @@
         <link rel="stylesheet" href="/styles/cart.css" />
     </head>
     <body style="background-color: #fefbf8">
-        <%- include('partials/navbar.ejs') %>
+        <%- include('partials/navbar.ejs', { categories }) %>
 
         <section class="container mt-4">
             <h3 class="fw-bold fs-2">Shopping Cart</h3>
             <div class="gap-4 mt-4 item-container">
-                <div class="d-flex flex-column gap-3">
-                    <div class="d-flex justify-content-between align-items-center border px-4 py-3 rounded-3 bg-white cart-items">
-                        <div class="d-flex gap-2">
-                            <input type="checkbox" class="form-check-input me-1" />
-                            <img src="/images/hoodie.png" alt="hoodie image" class="rounded-2" width="96" height="96" />
-                            <div class="ms-2">
-                                <p class="m-0 fw-bold">Kids Graphic Hoodie</p>
-                                <div>
-                                    <span class="text-muted">Size: 4y</span>
-                                    <span class="text-muted">•</span>
-                                    <span class="text-muted">Color: Gray</span>
-                                </div>
-                                <div class="d-flex mt-3">
-                                    <button class="btn btn-light btn-sm border fw-bolder p-0" style="width: 32px; height: 32px">
-                                        <i class="bi bi-dash fs-5"></i>
-                                    </button>
-                                    <input type="number" class="qty-input text-center border-0" name="quantity" id="quantity" value="1" width="10" height="10" min="1" max="10" readonly />
-                                    <button class="btn btn-light btn-sm border p-0" style="width: 32px; height: 32px">
-                                        <i class="bi bi-plus fs-5"></i>
-                                    </button>
+                <div class="d-flex flex-column gap-3" id="cart-list">
+                    <% cartItems.forEach((cart) => { %>
+                        <% if (!cart.isListed) { %>
+                            <div class="d-flex justify-content-between align-items-center px-4 border bg-white rounded" style="height: 150px;">
+                                <div class="d-flex align-items-center gap-5">
+                                    <img src="<%= cart.images[0] %>" height="96" width="96" class="rounded" />
+                                    <h5 class="text-center text-danger">Product is not available</h5>
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <div class="d-flex flex-column justify-content-between align-self-stretch">
-                                <form action="/cart/delete" method="POST" class="d-flex justify-content-end">
-                                    <input type="hidden" name="variantId" value="" />
-                                    <button type="submit" class="btn btn-light">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="lucide lucide-trash2 lucide-trash-2 h-4 w-4"
-                                            aria-hidden="true"
+                        <% } else { %>
+                        <div class="d-flex justify-content-between align-items-center border px-4 py-3 rounded-3 bg-white cart-item" data-item-id="<%= cart.itemId %>">
+                            <div class="d-flex gap-2">
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input me-1 cart-item-checkbox"
+                                    data-item-id="<%= cart.itemId %>"
+                                    <%= cart.isSelected ? 'checked' : '' %>
+                                />
+                                <a href="/product/<%= cart.productId %>">
+                                    <img src="<%= cart.images[0] %>" alt="<%= cart.productName %>" class="rounded-2 object-fit-cover" width="96" height="96" />
+                                </a>
+                                <div class="ms-2">
+                                    <p class="m-0 fw-bold"><%= cart.productName %></p>
+                                    <div>
+                                        <span class="text-muted">Size: <%= cart.size %></span>
+                                        <span class="text-muted">•</span>
+                                        <span class="text-muted">Color: <%= cart.color %></span>
+                                    </div>
+                                    <div class="d-flex mt-3">
+                                        <button
+                                            data-item-id="<%= cart.itemId %>"
+                                            class="btn btn-light btn-sm border fw-bolder p-0 quantityMinus"
+                                            style="width: 32px; height: 32px"
+                                            <%= cart.quantity <= 1 ? 'disabled' : '' %>
                                         >
+                                            <i class="bi bi-dash fs-5"></i>
+                                        </button>
+                                        <input
+                                            type="number"
+                                            class="qty-input text-center border-0"
+                                            value="<%= cart.quantity %>"
+                                            min="1"
+                                            max="<%= Math.min(cart.stock, 10) %>"
+                                            readonly
+                                        />
+                                        <button
+                                            data-item-id="<%= cart.itemId %>"
+                                            data-stock="<%= cart.stock %>"
+                                            class="btn btn-light btn-sm border p-0 quantityAdd"
+                                            style="width: 32px; height: 32px"
+                                            <%= cart.quantity >= Math.min(cart.stock, 10) ? 'disabled' : '' %>
+                                        >
+                                            <i class="bi bi-plus fs-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-end">
+                                    <button
+                                        class="btn btn-light d-flex justify-content-end delete-btn"
+                                        data-item-id="<%= cart.itemId %>"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                             <path d="M3 6h18"></path>
                                             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                                             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -78,66 +103,173 @@
                                             <line x1="14" x2="14" y1="11" y2="17"></line>
                                         </svg>
                                     </button>
-                                </form>
-                            </div>
-                            <div class="mt-5">
-                                <span class="fw-semibold">$400</span>
-                                <span class="text-decoration-line-through text-muted">$50</span>
+                                </div>
+                                <div class="mt-5">
+                                    <span class="fw-semibold">₹<%= cart.price %></span>
+                                    <span class="text-decoration-line-through text-muted">₹<%= cart.compareAtPrice %></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <% } %>
+                    <% }) %>
                 </div>
+
                 <div class="d-flex flex-column gap-4">
                     <div class="border rounded-4 px-4 pt-5 pb-4 bg-white">
                         <h5>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-tag h-4 w-4 text-muted-foreground"
-                                aria-hidden="true"
-                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"></path>
                                 <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"></circle>
                             </svg>
-                            Coupone Code
+                            Coupon Code
                         </h5>
                         <form action="/cart/coupon" class="d-flex gap-3 mt-2">
-                            <input type="search" class="form-control" name="search" id="search" placeholder="Enter code" />
+                            <input type="search" class="form-control" name="search" placeholder="Enter code" />
                             <button class="btn btn-danger">Apply</button>
                         </form>
                         <p class="mt-2 text-muted small">Try: CODE10</p>
                     </div>
-                    <div class="border rounded-4 px-3 py-5 bg-white">
-                        <div class="d-flex justify-content-between">
-                            <span>Subtotal</span>
-                            <span>₹39.99</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Tax</span>
-                            <span>₹7</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Shipping</span>
-                            <span>₹39.99</span>
-                        </div>
-                        <hr />
-                        <div class="d-flex justify-content-between">
-                            <span class="fw-bold">Total</span>
-                            <span class="fw-bold">₹39.99</span>
+
+                    <div class="border rounded-4 px-3 pt-5 pb-4 bg-white">
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal</span>
+                                <div class="d-flex">
+                                    <span>₹</span>
+                                    <span id="subtotal"><%= pricing.subtotal %></span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>GST</span>
+                                <div class="d-flex">
+                                    <span>₹</span>
+                                    <span id="GST"><%= pricing.gst %></span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Shipping</span>
+                                <div class="d-flex">
+                                    <span>₹</span>
+                                    <span id="shipping"><%= pricing.shipping %></span>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold fs-5">Total</span>
+                                <div class="d-flex">
+                                    <span class="fw-bold fs-5">₹</span>
+                                    <span id="total" class="fw-bold fs-5"><%= pricing.total %></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button class="btn btn-danger w-100">Proceed to Checkout</button>
+
+                    <form action="/checkout" method="POST">
+                        <button type="submit" class="btn btn-danger w-100">Proceed to Checkout</button>
+                    </form>
                 </div>
             </div>
         </section>
 
         <%- include('partials/footer.ejs') %>
+
+        <script>
+            async function calculateTotal() {
+                try {
+                    const res = await fetch("/cart/details");
+                    const { data } = await res.json();
+                    document.getElementById("subtotal").innerText = data.subtotal;
+                    document.getElementById("GST").innerText      = data.gst;
+                    document.getElementById("shipping").innerText = data.shipping;
+                    document.getElementById("total").innerText    = data.total;
+                } catch (err) {
+                    console.error("Failed to update pricing:", err);
+                }
+            }
+
+            document.querySelectorAll(".cart-item-checkbox").forEach((checkbox) => {
+                checkbox.addEventListener("change", async function () {
+                    try {
+                        const res = await fetch(`/cart/toggle-selection/${this.dataset.itemId}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ isSelected: this.checked }),
+                        });
+                        const data = await res.json();
+                        if (data.success) calculateTotal();
+                    } catch (err) {
+                        console.error("Toggle failed:", err);
+                    }
+                });
+            });
+
+            document.querySelectorAll(".quantityAdd").forEach((addBtn) => {
+                const input = addBtn.previousElementSibling;
+                addBtn.addEventListener("click", async function () {
+                    const stock = Number(this.dataset.stock);
+                    const max   = Math.min(stock, 10);
+                    let val     = Number(input.value);
+
+                    if (val >= max) {
+                        addBtn.disabled = true;
+                        return;
+                    }
+
+                    input.value = val + 1;
+                    if (val + 1 >= max) addBtn.disabled = true;
+
+                    addBtn.previousElementSibling.previousElementSibling.disabled = false;
+
+                    try {
+                        const res = await fetch(`/cart/quantityAdd/${this.dataset.itemId}`);
+                        if (res.ok) calculateTotal();
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            });
+
+            document.querySelectorAll(".quantityMinus").forEach((minusBtn) => {
+                const input = minusBtn.nextElementSibling;
+                minusBtn.addEventListener("click", async function () {
+                    let val = Number(input.value);
+
+                    if (val <= 1) {
+                        minusBtn.disabled = true;
+                        return;
+                    }
+
+                    input.value = val - 1;
+                    if (val - 1 <= 1) minusBtn.disabled = true;
+
+                    input.nextElementSibling.disabled = false;
+
+                    try {
+                        const res = await fetch(`/cart/quantityMinus/${this.dataset.itemId}`);
+                        if (res.ok) calculateTotal();
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            });
+
+            document.querySelectorAll(".delete-btn").forEach((btn) => {
+                btn.addEventListener("click", async function () {
+                    const itemId  = this.dataset.itemId;
+                    try {
+                        const res = await fetch(`/cart/delete/${itemId}`, { method: "DELETE" });
+                        const data = await res.json();
+                        if (data.success) {
+                            document.querySelector(`.cart-item[data-item-id="${itemId}"]`).remove();
+                            calculateTotal();
+                        }
+                    } catch (err) {
+                        console.error("Delete failed:", err);
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

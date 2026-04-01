@@ -64,7 +64,7 @@
                             <img src="<%= product.variants[0].images[0] %>" alt="" style="height: 40px;" class="rounded-2">
                         </td>
                         <td> <%= product.category.name %> </td>
-                        <td>₹599.00</td>
+                        <td> ₹<%= product.variants[0].sizes[0].price %></td>
                         <td> <%= product.totalStock %> </td>
                         <td>
                             <div class="btn-group gap-3">
