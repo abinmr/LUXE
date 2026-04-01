@@ -44,7 +44,7 @@
                                }
                             %>
     
-                            <div class="col">
+                            <div class="col wishlist-item" data-item-id="<%= product._id %>">
                                 <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6;">
                                     
                                     <div class="position-relative">
@@ -61,9 +61,9 @@
                                             </span>
                                         <% } %>
     
-                                        <a href="/wishlist/remove/<%= product._id %>" class="btn btn-link text-danger position-absolute top-0 end-0 m-2 p-1 text-decoration-none" aria-label="Remove from wishlist">
+                                        <button class="btn btn-link text-danger position-absolute top-0 end-0 m-2 p-1 text-decoration-none wishlist-remove" data-item-id="<%= product._id %>" aria-label="Remove from wishlist">
                                             <i class="bi bi-heart-fill fs-5"></i>
-                                        </a>
+                                        </button>
                                     </div>
     
                                     <div class="card-body d-flex flex-column p-3">
@@ -106,9 +106,6 @@
             </div>
         </div>
         <%- include('partials/footer.ejs') %>
-        <script>
-            console.log("wishlist runs");
-            
-        </script>
+        <script src="/scripts/wishlist.js"></script>
     </body>
 </html>

@@ -9,7 +9,7 @@ router.get("/", protectedRoute, async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate("products.productId");
-        // console.log(JSON.stringify(wishlist, null, 2));
+        console.log(JSON.stringify(wishlist, null, 2));
         res.render("wishlist", { categories, wishlist });
     } catch (err) {
         console.error(err);
@@ -33,7 +33,7 @@ router.get("/add/:id", protectedRoute, async (req, res) => {
     }
 });
 
-router.get("/remove/:id", protectedRoute, async (req, res) => {
+router.delete("/delete/:id", protectedRoute, async (req, res) => {
     try {
         const wishlist = await Wishlist.findOne({ userId: req.user._id });
         if (wishlist) {
