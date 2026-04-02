@@ -10,6 +10,8 @@ router.get("/:id", async (req, res) => {
         let userWishlist = [];
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const products = await Product.find({ category: req.params.id, isListed: true, isDeleted: false });
+        // const colors = await Product.distinct("variants.color");
+        const colors = await Product.find({ category: req.params.id, isListed: true, isDeleted: false }).distinct("variants.color");
         let wishlist = null;
         if (req.user) {
             wishlist = await Wishlist.findOne({ userId: req.user._id });
@@ -17,7 +19,8 @@ router.get("/:id", async (req, res) => {
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }
-        return res.render("categoryDetails", { categories, id: req.params.id, products, userWishlist });
+        console.log("Products", JSON.stringify(products, null, 2));
+        return res.render("categoryDetails", { categories, id: req.params.id, products, userWishlist, colors });
     } catch (err) {
         console.error("category error", err);
         return res.redirect("/home");
