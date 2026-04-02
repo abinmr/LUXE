@@ -32,7 +32,7 @@
         <div class="row">
             
             <aside class="col-md-3 pb-5">
-                <form action="/categories">
+                <form action="/search">
                     
                     <p class="text-muted mb-4"> <%= products.length %> products</p>
 
@@ -170,12 +170,11 @@
         const filterForm = document.querySelector("aside form");
         const sortSelect = document.getElementById("filter");
         
-        // Update price text while sliding
         priceRange.addEventListener("input", () => {
             maxRange.innerText = "₹" + priceRange.value;
         });
 
-        const categoryId = "<%= id %>";
+        const searchQuery = "<%= search %>";
 
         async function fetchFilteredProducts() {
             const formData = new FormData(filterForm);
@@ -186,12 +185,13 @@
             const sort = sortSelect.value;
             
             try {
-                const response = await fetch(`/category/${categoryId}/filter`, {
+                const response = await fetch(`/search/filter`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
+                        search: searchQuery,
                         priceRange: price,
                         sizes,
                         colors,

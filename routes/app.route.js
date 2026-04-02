@@ -85,7 +85,61 @@ router.get("/search", async (req, res) => {
         userWishlist = wishlist.products.map((item) => item.productId.toString());
     }
     console.log(JSON.stringify(products, null, 2));
-    return res.render("productSearch", { categories, products, userWishlist });
+    return res.render("productSearch", { categories, products, userWishlist, search });
+});
+
+router.post("/search/filter", async (req, res) => {
+    try {
+        const { search, priceRange, sizes, colors, sort } = req.body;
+
+        const query = {
+            name: { $regex: search || "", $options: "i" },
+            isListed: true,
+            isDeleted: false,
+        };
+
+        if (sizes && sizes.length > 0) {
+            query["variants.sizes.size"] = { $in: sizes };
+        }
+
+        if (colors && colors.length > 0) {
+            const regexColors = colors.map((color) => new RegExp(`^${color}$`, "i"));
+            query["variants.color"] = { $in: regexColors };
+        }
+
+        if (priceRange) {
+            query["variants.sizes.price"] = { $lte: parseInt(priceRange) };
+        }
+
+        let dbQuery = Product.find(query);
+
+        if (sort === "low-to-high") {
+            dbQuery = dbQuery.sort({ "variants.0.sizes.0.price": 1 });
+        } else if (sort === "high-to-low") {
+            dbQuery = dbQuery.sort({ "variants.0.sizes.0.price": -1 });
+        } else if (sort === "A-Z") {
+            dbQuery = dbQuery.sort({ name: -1 });
+        } else if (sort === "Z-A") {
+            dbQuery = dbQuery.sort({ name: 1 });
+        } else {
+            dbQuery = dbQuery.sort({ createdAt: 1 });
+        }
+
+        const products = await dbQuery.exec();
+
+        let userWishlist = [];
+        if (req.user) {
+            const wishlist = await Wishlist.findOne({ userId: req.user._id });
+            if (wishlist) {
+                userWishlist = wishlist.products.map((item) => item.productId.toString());
+            }
+        }
+
+        return res.json({ success: true, products, userWishlist });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
 });
 
 export default router;
