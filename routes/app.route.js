@@ -76,8 +76,16 @@ router.get("/search", async (req, res) => {
     const search = req.query.search;
     const categories = await Category.find({ isActive: true, isDeleted: false });
     const products = await Product.find({ name: { $regex: search, $options: "i" } });
+    let userWishlist = [];
+    let wishlist = null;
+    if (req.user) {
+        wishlist = await Wishlist.findOne({ userId: req.user._id });
+    }
+    if (wishlist) {
+        userWishlist = wishlist.products.map((item) => item.productId.toString());
+    }
     console.log(JSON.stringify(products, null, 2));
-    return res.render("productSearch", { categories, products });
+    return res.render("productSearch", { categories, products, userWishlist });
 });
 
 export default router;

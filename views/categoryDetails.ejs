@@ -36,7 +36,7 @@
                 <form action="/categories">
                     
                     <h1 class="fw-bolder mb-1"> <%= category.name %> </h1>
-                    <p class="text-muted mb-4"> <%= categories.length %> products</p>
+                    <p class="text-muted mb-4"> <%= products.length %> products</p>
 
                     <h6 class="fw-bold mb-3">Price Range</h6>
                     <div class="position-relative mb-4">
@@ -78,63 +78,86 @@
                 <div class="d-flex justify-content-end mb-4">
                     <form action="">
                         <select name="filter" id="filter" class="form-select w-auto">
-                            <option value="featured">Featured</option>
+                            <option value="featured">Latest</option>
                             <option value="low-to-high">Price: Low to High</option>
                             <option value="high-to-low">Price: High to Low</option>
+                            <option value="A-Z">Sort: A-Z</option>
+                            <option value="Z-A">Sort: Z-A</option>
                         </select>
                     </form>
                 </div>
 
-                <div class="row">
+                <div class="row" id="product-grid">
                     <% products.forEach((product) => { %>
-                        <div class="col-md-4 mb-4"> <div class="card product-card position-relative shadow-sm">
-                                
-                                <a href="/product/<%= product._id %>" class="text-decoration-none text-dark">
-                                    <div class="img-container">
-                                        <% if (product.variants[0].sizes[0].compareAtPrice) { %>
-                                            <span class="badge bg-danger ms-2 sale-badge rounded-pill">-25%</span>
-                                        <% } %>
+                    <% if (product.variants && product.variants.length > 0) { %>
+                        <% 
+                           // Calculate discount percentage for the badge
+                           const price = product.variants[0].sizes[0].price;
+                           const comparePrice = product.variants[0].sizes[0].compareAtPrice;
+                           let discount = 0;
+                           if (comparePrice > price) {
+                               discount = Math.round(((comparePrice - price) / comparePrice) * 100);
+                           }
+                        %>
 
-                                        <img src="<%= product.variants[0].images[0] %>" class="card-img-top" alt="<%= product.name %>">
-                                        <% const isInWishlist = locals.userWishlist.includes(product._id.toString()) %>
-                                        <% if (isInWishlist) {%>
-                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-5 text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
-                                                <i class="bi bi-heart-fill text-danger fs-5"></i>
-                                            </button>
-                                        <% } else { %>
-                                            <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-5 text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
-                                                <i class="bi bi-heart fs-5"></i>
-                                            </button>
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6;">
+                                
+                                <div class="position-relative">
+                                    <a href="/product/<%= product._id %>" class="text-decoration-none d-block overflow-hidden" style="height: 400px;">
+                                        <img src="<%= product.variants[0].images[0] %>" 
+                                             alt="<%= product.name %>" 
+                                             class="card-img-top object-fit-cover w-100 h-100 img-animation" 
+                                             style="border-bottom: 1px solid #eaeaea;">
+                                    </a>
+                                    
+                                    <% if (discount > 0) { %>
+                                        <span class="position-absolute top-0 start-0 badge bg-danger m-3 py-1 px-2 rounded-1 fw-medium">
+                                            -<%= discount %>%
+                                        </span>
+                                    <% } %>
+
+                                    <% const isInWishlist = locals.userWishlist.includes(product._id.toString()) %>
+                                    <% if (isInWishlist) {%>
+                                        <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-circle text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
+                                            <i class="bi bi-heart-fill text-danger fs-5"></i>
+                                        </button>
+                                    <% } else { %>
+                                        <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-circle text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
+                                            <i class="bi bi-heart fs-5"></i>
+                                        </button>
+                                    <% } %>
+                                </div>
+
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h6 class="card-title fw-semibold text-truncate mb-1" title="<%= product.name %>">
+                                        <%= product.name %>
+                                    </h6>
+                                    
+                                    <div class="mb-3 d-flex align-items-center gap-2">
+                                        <span class="fw-bold fs-5 mb-0 text-dark">₹<%= price %></span>
+                                        <% if (comparePrice > price) { %>
+                                            <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">
+                                                ₹<%= comparePrice %>
+                                            </span>
                                         <% } %>
                                     </div>
 
-                                    <div class="card-body">
-                                        <p class="card-title fw-semibold mb-1"><%= product.name %></p>
-                                        
-                                        <div class="d-flex align-items-center gap-2 mb-3">
-                                            <span class="fw-bold fs-5">₹<%= product.variants[0].sizes[0].price %></span>
-                                            <% if (product.variants[0].sizes[0].compareAtPrice) { %>
-                                                <span class="text-muted text-decoration-line-through">₹<%= product.variants[0].sizes[0].compareAtPrice %></span>
-                                            <% } %>
-                                        </div>
-                                    </a>
-                                    
-                                    <form action="/cart/add/" method="POST">
+                                    <form action="/cart/add" method="POST" class="mt-auto">
                                         <input type="hidden" name="productId" value="<%= product._id %>">
                                         <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
                                         <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">
                                         <input type="hidden" name="quantity" value="1">
                                         
-                                        <button class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2" style="border-radius: 6px;">
-                                            <span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart h-4 w-4" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
-                                            </span>
+                                        <button class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
                                             Add to Cart
                                         </button>
                                     </form>
                                 </div>
                             </div>
                         </div>
+                    <% } %>
                     <% }) %>
                 </div>
             </main>
@@ -145,10 +168,172 @@
     <script>
         const priceRange = document.getElementById("priceRange");
         const maxRange = document.getElementById("maxRange");
-        priceRange.addEventListener("change", () => {
+        const productGrid = document.getElementById("product-grid");
+        const filterForm = document.querySelector("aside form");
+        const sortSelect = document.getElementById("filter");
+        
+        // Update price text while sliding
+        priceRange.addEventListener("input", () => {
             maxRange.innerText = "₹" + priceRange.value;
         });
-        
+
+        const categoryId = "<%= id %>";
+
+        async function fetchFilteredProducts() {
+            const formData = new FormData(filterForm);
+            
+            const sizes = formData.getAll("size");
+            const colors = formData.getAll("color");
+            const price = priceRange.value;
+            const sort = sortSelect.value;
+            
+            try {
+                const response = await fetch(`/category/${categoryId}/filter`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        priceRange: price,
+                        sizes,
+                        colors,
+                        sort
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderProducts(data.products, data.userWishlist);
+                }
+            } catch (err) {
+                console.error("Failed to fetch products", err);
+            }
+        }
+
+        function renderProducts(products, userWishlist) {
+            productGrid.innerHTML = "";
+            
+            if (products.length === 0) {
+                productGrid.innerHTML = `<div class="col-12 text-center mt-5"><p class="text-muted">No products found matching your criteria.</p></div>`;
+                return;
+            }
+
+            products.forEach(product => {
+                if (!product.variants || product.variants.length === 0) return;
+                
+                const variant = product.variants[0];
+                const size = variant.sizes[0];
+                const price = size.price;
+                const comparePrice = size.compareAtPrice;
+                
+                let discount = 0;
+                if (comparePrice > price) {
+                    discount = Math.round(((comparePrice - price) / comparePrice) * 100);
+                }
+                
+                const isInWishlist = userWishlist && userWishlist.includes(product._id.toString());
+                const wishlistIcon = isInWishlist ? 
+                    `<i class="bi bi-heart-fill text-danger fs-5"></i>` : 
+                    `<i class="bi bi-heart fs-5"></i>`;
+                const wishlistClass = isInWishlist ? "wishlistRemove-btn" : "wishlistAdd-btn";
+
+                const discountBadge = discount > 0 ? 
+                    `<span class="position-absolute top-0 start-0 badge bg-danger m-3 py-1 px-2 rounded-1 fw-medium">-${discount}%</span>` : "";
+
+                const compareHtml = comparePrice > price ? 
+                    `<span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">₹${comparePrice}</span>` : "";
+
+                productGrid.innerHTML += `
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6;">
+                            
+                            <div class="position-relative">
+                                <a href="/product/${product._id}" class="text-decoration-none d-block overflow-hidden" style="height: 400px;">
+                                    <img src="${variant.images[0]}" alt="${product.name}" class="card-img-top object-fit-cover w-100 h-100 img-animation" style="border-bottom: 1px solid #eaeaea;">
+                                </a>
+                                
+                                ${discountBadge}
+
+                                <button data-item-id="${product._id}" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-circle text-decoration-none ${wishlistClass}" aria-label="Add to wishlist">
+                                    ${wishlistIcon}
+                                </button>
+                            </div>
+
+                            <div class="card-body d-flex flex-column p-3">
+                                <h6 class="card-title fw-semibold text-truncate mb-1" title="${product.name}">${product.name}</h6>
+                                
+                                <div class="mb-3 d-flex align-items-center gap-2">
+                                    <span class="fw-bold fs-5 mb-0 text-dark">₹${price}</span>
+                                    ${compareHtml}
+                                </div>
+
+                                <form action="/cart/add" method="POST" class="mt-auto">
+                                    <input type="hidden" name="productId" value="${product._id}">
+                                    <input type="hidden" name="variantId" value="${variant._id}">
+                                    <input type="hidden" name="sizeId" value="${size._id}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    
+                                    <button class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Re-attach wishlist listeners if needed here or handle globally via event delegation
+            attachWishlistListeners();
+        }
+
+        // Attach event listeners to filters to trigger fetch
+        filterForm.addEventListener("change", fetchFilteredProducts);
+        priceRange.addEventListener("change", fetchFilteredProducts); // also trigger on sliding finish
+        sortSelect.addEventListener("change", fetchFilteredProducts);
+
+        // A quick helper to re-attach wishlist event listeners if the global home.js script relies on static elements
+        function attachWishlistListeners() {
+            // Because home.js defines wishlistBtns globally on load, we might need an integrated approach for dynamically added elements:
+            // Since we're re-rendering, we better dispatch an event or manually attach logic if home.js doesn't use event delegation.
+            // Let's attach logic explicitly to newly rendered buttons to be safe:
+            const buttons = productGrid.querySelectorAll('.wishlistAdd-btn, .wishlistRemove-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    // Implementation similar to home.js for wishlist
+                    const itemId = this.dataset.itemId;
+                    const icon = this.querySelector("i");
+                    const isAdded = icon.classList.contains("bi-heart-fill");
+                    
+                    try {
+                        if (isAdded) {
+                            const result = await fetch('/wishlist/delete/' + itemId, { method: "DELETE" });
+                            const data = await result.json();
+                            if (data.success) {
+                                icon.classList.remove("bi-heart-fill", "text-danger");
+                                icon.classList.add("bi-heart");
+                                this.classList.remove("wishlistRemove-btn");
+                                this.classList.add("wishlistAdd-btn");
+                            }
+                        } else {
+                            const result = await fetch('/wishlist/add/' + itemId);
+                            const data = await result.json();
+                            if (data.success) {
+                                icon.classList.remove("bi-heart");
+                                icon.classList.add("bi-heart-fill", "text-danger");
+                                this.classList.remove("wishlistAdd-btn");
+                                this.classList.add("wishlistRemove-btn");
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Wishlist error:', err);
+                    }
+                });
+            });
+        }
     </script>
     </body>
 </html>
