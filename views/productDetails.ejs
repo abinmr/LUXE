@@ -149,36 +149,6 @@
 
     <script>
         const productData = <%- JSON.stringify(product) %>;
-        const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
-
-        wishlistBtns.forEach((button) => {
-            button.addEventListener("click", async function (e) {
-                e.preventDefault();
-                const itemId = this.dataset.itemId;
-                const icon = this.querySelector("i");
-                const isAdded = icon.classList.contains("bi-heart-fill");
-
-                try {
-                    if (isAdded) {
-                        const result = await fetch(`/wishlist/delete/${itemId}`, { method: "DELETE" });
-                        const data = await result.json();
-                        if (data.success) {
-                            icon.classList.remove("bi-heart-fill", "text-danger");
-                            icon.classList.add("bi-heart");
-                        }
-                    } else {
-                        const result = await fetch(`/wishlist/add/${itemId}`);
-                        const data = await result.json();
-                        if (data.success) {
-                            icon.classList.remove("bi-heart");
-                            icon.classList.add("bi-heart-fill", "text-danger");
-                        }
-                    }
-                } catch (err) {
-                    console.error("something went wrong", err);
-                }
-            });
-        });
     </script>
     <script src="/scripts/productDetails.js"></script>
 </body>

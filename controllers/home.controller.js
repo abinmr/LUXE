@@ -38,7 +38,7 @@ export const getHomePage = async (req, res) => {
     try {
         let userWishlist = [];
         const categories = await Category.find({ $and: [{ isActive: true, isDeleted: false }] });
-        const products = await Product.find({ isDeleted: false, isListed: true });
+        const products = await Product.find({ isDeleted: false, isListed: true }).limit(12);
         let wishlist = null;
         if (req.user) {
             wishlist = await Wishlist.findOne({ userId: req.user._id });

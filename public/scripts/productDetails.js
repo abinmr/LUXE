@@ -1,9 +1,39 @@
 let selectedVariant = productData.variants[0];
 let selectedSize = selectedVariant.sizes[0];
+const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
+
+wishlistBtns.forEach((button) => {
+    button.addEventListener("click", async function (e) {
+        e.preventDefault();
+        const itemId = this.dataset.itemId;
+        const icon = this.querySelector("i");
+        const isAdded = icon.classList.contains("bi-heart-fill");
+
+        try {
+            if (isAdded) {
+                const result = await fetch(`/wishlist/delete/${itemId}`, { method: "DELETE" });
+                const data = await result.json();
+                if (data.success) {
+                    icon.classList.remove("bi-heart-fill", "text-danger");
+                    icon.classList.add("bi-heart");
+                }
+            } else {
+                const result = await fetch(`/wishlist/add/${itemId}`);
+                const data = await result.json();
+                if (data.success) {
+                    icon.classList.remove("bi-heart");
+                    icon.classList.add("bi-heart-fill", "text-danger");
+                }
+            }
+        } catch (err) {
+            console.error("something went wrong", err);
+        }
+    });
+});
 
 function selectColor(buttonElement, variantId) {
     selectedVariant = productData.variants.find((v) => v._id === variantId);
-    selectedSize = selectedVariant.sizes[0]; // reset to first size
+    selectedSize = selectedVariant.sizes[0];
 
     document.getElementById("inputVariantId").value = selectedVariant._id;
     document.getElementById("inputSizeId").value = selectedSize._id;
