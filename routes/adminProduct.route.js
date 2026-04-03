@@ -123,11 +123,23 @@ router.post("/edit/:id", upload.any(), async (req, res) => {
             const vi = parseInt(i);
             const existingImages = variant.existingImages ? (Array.isArray(variant.existingImages) ? variant.existingImages : [variant.existingImages]) : [];
             const newImages = variantNewImages[vi] || [];
-            return {
+
+            let rawSizes = variant.sizes ? Object.values(variant.sizes) : [];
+            let mappedSizes = rawSizes.map((size) => {
+                let sObj = { ...size };
+                if (!sObj._id || sObj._id.trim() === "") delete sObj._id;
+                return sObj;
+            });
+
+            let vObj = {
                 color: variant.color,
                 images: [...existingImages, ...newImages],
-                sizes: Array.isArray(variant.sizes) ? variant.sizes : variant.sizes ? [variant.sizes] : [],
+                sizes: mappedSizes,
             };
+            if (variant._id && variant._id.trim() !== "") {
+                vObj._id = variant._id;
+            }
+            return vObj;
         });
 
         await Product.findByIdAndUpdate(id, {

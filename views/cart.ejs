@@ -33,11 +33,22 @@
                 <div class="d-flex flex-column gap-3" id="cart-list">
                     <% cartItems.forEach((cart) => { %>
                         <% if (!cart.isListed) { %>
-                            <div class="d-flex justify-content-between align-items-center px-4 border bg-white rounded" style="height: 150px;">
+                            <div class="d-flex justify-content-between align-items-center px-4 border bg-white rounded cart-item" data-item-id="<%= cart.itemId %>" style="height: 150px;">
                                 <div class="d-flex align-items-center gap-5">
                                     <img src="<%= cart.images[0] %>" height="96" width="96" class="rounded" />
                                     <h5 class="text-center text-danger">Product is not available</h5>
                                 </div>
+                                <button class="btn btn-light delete-btn" data-item-id="<%= cart.itemId %>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                        <line x1="10" x2="10" y1="11" y2="17"></line>
+                                        <line x1="14" x2="14" y1="11" y2="17"></line>
+                                    </svg>
+                                </button>
                             </div>
                         <% } else { %>
                         <div class="d-flex justify-content-between align-items-center border px-4 py-3 rounded-3 bg-white cart-item" data-item-id="<%= cart.itemId %>">
@@ -175,101 +186,6 @@
 
         <%- include('partials/footer.ejs') %>
 
-        <script>
-            async function calculateTotal() {
-                try {
-                    const res = await fetch("/cart/details");
-                    const { data } = await res.json();
-                    document.getElementById("subtotal").innerText = data.subtotal;
-                    document.getElementById("GST").innerText      = data.gst;
-                    document.getElementById("shipping").innerText = data.shipping;
-                    document.getElementById("total").innerText    = data.total;
-                } catch (err) {
-                    console.error("Failed to update pricing:", err);
-                }
-            }
-
-            document.querySelectorAll(".cart-item-checkbox").forEach((checkbox) => {
-                checkbox.addEventListener("change", async function () {
-                    try {
-                        const res = await fetch(`/cart/toggle-selection/${this.dataset.itemId}`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ isSelected: this.checked }),
-                        });
-                        const data = await res.json();
-                        if (data.success) calculateTotal();
-                    } catch (err) {
-                        console.error("Toggle failed:", err);
-                    }
-                });
-            });
-
-            document.querySelectorAll(".quantityAdd").forEach((addBtn) => {
-                const input = addBtn.previousElementSibling;
-                addBtn.addEventListener("click", async function () {
-                    const stock = Number(this.dataset.stock);
-                    const max   = Math.min(stock, 10);
-                    let val     = Number(input.value);
-
-                    if (val >= max) {
-                        addBtn.disabled = true;
-                        return;
-                    }
-
-                    input.value = val + 1;
-                    if (val + 1 >= max) addBtn.disabled = true;
-
-                    addBtn.previousElementSibling.previousElementSibling.disabled = false;
-
-                    try {
-                        const res = await fetch(`/cart/quantityAdd/${this.dataset.itemId}`);
-                        if (res.ok) calculateTotal();
-                    } catch (err) {
-                        console.error(err);
-                    }
-                });
-            });
-
-            document.querySelectorAll(".quantityMinus").forEach((minusBtn) => {
-                const input = minusBtn.nextElementSibling;
-                minusBtn.addEventListener("click", async function () {
-                    let val = Number(input.value);
-
-                    if (val <= 1) {
-                        minusBtn.disabled = true;
-                        return;
-                    }
-
-                    input.value = val - 1;
-                    if (val - 1 <= 1) minusBtn.disabled = true;
-
-                    input.nextElementSibling.disabled = false;
-
-                    try {
-                        const res = await fetch(`/cart/quantityMinus/${this.dataset.itemId}`);
-                        if (res.ok) calculateTotal();
-                    } catch (err) {
-                        console.error(err);
-                    }
-                });
-            });
-
-            document.querySelectorAll(".delete-btn").forEach((btn) => {
-                btn.addEventListener("click", async function () {
-                    const itemId  = this.dataset.itemId;
-                    try {
-                        const res = await fetch(`/cart/delete/${itemId}`, { method: "DELETE" });
-                        const data = await res.json();
-                        if (data.success) {
-                            document.querySelector(`.cart-item[data-item-id="${itemId}"]`).remove();
-                            calculateTotal();
-                        }
-                    } catch (err) {
-                        console.error("Delete failed:", err);
-                    }
-                });
-            });
-        </script>
+        <script src="/scripts/cart.js"></script>
     </body>
 </html>

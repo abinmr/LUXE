@@ -151,6 +151,7 @@
                             </div>
                             <div class="p-3">
                                 <div class="row g-3 mb-3">
+                                    <input type="hidden" name="variants[<%= vi %>][_id]" value="<%= variant._id %>">
                                     <div class="col">
                                         <label class="form-label small fw-semibold text-muted">Color Name</label>
                                         <input type="text" class="form-control bg-light text-capitalize" name="variants[<%= vi %>][color]" placeholder="e.g., Black, Navy Blue, Red" value="<%= variant.color %>">
@@ -199,6 +200,7 @@
                                     </div>
                                     <% (variant.sizes || []).forEach((size, si) => { %>
                                     <div class="size-row row g-2 align-items-center mb-2">
+                                        <input type="hidden" name="variants[<%= vi %>][sizes][<%= si %>][_id]" value="<%= size._id %>">
                                         <div class="col"><input type="text"   class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][size]"           placeholder="e.g., M"    value="<%= size.size %>"></div>
                                         <div class="col"><input type="number" class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][price]"          placeholder="0.00" step="0.01" min="0" value="<%= size.price %>"></div>
                                         <div class="col"><input type="number" class="form-control bg-light" name="variants[<%= vi %>][sizes][<%= si %>][compareAtPrice]" placeholder="0.00" step="0.01" min="0" value="<%= size.compareAtPrice || '' %>"></div>
@@ -525,11 +527,15 @@
                 document.querySelectorAll('.color-variant-block').forEach((block, ci) => {
                     block.querySelector('.fw-semibold').textContent = `Variant ${ci + 1}`;
                     block.querySelector('[name*="[color]"]').name   = `variants[${ci}][color]`;
+                    const variantIdInput = block.querySelector('.row.g-3.mb-3 > input[type="hidden"][name*="[_id]"]');
+                    if (variantIdInput) variantIdInput.name = `variants[${ci}][_id]`;
                     block.querySelector('.image-file-input').name   = `variants[${ci}][newImages]`;
                     block.querySelectorAll('[name*="[existingImages]"]').forEach(inp => {
                         inp.name = `variants[${ci}][existingImages][]`;
                     });
                     block.querySelectorAll('.size-row').forEach((row, si) => {
+                        const sizeIdInput = row.querySelector('input[type="hidden"][name*="[_id]"]');
+                        if (sizeIdInput) sizeIdInput.name = `variants[${ci}][sizes][${si}][_id]`;
                         row.querySelector('[name*="][size]"]').name          = `variants[${ci}][sizes][${si}][size]`;
                         row.querySelector('[name*="[price]"]').name          = `variants[${ci}][sizes][${si}][price]`;
                         row.querySelector('[name*="[compareAtPrice]"]').name = `variants[${ci}][sizes][${si}][compareAtPrice]`;
