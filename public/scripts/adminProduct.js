@@ -1,12 +1,11 @@
 const MAX_IMAGES = 8;
 let colorCount = 1;
 
-/* ── Shared cropper state ──────────────────────────────────── */
 let cropperInstance = null;
-let currentResolve = null; // resolves the promise for the active image
-let currentFile = null; // the raw File being cropped
-let currentObjURL = null; // object URL for the raw file
-let croppedDataURL = null; // data-URL produced after cropping
+let currentResolve = null;
+let currentFile = null;
+let currentObjURL = null;
+let croppedDataURL = null;
 
 const cropModalEl = document.getElementById("cropModal");
 const resultModalEl = document.getElementById("resultModal");
@@ -15,7 +14,6 @@ const resultModal = new bootstrap.Modal(resultModalEl);
 const cropImg = document.getElementById("cropImg");
 const resultImg = document.getElementById("resultImg");
 
-/* ── Destroy cropper instance safely ──────────────────────── */
 function destroyCropper() {
     if (cropperInstance) {
         cropperInstance.destroy();
@@ -23,13 +21,12 @@ function destroyCropper() {
     }
 }
 
-/* ── Init cropper once the modal is fully visible ─────────── */
 cropModalEl.addEventListener("shown.bs.modal", () => {
     destroyCropper();
     cropperInstance = new Cropper(cropImg, {
-        viewMode: 1, // crop box stays inside the image
-        dragMode: "move", // drag to pan the image
-        aspectRatio: 1, // free-form selection
+        viewMode: 1,
+        dragMode: "move",
+        aspectRatio: 1,
         autoCropArea: 0.85,
         movable: true,
         zoomable: true,
@@ -46,7 +43,6 @@ cropModalEl.addEventListener("hidden.bs.modal", () => {
     destroyCropper();
 });
 
-/* ── "Crop →" button: generate result, switch modals ──────── */
 document.getElementById("cropConfirmBtn").addEventListener("click", () => {
     if (!cropperInstance) return;
 
@@ -61,7 +57,6 @@ document.getElementById("cropConfirmBtn").addEventListener("click", () => {
         })
         .toBlob(
             (blob) => {
-                // Store as data-URL so we can show it in the result modal
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     croppedDataURL = e.target.result;
@@ -76,21 +71,18 @@ document.getElementById("cropConfirmBtn").addEventListener("click", () => {
         );
 });
 
-/* ── "← Re-crop" button: go back to cropper ──────────────── */
 document.getElementById("resultRetryBtn").addEventListener("click", () => {
     resultModal.hide();
-    // Re-open the crop modal with the same image
     resultModalEl.addEventListener(
         "hidden.bs.modal",
         () => {
-            cropImg.src = currentObjURL; // reset to original
+            cropImg.src = currentObjURL;
             cropModal.show();
         },
         { once: true },
     );
 });
 
-/* ── "Cancel" button ──────────────────────────────────────── */
 document.getElementById("cropCancelBtn").addEventListener("click", () => {
     const resolve = currentResolve;
     currentResolve = null;
@@ -99,10 +91,9 @@ document.getElementById("cropCancelBtn").addEventListener("click", () => {
         URL.revokeObjectURL(currentObjURL);
         currentObjURL = null;
     }
-    if (resolve) resolve(null); // null = don't add this image
+    if (resolve) resolve(null);
 });
 
-/* ── "Use Image" button ───────────────────────────────────── */
 document.getElementById("resultUseBtn").addEventListener("click", () => {
     const resolve = currentResolve;
     currentResolve = null;
@@ -112,7 +103,6 @@ document.getElementById("resultUseBtn").addEventListener("click", () => {
         currentObjURL = null;
     }
 
-    // Convert the data-URL back to a File
     fetch(croppedDataURL)
         .then((r) => r.blob())
         .then((blob) => {
@@ -123,10 +113,6 @@ document.getElementById("resultUseBtn").addEventListener("click", () => {
         });
 });
 
-/**
- * Open the crop → result flow for a single File.
- * Returns a Promise<File|null>  (null = user cancelled).
- */
 function cropSingleFile(file) {
     return new Promise((resolve) => {
         currentFile = file;
@@ -138,9 +124,6 @@ function cropSingleFile(file) {
     });
 }
 
-/* ══════════════════════════════════════════════════════════════
-               Per-variant image picker
-            ══════════════════════════════════════════════════════════════ */
 function setupImagePicker(block, ci) {
     const fileInput = block.querySelector(".image-file-input");
     const previewGrid = block.querySelector(".image-preview-grid");
@@ -158,7 +141,6 @@ function setupImagePicker(block, ci) {
         fileInput.value = "";
         if (incoming.length === 0) return;
 
-        // Process images one at a time through the crop → result flow
         for (const file of incoming) {
             const result = await cropSingleFile(file);
             if (result) files.push(result);
@@ -198,9 +180,6 @@ function setupImagePicker(block, ci) {
     }
 }
 
-/* ══════════════════════════════════════════════════════════════
-               Size row & variant block helpers
-            ══════════════════════════════════════════════════════════════ */
 function sizeRowHTML(ci, si) {
     return `
                     <div class="size-row row g-2 align-items-center mb-2">

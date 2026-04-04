@@ -1,190 +1,24 @@
 import express from "express";
-import fs from "fs/promises";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
-import Product from "../models/product.model.js";
-import Category from "../models/category.model.js";
 import upload from "../lib/multer.js";
-import cloudinary from "../lib/cloudinary.js";
+import { addProduct, deleteProduct, editProductDetails, getAddPage, getEditPage, getProductPage, listProduct, unlistProduct } from "../controllers/adminProduct.controller.js";
 
 const router = express.Router();
 
-router.get("/", requireAdminAuth, async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const search = req.query.search || "";
-    const dbQuery = { isDeleted: false };
-    const limit = 7;
-    let skip = (page - 1) * limit;
-    const productError = req.flash("productError")[0];
-    if (search) {
-        JSON.stringify((dbQuery.$or = [{ name: { $regex: search, $options: "i" } }]));
-    }
-    const products = await Product.find(dbQuery).populate("category").lean().skip(skip).limit(limit);
-    for (const product of products) {
-        const allSizes = (product.variants || []).flatMap((v) => v.sizes);
-        product.totalStock = allSizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
-    }
-    const totalPage = Math.ceil(products.length / limit);
-    return res.render("products", {
-        productError: productError || null,
-        products,
-        currentPage: page,
-        totalPage,
-        limit,
-    });
-});
+router.get("/", requireAdminAuth, getProductPage);
 
-router.get("/add", requireAdminAuth, async (req, res) => {
-    const categories = await Category.find({ isDeleted: false, isActive: true });
-    return res.render("productAdd", { categories });
-});
+router.get("/add", requireAdminAuth, getAddPage);
 
-router.post("/add", upload.any(), async (req, res) => {
-    try {
-        for (let key in req.body) {
-            if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
-        }
-        const { productName, productDescription, category, listing } = req.body;
-        if (!productName || !productDescription || !category || !listing) {
-            req.flash("productError", "Please provide all the details");
-            return res.redirect("/product/add");
-        }
-        const isListed = listing === "list";
-        const rawVariants = req.body.variants || {};
+router.post("/add", upload.any(), addProduct);
 
-        const variantImages = {};
-        for (const file of req.files) {
-            const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
-            if (match) {
-                const vi = parseInt(match[1]);
-                const uploadResult = await cloudinary.uploader.upload(file.path, {
-                    folder: "products",
-                    allowed_formats: ["jpg", "png", "webp"],
-                });
-                await fs.unlink(file.path).catch((err) => console.error(err));
-                if (!variantImages[vi]) variantImages[vi] = [];
-                variantImages[vi].push(uploadResult.secure_url);
-            }
-        }
+router.get("/edit/:id", requireAdminAuth, getEditPage);
 
-        const variants = Object.entries(rawVariants).map(([i, variant]) => ({
-            color: variant.color,
-            images: variantImages[parseInt(i)] || [],
-            sizes: Array.isArray(variant.sizes) ? variant.sizes : variant.sizes ? [variant.sizes] : [],
-        }));
+router.post("/edit/:id", upload.any(), editProductDetails);
 
-        await Product.create({
-            name: productName,
-            description: productDescription,
-            category,
-            isListed,
-            variants,
-        });
+router.get("/list/:id", requireAdminAuth, listProduct);
 
-        return res.redirect("/admin/products");
-    } catch (err) {
-        req.flash("productError", "Error saving product");
-        console.error(err);
-        return res.redirect("/admin/products");
-    }
-});
+router.get("/unlist/:id", requireAdminAuth, unlistProduct);
 
-router.get("/edit/:id", requireAdminAuth, async (req, res) => {
-    const product = await Product.findById(req.params.id).populate("category").lean();
-    const categories = await Category.find({ isDeleted: false });
-    return res.render("productEdit", { product, categories });
-});
-
-router.post("/edit/:id", upload.any(), async (req, res) => {
-    try {
-        for (let key in req.body) {
-            if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
-        }
-        const id = req.params.id;
-        const { productName, productDescription, category, listing } = req.body;
-        const isListed = listing === "list";
-        const rawVariants = req.body.variants || {};
-
-        const variantNewImages = {};
-        for (const file of req.files) {
-            const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
-            if (match) {
-                const vi = parseInt(match[1]);
-                const uploadResult = await cloudinary.uploader.upload(file.path, {
-                    folder: "products",
-                    allowed_formats: ["jpg", "png", "webp"],
-                });
-                await fs.unlink(file.path).catch((err) => console.error(err));
-                if (!variantNewImages[vi]) variantNewImages[vi] = [];
-                variantNewImages[vi].push(uploadResult.secure_url);
-            }
-        }
-
-        const variants = Object.entries(rawVariants).map(([i, variant]) => {
-            const vi = parseInt(i);
-            const existingImages = variant.existingImages ? (Array.isArray(variant.existingImages) ? variant.existingImages : [variant.existingImages]) : [];
-            const newImages = variantNewImages[vi] || [];
-
-            let rawSizes = variant.sizes ? Object.values(variant.sizes) : [];
-            let mappedSizes = rawSizes.map((size) => {
-                let sObj = { ...size };
-                if (!sObj._id || sObj._id.trim() === "") delete sObj._id;
-                return sObj;
-            });
-
-            let vObj = {
-                color: variant.color,
-                images: [...existingImages, ...newImages],
-                sizes: mappedSizes,
-            };
-            if (variant._id && variant._id.trim() !== "") {
-                vObj._id = variant._id;
-            }
-            return vObj;
-        });
-
-        await Product.findByIdAndUpdate(id, {
-            name: productName,
-            description: productDescription,
-            category,
-            isListed,
-            variants,
-        });
-
-        return res.redirect("/admin/products");
-    } catch (err) {
-        console.error(err);
-        return res.redirect("/admin/products");
-    }
-});
-
-router.get("/list/:id", requireAdminAuth, async (req, res) => {
-    try {
-        await Product.findByIdAndUpdate(req.params.id, { isListed: true });
-        return res.redirect("/admin/products");
-    } catch (err) {
-        console.error(err);
-        return res.redirect("/admin/products");
-    }
-});
-
-router.get("/unlist/:id", requireAdminAuth, async (req, res) => {
-    try {
-        await Product.findByIdAndUpdate(req.params.id, { isListed: false });
-        return res.redirect("/admin/products");
-    } catch (err) {
-        console.error(err);
-        return res.redirect("/admin/products");
-    }
-});
-
-router.get("/delete/:id", requireAdminAuth, async (req, res) => {
-    try {
-        await Product.findByIdAndUpdate(req.params.id, { isDeleted: true });
-        return res.redirect("/admin/products");
-    } catch (err) {
-        console.error(err);
-        return res.redirect("/admin/products");
-    }
-});
+router.delete("/delete/:id", requireAdminAuth, deleteProduct);
 
 export default router;

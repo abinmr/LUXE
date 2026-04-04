@@ -57,7 +57,7 @@
                 </thead>
                 <tbody>
                     <% locals.products.forEach((product, index) => { %>
-                    <tr>
+                    <tr class="table" data-item-id="<%= product._id %>">
                         <th scope="row"> <%= (currentPage - 1) * limit + index + 1 %> </th>
                         <td>
                             <%= product.name%>
@@ -112,10 +112,10 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="/admin/products/delete/<%= product._id %> " class="dropdown-item small py-2">
+                                        <button class="dropdown-item small py-2 delete-btn" data-item-id="<%= product._id %>">
                                             <img src="/images/delete.svg" alt="trash icon" class="me-2">
                                             <span class="text-danger">Delete</span>
-                                        </a>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
@@ -143,6 +143,7 @@
     </div>
 
     <%- include('partials/admin-footer.ejs') %>
+    <script src="/scripts/product.js"></script>
 </body>
 </html>
 

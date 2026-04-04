@@ -10,33 +10,6 @@
         <title>LUXE</title>
         <link rel="stylesheet" href="/styles/admin-nav.css" />
         <link rel="stylesheet" href="/styles/adminProduct.css">
-
-        <style>
-            /* ── Crop modal ── */
-            #cropModal .modal-dialog { max-width: 600px; }
-            .img-container {
-                max-height: 60vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                overflow: hidden;
-            }
-            #cropImg {
-                display: block;
-                max-width: 100%;
-                max-height: 100%;
-            }
-            
-            /* ── Result modal ── */
-            #resultModal .modal-dialog { max-width: 480px; }
-            #resultModal #resultImg   {
-                display: block;
-                max-width: 100%;
-                max-height: 420px;
-                margin: 0 auto;
-                border-radius: 6px;
-            }
-        </style>
     </head>
     <body>
         <%- include('partials/admin-header.ejs', { activePage: 'products' }) %>
@@ -108,7 +81,7 @@
                                 <div class="row g-3 mb-3">
                                     <div class="col">
                                         <label class="form-label small fw-semibold text-muted text-capitalize">Color Name</label>
-                                        <input type="text" class="form-control bg-light" name="variants[0][color]" placeholder="e.g., Black, Navy Blue, Red">
+                                        <input type="text" class="form-control bg-light text-capitalize" name="variants[0][color]" placeholder="e.g., Black, Navy Blue, Red" required>
                                     </div>
                                     <div class="col">
                                         <label class="form-label small fw-semibold text-muted">
@@ -120,7 +93,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                                                 Add Images
                                             </button>
-                                            <input type="file" class="image-file-input d-none" name="variants[0][newImages]" accept="image/*" multiple>
+                                            <input type="file" class="image-file-input d-none" name="variants[0][newImages]" accept="image/*" multiple required>
                                         </div>
                                     </div>
                                 </div>
@@ -142,10 +115,10 @@
                                         <div style="width:36px;"></div>
                                     </div>
                                     <div class="size-row row g-2 align-items-center mb-2">
-                                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[0][sizes][0][size]"           placeholder="e.g., M"></div>
-                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[0][sizes][0][price]"          placeholder="0.00" step="0.01" min="0"></div>
-                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[0][sizes][0][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
-                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[0][sizes][0][stock]"          placeholder="0"    min="0"></div>
+                                        <div class="col"><input type="text"   class="form-control bg-light text-uppercase" name="variants[0][sizes][0][size]" placeholder="e.g., M" required></div>
+                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[0][sizes][0][price]" placeholder="0.00" step="0.01" min="0" required></div>
+                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[0][sizes][0][compareAtPrice]" placeholder="0.00" step="0.01" min="0" required></div>
+                                        <div class="col"><input type="number" class="form-control bg-light" name="variants[0][sizes][0][stock]" placeholder="0" min="0" required></div>
                                         <div style="width:36px;"></div>
                                     </div>
                                 </div>
@@ -164,7 +137,6 @@
         <%- include('partials/admin-footer.ejs') %>
 
 
-        <!-- ── Modal 1: Crop ──────────────────────────────────────────── -->
         <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -184,7 +156,6 @@
             </div>
         </div>
 
-        <!-- ── Modal 2: Result preview ───────────────────────────────── -->
         <div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">

@@ -69,7 +69,6 @@
                 <% if (product.variants && product.variants.length > 0) { %>
                     
                     <% 
-                       // Calculate discount percentage for the badge
                        const price = product.variants[0].sizes[0].price;
                        const comparePrice = product.variants[0].sizes[0].compareAtPrice;
                        let discount = 0;

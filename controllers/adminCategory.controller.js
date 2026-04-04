@@ -29,7 +29,12 @@ export const getAddCategory = (req, res) => {
     const nameError = req.flash("nameError")[0];
     const slugError = req.flash("slugError")[0];
     const imageError = req.flash("imageError")[0];
-    return res.render("categoryAdd", { categoryError, nameError, slugError, imageError });
+    return res.render("categoryAdd", {
+        categoryError,
+        nameError,
+        slugError,
+        imageError,
+    });
 };
 
 export const addCategory = async (req, res) => {
@@ -43,7 +48,9 @@ export const addCategory = async (req, res) => {
             return res.redirect("/admin/categories/add");
         }
 
-        const nameExist = await Category.findOne({ name: { $regex: `^${categoryName}$`, $options: "i" } });
+        const nameExist = await Category.findOne({
+            name: { $regex: `^${categoryName}$`, $options: "i" },
+        });
         if (nameExist) {
             req.flash("nameError", "category name already exist");
             return res.redirect("/admin/categories/add");
@@ -68,7 +75,13 @@ export const addCategory = async (req, res) => {
         await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
 
         const isActive = active === "on" || active === true;
-        const category = await Category.create({ name: categoryName, slug: slug, description: description, isActive: isActive, image: uploadResult.secure_url });
+        const category = await Category.create({
+            name: categoryName,
+            slug: slug,
+            description: description,
+            isActive: isActive,
+            image: uploadResult.secure_url,
+        });
         await category.save();
         return res.redirect("/admin/categories");
     } catch (err) {
@@ -88,7 +101,13 @@ export const getEditCategory = async (req, res) => {
         const nameError = req.flash("nameError")[0];
         const slugError = req.flash("slugError")[0];
         const imageError = req.flash("imageError")[0];
-        return res.render("categoryEdit", { category, categoryError, nameError, slugError, imageError });
+        return res.render("categoryEdit", {
+            category,
+            categoryError,
+            nameError,
+            slugError,
+            imageError,
+        });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/categories");
@@ -116,7 +135,10 @@ export const editCategoryDetails = async (req, res) => {
             return res.redirect(`/admin/categories/edit/${id}`);
         }
 
-        const slugExist = await Category.findOne({ slug: slug, _id: { $ne: id } });
+        const slugExist = await Category.findOne({
+            slug: slug,
+            _id: { $ne: id },
+        });
         if (slugExist) {
             req.flash("slugError", "slug already exist");
             return res.redirect(`/admin/categories/edit/${id}`);
