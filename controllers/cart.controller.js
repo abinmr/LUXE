@@ -1,5 +1,6 @@
 import Cart from "../models/cart.model.js";
 import Category from "../models/category.model.js";
+import Product from "../models/product.model.js";
 
 async function getCartItems(userId) {
     return Cart.aggregate([
@@ -116,6 +117,22 @@ export const addToCart = async (req, res) => {
             return res.redirect("/home");
         }
 
+        const product = await Product.findById(productId);
+        if (!product) {
+            req.flash("toast", JSON.stringify({ type: "error", message: "Product not found" }));
+            return res.redirect("/home");
+        }
+
+        const variant = product.variants.find((v) => v._id.toString() === variantId);
+        const size = variant.sizes.find((s) => s._id.toString() === sizeId);
+
+        if (!size) {
+            req.flash("toast", JSON.stringify({ type: "error", message: "size not found" }));
+            return res.redirect("/home");
+        }
+
+        const availableStock = size.stock;
+
         let cart = await Cart.findOne({ userId: req.user._id });
         if (!cart) {
             cart = await Cart.create({ userId: req.user._id, items: [] });
@@ -123,6 +140,12 @@ export const addToCart = async (req, res) => {
 
         const existingItem = cart.items.find((item) => item.productId.toString() === productId && item.variantId.toString() === variantId && item.sizeId.toString() === sizeId);
 
+        const requestedTotalQuantity = existingItem ? existingItem.quantity + Number(quantity) : Number(quantity);
+
+        if (requestedTotalQuantity > availableStock) {
+            req.flash("toast", JSON.stringify({ type: "error", message: `cannot add! only ${quantity} left` }));
+            return res.redirect("/home");
+        }
         if (existingItem) {
             existingItem.quantity += Number(quantity);
         } else {
