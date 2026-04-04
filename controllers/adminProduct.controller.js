@@ -1,14 +1,13 @@
 import fs from "fs/promises";
 import Product from "../models/product.model.js";
 import Category from "../models/category.model.js";
-import upload from "../lib/multer.js";
 import cloudinary from "../lib/cloudinary.js";
 
 export const getProductPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || "";
     const dbQuery = { isDeleted: false };
-    const limit = 7;
+    const limit = 6;
     let skip = (page - 1) * limit;
     const productError = req.flash("productError")[0];
     if (search) {
@@ -19,12 +18,13 @@ export const getProductPage = async (req, res) => {
         const allSizes = (product.variants || []).flatMap((v) => v.sizes);
         product.totalStock = allSizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
     }
-    const totalPage = Math.ceil(products.length / limit);
+    const totalProductCount = await Product.countDocuments(dbQuery);
+    const totalPages = Math.ceil(totalProductCount / limit);
     return res.render("products", {
         productError: productError || null,
         products,
         currentPage: page,
-        totalPage,
+        totalPages,
         limit,
     });
 };

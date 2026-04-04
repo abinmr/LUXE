@@ -19,7 +19,7 @@ export const getAllCustomers = async (req, res) => {
         dbQuery.isBlocked = true;
     }
     const userDetails = await User.find(dbQuery).sort({ createdAt: -1 }).skip(skip).limit(6);
-    const totalUsers = await User.countDocuments();
+    const totalUsers = await User.countDocuments(dbQuery);
     const activeUsers = await User.countDocuments({ isBlocked: false });
     const blockedUsers = await User.countDocuments({ isBlocked: true });
     const userInfo = {

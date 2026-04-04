@@ -14,12 +14,12 @@ export const getCategories = async (req, res) => {
     console.log("dbQuery", dbQuery);
     const totalCategory = await Category.countDocuments();
     const categories = await Category.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
-    const totalPage = Math.ceil(totalCategory / limit);
+    const totalPages = Math.ceil(totalCategory / limit);
     return res.render("categories", {
         // currentPage: "categories",
         categories: categories,
         currentPage: page,
-        totalPage: totalPage,
+        totalPages: totalPages,
         limit: limit,
     });
 };
