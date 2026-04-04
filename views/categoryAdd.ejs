@@ -47,7 +47,7 @@
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" name="description" id="description" placeholder="Description" value="<%= locals.description || '' %> " required>
+                        <input type="text" class="form-control" name="description" id="description" placeholder="Description" value="<%= locals.description || '' %>" required>
                     </div>
 
                     <div class="mb-3">
@@ -81,7 +81,6 @@
         </div>
         <%- include('partials/admin-footer.ejs') %>
 
-        <!-- ── Modal 1: Crop ──────────────────────────────────────────── -->
         <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -101,7 +100,6 @@
             </div>
         </div>
 
-        <!-- ── Modal 2: Result preview ───────────────────────────────── -->
         <div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -120,7 +118,6 @@
         </div>
 
         <script>
-            /* ── Shared cropper state ──────────────────────────────────── */
             let cropperInstance = null;
             let currentResolve  = null;
             let currentFile     = null;
@@ -238,10 +235,8 @@
                 const file = await cropSingleFile(originalFile);
                 if (!file) return; // user cancelled
 
-                // Clear any previous selection
                 clearSelection();
 
-                // Create dedicated hidden file input for this file
                 const dt = new DataTransfer();
                 dt.items.add(file);
                 currentHiddenInput = document.createElement('input');
@@ -251,7 +246,6 @@
                 currentHiddenInput.files = dt.files;
                 hiddenInputContainer.appendChild(currentHiddenInput);
 
-                // Show preview
                 const url  = URL.createObjectURL(file);
                 const item = document.createElement('div');
                 item.className = 'preview-item';
