@@ -53,7 +53,15 @@ export const addCategory = async (req, res) => {
         });
         if (nameExist) {
             req.flash("nameError", "category name already exist");
-            return res.redirect("/admin/categories/add");
+            return res.render("categoryAdd", {
+                nameError: "category name already exist",
+                categoryName,
+                slug,
+                description,
+                categoryError: null,
+                slugError: null,
+                imageError: null,
+            });
         }
 
         const slugExist = await Category.findOne({ slug: slug });
