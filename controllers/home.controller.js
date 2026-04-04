@@ -56,6 +56,9 @@ export const getHomePage = async (req, res) => {
 export const getProductDetails = async (req, res) => {
     const id = req.params.id;
     const product = await Product.findOne({ _id: id, isListed: true, isDeleted: false });
+    if (!product) {
+        return res.redirect("/home");
+    }
     const categories = await Category.find({ isActive: true, isDeleted: false });
     const otherProducts = await Product.find({ _id: { $ne: id } }).limit(4);
     let userWishlist = [];
