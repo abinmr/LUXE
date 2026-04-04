@@ -143,7 +143,7 @@ export const addToCart = async (req, res) => {
         const requestedTotalQuantity = existingItem ? existingItem.quantity + Number(quantity) : Number(quantity);
 
         if (requestedTotalQuantity > availableStock) {
-            req.flash("toast", JSON.stringify({ type: "error", message: `cannot add! only ${quantity} left` }));
+            req.flash("toast", JSON.stringify({ type: "error", message: `cannot add! ${quantity - 1} left` }));
             return res.redirect("/home");
         }
         if (existingItem) {

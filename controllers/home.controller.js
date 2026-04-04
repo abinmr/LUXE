@@ -46,7 +46,8 @@ export const getHomePage = async (req, res) => {
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }
-        return res.render("home", { categories, products, userWishlist });
+        const toast = req.flash("toast")[0];
+        return res.render("home", { categories, products, userWishlist, toast: toast ? JSON.parse(toast) : "" });
     } catch (err) {
         console.error(err);
         return res.render("home");

@@ -5,7 +5,8 @@ export const getWishlistProducts = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate("products.productId");
-        // console.log(JSON.stringify(wishlist, null, 2));
+        const result = wishlist.products.filter((item) => item.productId.isListed);
+        console.log(JSON.stringify(wishlist, null, 2));
         res.render("wishlist", { categories, wishlist });
     } catch (err) {
         console.error(err);

@@ -1,6 +1,4 @@
 import express from "express";
-import Wishlist from "../models/wishlist.model.js";
-import Category from "../models/category.model.js";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
 import { addToWishlist, deleteWishlistProduct, getWishlistProducts } from "../controllers/wishlist.controller.js";
 

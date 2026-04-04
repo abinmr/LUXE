@@ -15,9 +15,9 @@ router.get("/edit/:id", requireAdminAuth, getEditPage);
 
 router.post("/edit/:id", upload.any(), editProductDetails);
 
-router.get("/list/:id", requireAdminAuth, listProduct);
+router.patch("/list/:id", requireAdminAuth, listProduct);
 
-router.get("/unlist/:id", requireAdminAuth, unlistProduct);
+router.patch("/unlist/:id", requireAdminAuth, unlistProduct);
 
 router.delete("/delete/:id", requireAdminAuth, deleteProduct);
 

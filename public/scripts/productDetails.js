@@ -1,5 +1,7 @@
 let selectedVariant = productData.variants[0];
 let selectedSize = selectedVariant.sizes[0];
+const mainImage = document.getElementById("mainImage");
+const detail = document.getElementById("detail");
 const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
 
 wishlistBtns.forEach((button) => {
@@ -30,6 +32,18 @@ wishlistBtns.forEach((button) => {
         }
     });
 });
+
+let drift;
+function initZoom() {
+    if (drift) drift.destroy();
+    drift = new Drift(mainImage, {
+        paneContainer: detail,
+        containInline: true,
+        hoverBoundingBox: true,
+    });
+    console.log("function ran");
+}
+initZoom();
 
 function selectColor(buttonElement, variantId) {
     selectedVariant = productData.variants.find((v) => v._id === variantId);
@@ -116,6 +130,8 @@ function renderImages() {
     const thumbContainer = document.getElementById("thumbnailContainer");
 
     mainImg.src = images[0] || "";
+    mainImg.setAttribute("data-zoom", images[0] || "");
+    initZoom();
     thumbContainer.innerHTML = "";
 
     images.forEach((imgSrc, i) => {
@@ -129,7 +145,10 @@ function renderImages() {
 }
 
 function selectThumbnail(thumbEl, imgSrc) {
-    document.getElementById("mainImage").src = imgSrc;
+    const mainImg = document.getElementById("mainImage");
+    mainImg.src = imgSrc;
+    mainImg.setAttribute("data-zoom", imgSrc);
+    initZoom();
     document.querySelectorAll(".thumbnail-img").forEach((t) => t.classList.remove("active"));
     thumbEl.classList.add("active");
 }
