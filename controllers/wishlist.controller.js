@@ -1,5 +1,6 @@
 import Wishlist from "../models/wishlist.model.js";
 import Category from "../models/category.model.js";
+import Product from "../models/product.model.js";
 
 export const getWishlistProducts = async (req, res) => {
     try {
@@ -17,6 +18,14 @@ export const getWishlistProducts = async (req, res) => {
 export const addToWishlist = async (req, res) => {
     try {
         const wishlist = await Wishlist.findOne({ userId: req.user._id });
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: "product not found" });
+        }
+        if (!product.isListed) {
+            req.flash("toast", JSON.stringify({ type: "error", message: "product not longer available" }));
+            return res.status(400).json({ success: false, message: "product not longer available" });
+        }
         if (!wishlist) {
             await Wishlist.create({ userId: req.user._id, products: [{ productId: req.params.id }] });
         } else {

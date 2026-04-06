@@ -22,11 +22,11 @@ productView.forEach((btn) => {
     btn.addEventListener("click", async function () {
         const productId = this.dataset.itemId;
         const btnStatus = this.textContent.trim().toLowerCase();
-        console.log("itemId", productId);
-        console.log("btn status", btnStatus);
+
+        const badge = document.querySelector(`.table[data-item-id="${productId}"] .badge-btn`);
+
         if (btnStatus === "unlist") {
             const result = await fetch(`/admin/products/unlist/${productId}`, { method: "PATCH" });
-            const badge = document.getElementById("badge");
             const data = await result.json();
             if (data.success) {
                 this.textContent = "List";
@@ -41,6 +41,7 @@ productView.forEach((btn) => {
                 this.textContent = "Unlist";
                 badge.textContent = "Listed";
                 badge.classList.replace("btn-light", "btn-dark");
+                badge.classList.remove("border");
             }
         }
     });

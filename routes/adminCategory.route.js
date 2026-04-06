@@ -1,7 +1,5 @@
 import express from "express";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
-import fs from "fs";
-import Category from "../models/category.model.js";
 import upload from "../lib/multer.js";
 import { addCategory, deleteCategory, editCategoryDetails, getAddCategory, getCategories, getEditCategory } from "../controllers/adminCategory.controller.js";
 

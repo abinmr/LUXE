@@ -123,6 +123,11 @@ export const addToCart = async (req, res) => {
             return res.redirect("/home");
         }
 
+        if (!product.isListed) {
+            req.flash("toast", JSON.stringify({ type: "error", message: "product no longer available" }));
+            return res.redirect("/home");
+        }
+
         const variant = product.variants.find((v) => v._id.toString() === variantId);
         const size = variant.sizes.find((s) => s._id.toString() === sizeId);
 

@@ -7,7 +7,6 @@ const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemov
 
 wishlistBtns.forEach((button) => {
     button.addEventListener("click", async function (e) {
-        e.preventDefault();
         const itemId = this.dataset.itemId;
         const icon = this.querySelector("i");
         const isAdded = icon.classList.contains("bi-heart-fill");
@@ -21,7 +20,7 @@ wishlistBtns.forEach((button) => {
                     icon.classList.add("bi-heart");
                 }
             } else {
-                const result = await fetch(`/wishlist/add/${itemId}`);
+                const result = await fetch(`/wishlist/add/${itemId}`, { method: "GET" });
                 const data = await result.json();
                 if (data.success) {
                     icon.classList.remove("bi-heart");

@@ -7,7 +7,7 @@ export const getProductPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || "";
     const dbQuery = { isDeleted: false };
-    const limit = 6;
+    const limit = 7;
     let skip = (page - 1) * limit;
     const productError = req.flash("productError")[0];
     if (search) {
