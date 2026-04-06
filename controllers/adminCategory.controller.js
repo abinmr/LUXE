@@ -4,7 +4,7 @@ import cloudinary from "../lib/cloudinary.js";
 
 export const getCategories = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 6;
+    const limit = 7;
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
     let dbQuery = { isDeleted: false };
@@ -152,10 +152,6 @@ export const editCategoryDetails = async (req, res) => {
             return res.redirect(`/admin/categories/edit/${id}`);
         }
 
-        if (!req.file) {
-            req.flash("imageError", "Image is required");
-            return res.redirect(`/admin/categories/edit/${id}`);
-        }
         const updatedData = {
             name: categoryName,
             description: description,

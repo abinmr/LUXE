@@ -85,7 +85,7 @@ export const getSearchProducts = async (req, res) => {
     if (wishlist) {
         userWishlist = wishlist.products.map((item) => item.productId.toString());
     }
-    console.log(JSON.stringify(products, null, 2));
+    // console.log(JSON.stringify(products, null, 2));
     return res.render("productSearch", { categories, products, userWishlist, search });
 };
 
