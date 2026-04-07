@@ -25,17 +25,23 @@
                 </div>
             </div>
 
-            <form action="/admin/products/add" method="POST" enctype="multipart/form-data">
+            <form action="/admin/products/add" method="POST" enctype="multipart/form-data" id="productForm">
 
                 <div class="p-4 border rounded-4 bg-white mb-3">
                     <h5 class="mb-3">Basic Information</h5>
                     <div class="mb-3">
                         <label for="productName" class="form-label">Product Name</label>
                         <input type="text" class="form-control bg-light text-capitalize" name="productName" id="productName" placeholder="Product name" required>
+                        <div class="error-container">
+                            <p class="text-danger mb-0 small" id="productError"></p>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="productDescription" class="form-label">Description</label>
                         <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize:none;" required></textarea>
+                        <div class="error-container">
+                            <p class="text-danger small mb-0" id="productDescError"></p>
+                        </div>
                     </div>
                     <div class="row g-3">
                         <div class="col">
@@ -81,7 +87,10 @@
                                 <div class="row g-3 mb-3">
                                     <div class="col">
                                         <label class="form-label small fw-semibold text-muted text-capitalize">Color Name</label>
-                                        <input type="text" class="form-control bg-light text-capitalize" name="variants[0][color]" placeholder="e.g., Black, Navy Blue, Red" required>
+                                        <input type="text" class="form-control bg-light text-capitalize color-input" name="variants[0][color]" placeholder="e.g., Black, Navy Blue, Red" >
+                                        <div class="error-container">
+                                            <p class="text-danger small mb-0 color-error"></p>
+                                        </div>
                                     </div>
                                     <div class="col">
                                         <label class="form-label small fw-semibold text-muted">

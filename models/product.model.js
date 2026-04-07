@@ -6,6 +6,7 @@ const productModel = new mongoose.Schema(
             type: String,
             required: true,
             unique: true,
+            trim: true,
         },
 
         description: {
@@ -26,11 +27,11 @@ const productModel = new mongoose.Schema(
 
         variants: [
             {
-                color: { type: String },
+                color: { type: String, trim: true, unique: true },
                 images: [{ type: String }],
                 sizes: [
                     {
-                        size: { type: String, required: true },
+                        size: { type: String, uppercase: true, trim: true, required: true },
                         price: { type: Number, required: true },
                         compareAtPrice: { type: Number },
                         stock: { type: Number, required: true },

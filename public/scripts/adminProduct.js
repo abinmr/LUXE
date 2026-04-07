@@ -1,3 +1,47 @@
+const productNameInput = document.getElementById("productName");
+const productDescInput = document.getElementById("productDescription");
+const productError = document.getElementById("productError");
+const productDescError = document.getElementById("productDescError");
+const colorError = document.querySelectorAll(".color-error");
+const productForm = document.getElementById("productForm");
+
+function validateProductName() {
+    const productName = productNameInput.value.trim();
+    if (productName === "") {
+        productError.innerText = "product name is required";
+        productError.style.visibility = "visible";
+        return false;
+    } else {
+        productError.innerText = "";
+        productError.style.visibility = "hidden";
+        return true;
+    }
+}
+
+function validateProductDesc() {
+    const productDescription = productDescInput.value.trim();
+    if (productDescription === "") {
+        productDescError.innerText = "product description is required";
+        productDescError.style.visibility = "visible";
+        return false;
+    } else {
+        productDescError.innerText = "";
+        productDescError.style.visibility = "hidden";
+        return true;
+    }
+}
+
+productNameInput.addEventListener("blur", validateProductName);
+productDescInput.addEventListener("blur", validateProductDesc);
+
+productForm.addEventListener("submit", (e) => {
+    const isNameValid = validateProductName();
+    const isDescValid = validateProductDesc();
+    if (!isNameValid || !isDescValid) {
+        e.preventDefault();
+    }
+});
+
 const MAX_IMAGES = 8;
 let colorCount = 1;
 
@@ -35,7 +79,7 @@ cropModalEl.addEventListener("shown.bs.modal", () => {
         background: false,
         guides: true,
         cropBoxMovable: true,
-        cropBoxResizable: false,
+        cropBoxResizable: true,
     });
 });
 
@@ -48,10 +92,10 @@ document.getElementById("cropConfirmBtn").addEventListener("click", () => {
 
     cropperInstance
         .getCroppedCanvas({
-            // maxWidth:  2048,
-            width: 310,
-            height: 400,
-            // maxHeight: 2048,
+            maxWidth: 2048,
+            // width: 310,
+            // height: 400,
+            maxHeight: 2048,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: "high",
         })
@@ -183,7 +227,7 @@ function setupImagePicker(block, ci) {
 function sizeRowHTML(ci, si) {
     return `
                     <div class="size-row row g-2 align-items-center mb-2">
-                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[${ci}][sizes][${si}][size]"           placeholder="e.g., M"></div>
+                        <div class="col"><input type="text"   class="form-control bg-light text-uppercase" name="variants[${ci}][sizes][${si}][size]"           placeholder="e.g., M"></div>
                         <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][price]"          placeholder="0.00" step="0.01" min="0"></div>
                         <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
                         <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][stock]"          placeholder="0"    min="0"></div>
@@ -209,7 +253,7 @@ function colorVariantHTML(ci) {
                             <div class="row g-3 mb-3">
                                 <div class="col">
                                     <label class="form-label small fw-semibold text-muted">Color Name</label>
-                                    <input type="text" class="form-control bg-light" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red">
+                                    <input type="text" class="form-control bg-light color-input" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red">
                                 </div>
                                 <div class="col">
                                     <label class="form-label small fw-semibold text-muted">

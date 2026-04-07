@@ -1,17 +1,14 @@
-/* Base page styling */
 body {
-    background-color: #f6f6f6; /* Off-white/light gray background from the image */
+    background-color: #f6f6f6;
 }
 
-/* Custom styling for the range slider to look like the image */
 .form-range::-webkit-slider-thumb {
-    background: #dc3545; /* Red color from the image */
+    background: #dc3545;
 }
 .form-range::-webkit-slider-runnable-track {
-    background-color: #dc3545; /* Red color from the image */
+    background-color: #dc3545;
 }
 
-/* Custom Card Styling */
 .product-card {
     transition: box-shadow 0.2s;
     background-color: #fff;
@@ -21,14 +18,13 @@ body {
 }
 
 .product-card:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover like the image */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Overlay elements on the image */
 .product-card .img-container {
     position: relative;
     overflow: hidden;
-    height: 380px; /* Standardize height */
+    height: 380px;
 }
 
 .product-card img {
@@ -55,7 +51,20 @@ body {
     padding: 6px 10px;
 }
 
-/* Adjust card body spacing */
 .product-card .card-body {
     padding: 1.25rem 1rem !important;
+}
+
+@media screen and (max-width: 440px) {
+    .category-name {
+        font-size: 18px;
+    }
+
+    #filter {
+        font-size: 12px;
+    }
+
+    .filter-btn {
+        font-size: 12px;
+    }
 }

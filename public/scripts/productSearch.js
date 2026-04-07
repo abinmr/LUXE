@@ -1,3 +1,48 @@
+const toastEl = document.getElementById("actionToast");
+const toastBodyEl = document.getElementById("actionToastBody");
+const toastIcon = document.getElementById("toast-icon");
+const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
+
+const showToast = (message, type = "success") => {
+    if (!toast || !toastBodyEl) return;
+    toastBodyEl.textContent = svg + message;
+    toastBodyEl.classList.remove("text-success", "text-danger");
+    toastBodyEl.classList.add(type === "success" ? "text-black" : "text-danger");
+    toastIcon.classList.add(type === "success" ? "text-black" : "text-danger");
+    toast.show();
+};
+
+const cartForms = document.querySelectorAll(".cart-form");
+cartForms.forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = {
+            productId: form.productId.value,
+            variantId: form.variantId.value,
+            sizeId: form.sizeId.value,
+            quantity: form.quantity.value,
+        };
+        try {
+            const response = await fetch("/cart/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            const result = await response.json();
+            // console.log("data", data);
+            if (result.success) {
+                showToast(result.message);
+            } else {
+                showToast(result.error, "error");
+            }
+        } catch (err) {
+            console.error("form submit failed", err);
+        }
+    });
+});
+
 const priceRange = document.getElementById("priceRange");
 const maxRange = document.getElementById("maxRange");
 const productGrid = document.getElementById("product-grid");
@@ -96,7 +141,7 @@ function renderProducts(products, userWishlist) {
                                     ${compareHtml}
                                 </div>
 
-                                <form action="/cart/add" method="POST" class="mt-auto">
+                                <form action="/cart/add" method="POST" class="mt-auto cart-form">
                                     <input type="hidden" name="productId" value="${product._id}">
                                     <input type="hidden" name="variantId" value="${variant._id}">
                                     <input type="hidden" name="sizeId" value="${size._id}">
@@ -144,6 +189,7 @@ function attachWishlistListeners() {
                         icon.classList.add("bi-heart");
                         this.classList.remove("wishlistRemove-btn");
                         this.classList.add("wishlistAdd-btn");
+                        showToast(data.message);
                     }
                 } else {
                     const result = await fetch("/wishlist/add/" + itemId);
@@ -153,6 +199,7 @@ function attachWishlistListeners() {
                         icon.classList.add("bi-heart-fill", "text-danger");
                         this.classList.remove("wishlistAdd-btn");
                         this.classList.add("wishlistRemove-btn");
+                        showToast(data.message);
                     }
                 }
             } catch (err) {

@@ -6,6 +6,7 @@ export const getWishlistProducts = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate("products.productId");
+        // TODO: only show products in wishlist that are listed.
         const result = wishlist.products.filter((item) => item.productId.isListed);
         console.log(JSON.stringify(wishlist, null, 2));
         res.render("wishlist", { categories, wishlist });
@@ -53,7 +54,7 @@ export const deleteWishlistProduct = async (req, res) => {
             wishlist.products = wishlist.products.filter((p) => p.productId.toString() !== req.params.id);
             wishlist.save();
         }
-        return res.status(200).json({ success: true, message: "item removed" });
+        return res.status(200).json({ success: true, message: "Removed from wishlist" });
     } catch (err) {
         console.error(err);
         return res.redirect("/");

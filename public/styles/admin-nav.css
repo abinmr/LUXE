@@ -8,7 +8,6 @@ body {
     min-height: 100vh;
 }
 
-/* --- Sidebar --- */
 .sidebar {
     width: 260px;
     background-color: #fcfcfc;
@@ -61,10 +60,6 @@ body {
 .error-container {
     min-height: 15px !important;
     margin-left: 4px;
-}
-
-.error-container p {
-    font-size: 12px;
 }
 
 .top-bar {

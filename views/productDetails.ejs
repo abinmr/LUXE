@@ -32,13 +32,13 @@
     <div class="container-lg mt-4">
         <div class="d-flex flex-column flex-lg-row gap-5 pb-4 pt-2">
 
-            <div class="d-flex flex-column justify-content-center align-items-center align-items-lg-start">
+            <div class="d-flex flex-column justify-content-center align-items-start">
                 <div class="overflow-hidden rounded-3 img-fluid main-img" style="height: 800px; max-width: 650px;">
                     <img id="mainImage" 
                     src="<%= product.variants[0].images[0] %>" 
                     data-zoom="<%= product.variants[0].images[0] %>"
                     alt="Product Image" 
-                    class="object-fit-cover img-fluid h-100">
+                    class="object-fit-cover img-fluid h-100 main-1">
                 </div>
                 <div id="thumbnailContainer"></div>
                 <div id="detail"></div>
@@ -56,7 +56,7 @@
                 </p>
                 <p class="text-muted"><%= product.description %></p>
 
-                <form action="/cart/add" method="POST">
+                <form action="/cart/add" method="POST" class="cart-form">
                     <input type="hidden" name="productId" id="inputProductId" value="<%= product._id %>">
                     <input type="hidden" name="variantId" id="inputVariantId" value="<%= product.variants[0]._id %>">
                     <input type="hidden" name="sizeId" id="inputSizeId" value="<%= product.variants[0].sizes[0]._id %>">
@@ -91,7 +91,7 @@
 
                     <div class="mt-4">
                         <div class="mb-3 d-flex gap-3">
-                            <button type="submit" class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2">
+                            <button type="submit" value="cart" class="btn btn-danger w-100 d-flex justify-content-center align-items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
                                 Add to Cart
                             </button>
@@ -170,13 +170,13 @@
                                     <% } %>
                                 </div>
 
-                                <form action="/cart/add" method="POST" class="mt-auto">
+                                <form action="/cart/add" method="POST" class="mt-auto cart-form">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
                                     <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
                                     <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">
                                     <input type="hidden" name="quantity" value="1">
                                     
-                                    <button class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
+                                    <button value="cart" class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
                                         Add to Cart
                                     </button>
@@ -190,6 +190,19 @@
     </div>
 
     <%- include("partials/footer.ejs") %>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3 m-2">
+            <div id="actionToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body d-flex gap-2 align-items-center fw-bold">
+                        <svg id="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" height="20" width="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"></path></svg>
+
+                        <div id="actionToastBody">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <script>
         const productData = <%- JSON.stringify(product) %>;

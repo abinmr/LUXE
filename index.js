@@ -18,11 +18,15 @@ import { connectDB } from "./lib/db.js";
 
 dotevn.config({ quiet: true });
 
+// TODO: modify toast for cart to look like how it looks in wishlist;
+// TODO: admin product add page validation
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
@@ -30,7 +34,6 @@ app.use(
         saveUninitialized: false,
     }),
 );
-app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 app.use(passport.initialize());

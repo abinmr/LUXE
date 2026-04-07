@@ -46,8 +46,7 @@ export const getHomePage = async (req, res) => {
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }
-        const toast = req.flash("toast")[0];
-        return res.render("home", { categories, products, userWishlist, toast: toast ? JSON.parse(toast) : "" });
+        return res.render("home", { categories, products, userWishlist });
     } catch (err) {
         console.error(err);
         return res.render("home");
@@ -70,6 +69,7 @@ export const getProductDetails = async (req, res) => {
     if (wishlist) {
         userWishlist = wishlist.products.map((item) => item.productId.toString());
     }
+    console.log(product);
     return res.render("productDetails", { categories, product, otherProducts, userWishlist });
 };
 

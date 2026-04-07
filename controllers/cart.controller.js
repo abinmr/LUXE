@@ -101,7 +101,7 @@ export const getCartPage = async (req, res) => {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const cartItems = await getCartItems(req.user._id);
         const pricing = calcPricing(cartItems);
-        console.log("pricing", cartItems);
+        console.log("cartItems", cartItems);
         return res.render("cart", { categories, cartItems, pricing });
     } catch (err) {
         console.error(err);
@@ -113,27 +113,25 @@ export const addToCart = async (req, res) => {
     try {
         const { productId, variantId, sizeId, quantity } = req.body;
         if (!productId || !variantId || !sizeId || !quantity) {
-            req.flash("toast", JSON.stringify({ type: "error", message: "Invalid product details" }));
-            return res.redirect("/home");
+            return res.status(400).json({ success: false, error: "Invalid product details" });
         }
+
+        console.log("BODY", req.body);
 
         const product = await Product.findById(productId);
         if (!product) {
-            req.flash("toast", JSON.stringify({ type: "error", message: "Product not found" }));
-            return res.redirect("/home");
+            return res.status(400).json({ success: false, error: "product not found" });
         }
 
         if (!product.isListed) {
-            req.flash("toast", JSON.stringify({ type: "error", message: "product no longer available" }));
-            return res.redirect("/home");
+            return res.status(400).json({ success: false, error: "product no longer available" });
         }
 
         const variant = product.variants.find((v) => v._id.toString() === variantId);
         const size = variant.sizes.find((s) => s._id.toString() === sizeId);
 
         if (!size) {
-            req.flash("toast", JSON.stringify({ type: "error", message: "size not found" }));
-            return res.redirect("/home");
+            return res.status(400).json({ success: true, error: "size not found" });
         }
 
         const availableStock = size.stock;
@@ -148,8 +146,7 @@ export const addToCart = async (req, res) => {
         const requestedTotalQuantity = existingItem ? existingItem.quantity + Number(quantity) : Number(quantity);
 
         if (requestedTotalQuantity > availableStock) {
-            req.flash("toast", JSON.stringify({ type: "error", message: `cannot add! ${quantity - 1} left` }));
-            return res.redirect("/home");
+            return res.status(400).json({ error: `cannot add! ${quantity} left` });
         }
         if (existingItem) {
             existingItem.quantity += Number(quantity);
@@ -158,11 +155,10 @@ export const addToCart = async (req, res) => {
         }
 
         await cart.save();
-        req.flash("toast", JSON.stringify({ type: "success", message: "Added to cart!" }));
-        return res.redirect("/cart");
+        return res.status(200).json({ success: true, message: "Added to cart" });
     } catch (err) {
         console.error(err);
-        return res.redirect("/home");
+        return res.status(500).json({ success: false, error: "Server error" });
     }
 };
 

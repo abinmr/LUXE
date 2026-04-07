@@ -1,37 +1,87 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const toastEl = document.getElementById("actionToast");
+    const toastBodyEl = document.getElementById("actionToastBody");
+    const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
+
+    const showToast = (message, type = "success") => {
+        if (!toast || !toastBodyEl) return;
+        toastBodyEl.textContent = message;
+        toastBodyEl.classList.remove("text-success", "text-danger");
+        toastBodyEl.classList.add(type === "success" ? "text-black" : "text-danger");
+        toast.show();
+    };
+    const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
+    const cartForms = document.querySelectorAll(".cart-form");
+
+    console.log("cart form", cartForms);
+
+    wishlistBtns.forEach((button) => {
+        button.addEventListener("click", async function (e) {
+            e.preventDefault();
+            const itemId = this.dataset.itemId;
+            const icon = this.querySelector("i");
+            const isAdded = icon.classList.contains("bi-heart-fill");
+
+            try {
+                if (isAdded) {
+                    const result = await fetch(`/wishlist/delete/${itemId}`, { method: "DELETE" });
+                    const data = await result.json();
+                    if (data.success) {
+                        icon.classList.remove("bi-heart-fill", "text-danger");
+                        icon.classList.add("bi-heart");
+                        showToast(data.message);
+                    }
+                } else {
+                    const result = await fetch(`/wishlist/add/${itemId}`);
+                    const data = await result.json();
+                    if (data.success) {
+                        icon.classList.remove("bi-heart");
+                        icon.classList.add("bi-heart-fill", "text-danger");
+                        showToast(data.message);
+                    }
+                }
+            } catch (err) {
+                console.error("something went wrong", err);
+            }
+        });
+    });
+
+    cartForms.forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+            const submitter = e.submitter;
+            if (!submitter || submitter.value !== "cart") {
+                return;
+            }
+            e.preventDefault();
+            const data = {
+                productId: form.productId.value,
+                variantId: form.variantId.value,
+                sizeId: form.sizeId.value,
+                quantity: form.quantity.value,
+            };
+            try {
+                const response = await fetch("/cart/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+});
+
 let selectedVariant = productData.variants[0];
 let selectedSize = selectedVariant.sizes[0];
 const mainImage = document.getElementById("mainImage");
 const detail = document.getElementById("detail");
-const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
-
-wishlistBtns.forEach((button) => {
-    button.addEventListener("click", async function (e) {
-        e.preventDefault();
-        const itemId = this.dataset.itemId;
-        const icon = this.querySelector("i");
-        const isAdded = icon.classList.contains("bi-heart-fill");
-
-        try {
-            if (isAdded) {
-                const result = await fetch(`/wishlist/delete/${itemId}`, { method: "DELETE" });
-                const data = await result.json();
-                if (data.success) {
-                    icon.classList.remove("bi-heart-fill", "text-danger");
-                    icon.classList.add("bi-heart");
-                }
-            } else {
-                const result = await fetch(`/wishlist/add/${itemId}`);
-                const data = await result.json();
-                if (data.success) {
-                    icon.classList.remove("bi-heart");
-                    icon.classList.add("bi-heart-fill", "text-danger");
-                }
-            }
-        } catch (err) {
-            console.error("something went wrong", err);
-        }
-    });
-});
 
 let drift;
 function initZoom() {
