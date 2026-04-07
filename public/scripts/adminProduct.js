@@ -4,6 +4,7 @@ const productError = document.getElementById("productError");
 const productDescError = document.getElementById("productDescError");
 const colorError = document.querySelectorAll(".color-error");
 const productForm = document.getElementById("productForm");
+const imageFileInputs = document.querySelectorAll(".image-file-input");
 
 function validateProductName() {
     const productName = productNameInput.value.trim();
@@ -31,13 +32,30 @@ function validateProductDesc() {
     }
 }
 
+function validateImageFileInput() {
+    imageFileInputs.forEach((input) => {
+        const errorElement = input.closest(".image-picker-area").parentElement.querySelector(".image-error");
+        if (input.files.length === 0) {
+            errorElement.textContent = "Please upload atleast one image";
+            return false;
+        } else {
+            errorElement.textContent = "";
+            return true;
+        }
+    });
+}
+
 productNameInput.addEventListener("blur", validateProductName);
 productDescInput.addEventListener("blur", validateProductDesc);
+imageFileInputs.forEach((input) => {
+    input.addEventListener("change", validateImageFileInput);
+});
 
 productForm.addEventListener("submit", (e) => {
     const isNameValid = validateProductName();
     const isDescValid = validateProductDesc();
-    if (!isNameValid || !isDescValid) {
+    const isImageValid = validateImageFileInput();
+    if (!isNameValid || !isDescValid || !isImageValid) {
         e.preventDefault();
     }
 });
@@ -227,10 +245,30 @@ function setupImagePicker(block, ci) {
 function sizeRowHTML(ci, si) {
     return `
                     <div class="size-row row g-2 align-items-center mb-2">
-                        <div class="col"><input type="text"   class="form-control bg-light text-uppercase" name="variants[${ci}][sizes][${si}][size]"           placeholder="e.g., M"></div>
-                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][price]"          placeholder="0.00" step="0.01" min="0"></div>
-                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
-                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][stock]"          placeholder="0"    min="0"></div>
+                        <div class="col">
+                            <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[${ci}][sizes][${si}][size]" placeholder="e.g., M">
+                            <div class="error-container">
+                                <p class="text-danger mb-0 small size-error"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control bg-light price-input" name="variants[${ci}][sizes][${si}][price]" placeholder="0.00" step="0.01" min="0">
+                            <div class="error-container">
+                                <p class="text-danger mb-0 small price-error"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control bg-light compare-price-input" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0">
+                            <div class="error-container">
+                                <p class="text-danger mb-0 small compare-error"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control bg-light stock-input" name="variants[${ci}][sizes][${si}][stock]" placeholder="0" min="0">
+                            <div class="error-container">
+                                <p class="text-danger mb-0 small stock-input"></p>
+                            </div>
+                        </div>
                         <div style="width:36px;">
                             <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>

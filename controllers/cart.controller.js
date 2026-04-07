@@ -77,7 +77,7 @@ async function getCartItems(userId) {
 }
 
 function calcPricing(cartItems) {
-    const selectedItems = cartItems.filter((item) => item.isSelected);
+    const selectedItems = cartItems.filter((item) => item.isSelected && item.isListed);
     const subtotal = selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
     const gst = Math.round(subtotal * 0.05);
     const shipping = subtotal > 0 ? 40 : 0;
@@ -101,7 +101,7 @@ export const getCartPage = async (req, res) => {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const cartItems = await getCartItems(req.user._id);
         const pricing = calcPricing(cartItems);
-        console.log("cartItems", cartItems);
+        // console.log("cartItems", cartItems);
         return res.render("cart", { categories, cartItems, pricing });
     } catch (err) {
         console.error(err);

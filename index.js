@@ -18,7 +18,6 @@ import { connectDB } from "./lib/db.js";
 
 dotevn.config({ quiet: true });
 
-// TODO: modify toast for cart to look like how it looks in wishlist;
 // TODO: admin product add page validation
 
 const app = express();
