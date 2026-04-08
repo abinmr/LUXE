@@ -1,3 +1,47 @@
+const categoryNameInput = document.getElementById("categoryName");
+const categoryNameError = document.getElementById("categoryNameError");
+const categoryDescription = document.getElementById("description");
+const catDescriptionError = document.getElementById("descError");
+const categoryForm = document.getElementById("form");
+
+function validateCategoryName() {
+    const name = categoryNameInput.value.trim();
+    if (name === "") {
+        categoryNameError.textContent = "category name is required";
+        categoryNameError.style.visibility = "visible";
+        return false;
+    } else {
+        categoryNameError.textContent = "";
+        categoryNameError.style.visibility = "hidden";
+        return true;
+    }
+}
+
+function validateCategoryDesc() {
+    const description = categoryDescription.value.trim();
+    if (description === "") {
+        catDescriptionError.textContent = "description is required";
+        catDescriptionError.style.visibility = "visible";
+        return false;
+    } else {
+        catDescriptionError.textContent = "";
+        catDescriptionError.style.visibility = "hidden";
+        return true;
+    }
+}
+
+categoryNameInput.addEventListener("blur", validateCategoryName);
+categoryDescription.addEventListener("blur", validateCategoryDesc);
+
+categoryForm.addEventListener("submit", (e) => {
+    const isNameValid = validateCategoryName();
+    const isDescValid = validateCategoryDesc();
+    const isFileValid = validateImageFile();
+    if (!isNameValid || !isDescValid || !isFileValid) {
+        e.preventDefault();
+    }
+});
+
 let cropperInstance = null;
 let currentResolve = null;
 let currentFile = null;
@@ -123,7 +167,6 @@ const previewContainer = document.getElementById("previewContainer");
 const hiddenInputContainer = document.getElementById("hiddenInputContainer");
 const removeBtn = document.getElementById("removeBtn");
 
-// ── X clicked: clear tile so user can pick a new image ────────────────────
 if (removeBtn) {
     removeBtn.addEventListener("click", () => {
         clearAll();
@@ -131,7 +174,6 @@ if (removeBtn) {
     });
 }
 
-// ── "Choose Image" clicked ────────────────────────────────────────────────
 addImageBtn.addEventListener("click", () => triggerInput.click());
 
 triggerInput.addEventListener("change", async () => {
