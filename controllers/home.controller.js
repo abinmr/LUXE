@@ -76,7 +76,8 @@ export const getProductDetails = async (req, res) => {
 export const getSearchProducts = async (req, res) => {
     const search = req.query.search;
     const categories = await Category.find({ isActive: true, isDeleted: false });
-    const products = await Product.find({ name: { $regex: search, $options: "i" } });
+    const products = await Product.find({ name: { $regex: search, $options: "i" }, isListed: true, isDeleted: false });
+    const colors = await Product.find({ name: { $regex: search, $options: "i" }, isListed: true, isDeleted: false }).distinct("variants.color");
     let userWishlist = [];
     let wishlist = null;
     if (req.user) {
@@ -85,8 +86,7 @@ export const getSearchProducts = async (req, res) => {
     if (wishlist) {
         userWishlist = wishlist.products.map((item) => item.productId.toString());
     }
-    // console.log(JSON.stringify(products, null, 2));
-    return res.render("productSearch", { categories, products, userWishlist, search });
+    return res.render("productSearch", { categories, products, userWishlist, search, colors });
 };
 
 export const searchProductFilter = async (req, res) => {
