@@ -18,7 +18,7 @@ export const checkUserStatus = async (req, res, next) => {
         const user = await User.findById(decoded.userId).select("-password");
 
         if (user && !user.isBlocked) {
-            console.log("user mounted.");
+            // console.log("user mounted.");
             req.user = user;
             res.locals.user = user;
         } else {

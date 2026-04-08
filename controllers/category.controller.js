@@ -54,9 +54,9 @@ export const filterCategoryProducts = async (req, res) => {
         } else if (sort === "high-to-low") {
             dbQuery = dbQuery.sort({ "variants.0.sizes.0.price": -1 });
         } else if (sort === "A-Z") {
-            dbQuery = dbQuery.sort({ name: -1 });
-        } else if (sort === "Z-A") {
             dbQuery = dbQuery.sort({ name: 1 });
+        } else if (sort === "Z-A") {
+            dbQuery = dbQuery.sort({ name: -1 });
         } else {
             dbQuery = dbQuery.sort({ createdAt: 1 });
         }
