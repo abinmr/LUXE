@@ -16,7 +16,7 @@ export const getCategoryProducts = async (req, res) => {
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }
-        console.log("Products", JSON.stringify(products, null, 2));
+        // console.log("Products", JSON.stringify(products, null, 2));
         return res.render("categoryDetails", { categories, id: req.params.id, products, userWishlist, colors });
     } catch (err) {
         console.error("category error", err);

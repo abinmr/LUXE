@@ -246,25 +246,25 @@ function sizeRowHTML(ci, si) {
     return `
                     <div class="size-row row g-2 align-items-center mb-2">
                         <div class="col">
-                            <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[${ci}][sizes][${si}][size]" placeholder="e.g., M">
+                            <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[${ci}][sizes][${si}][size]" placeholder="e.g., M"required>
                             <div class="error-container">
                                 <p class="text-danger mb-0 small size-error"></p>
                             </div>
                         </div>
                         <div class="col">
-                            <input type="number" class="form-control bg-light price-input" name="variants[${ci}][sizes][${si}][price]" placeholder="0.00" step="0.01" min="0">
+                            <input type="number" class="form-control bg-light price-input" name="variants[${ci}][sizes][${si}][price]" placeholder="0.00" step="0.01" min="0" required>
                             <div class="error-container">
                                 <p class="text-danger mb-0 small price-error"></p>
                             </div>
                         </div>
                         <div class="col">
-                            <input type="number" class="form-control bg-light compare-price-input" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0">
+                            <input type="number" class="form-control bg-light compare-price-input" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0" required>
                             <div class="error-container">
                                 <p class="text-danger mb-0 small compare-error"></p>
                             </div>
                         </div>
                         <div class="col">
-                            <input type="number" class="form-control bg-light stock-input" name="variants[${ci}][sizes][${si}][stock]" placeholder="0" min="0">
+                            <input type="number" class="form-control bg-light stock-input" name="variants[${ci}][sizes][${si}][stock]" placeholder="0" min="0" required>
                             <div class="error-container">
                                 <p class="text-danger mb-0 small stock-input"></p>
                             </div>
@@ -291,7 +291,7 @@ function colorVariantHTML(ci) {
                             <div class="row g-3 mb-3">
                                 <div class="col">
                                     <label class="form-label small fw-semibold text-muted">Color Name</label>
-                                    <input type="text" class="form-control bg-light color-input" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red">
+                                    <input type="text" class="form-control bg-light color-input" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red" required>
                                 </div>
                                 <div class="col">
                                     <label class="form-label small fw-semibold text-muted">
