@@ -2,7 +2,7 @@ const categoryNameInput = document.getElementById("categoryName");
 const categoryNameError = document.getElementById("categoryNameError");
 const categoryDescription = document.getElementById("description");
 const catDescriptionError = document.getElementById("descError");
-const imageFileInput = document.getElementById("triggerInput");
+const hiddenInputDivContainer = document.getElementById("hiddenInputContainer");
 const imageError = document.getElementById("image-error");
 const categoryForm = document.getElementById("form");
 
@@ -33,8 +33,10 @@ function validateCategoryDesc() {
 }
 
 function validateImageFile() {
-    if (imageFileInput.files.length === 0) {
-        imageError.textContent = "image is required";
+    const uploadedImageInput = hiddenInputDivContainer.querySelector('input[type="file"][name="image"]');
+
+    if (!uploadedImageInput || !uploadedImageInput.files || !uploadedImageInput.files.length === 0) {
+        imageError.textContent = "Image is required";
         imageError.style.visibility = "visible";
         return false;
     } else {
@@ -46,12 +48,12 @@ function validateImageFile() {
 
 categoryNameInput.addEventListener("blur", validateCategoryName);
 categoryDescription.addEventListener("blur", validateCategoryDesc);
-imageFileInput.addEventListener("change", validateImageFile);
 
 categoryForm.addEventListener("submit", (e) => {
     const isNameValid = validateCategoryName();
     const isDescValid = validateCategoryDesc();
     const isFileValid = validateImageFile();
+
     if (!isNameValid || !isDescValid || !isFileValid) {
         e.preventDefault();
     }
