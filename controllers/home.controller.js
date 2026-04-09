@@ -69,7 +69,6 @@ export const getProductDetails = async (req, res) => {
     if (wishlist) {
         userWishlist = wishlist.products.map((item) => item.productId.toString());
     }
-    console.log(product);
     return res.render("productDetails", { categories, product, otherProducts, userWishlist });
 };
 

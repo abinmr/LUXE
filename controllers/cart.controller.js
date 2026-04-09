@@ -116,7 +116,7 @@ export const addToCart = async (req, res) => {
             return res.status(400).json({ success: false, error: "Invalid product details" });
         }
 
-        console.log("BODY", req.body);
+        // console.log("BODY", req.body);
 
         const product = await Product.findById(productId);
         if (!product) {
@@ -146,7 +146,8 @@ export const addToCart = async (req, res) => {
         const requestedTotalQuantity = existingItem ? existingItem.quantity + Number(quantity) : Number(quantity);
 
         if (requestedTotalQuantity > availableStock) {
-            return res.status(400).json({ error: `cannot add! ${quantity} left` });
+            const remaining = availableStock - (requestedTotalQuantity - 1);
+            return res.status(400).json({ error: `cannot add! ${remaining} left` });
         }
         if (existingItem) {
             existingItem.quantity += Number(quantity);

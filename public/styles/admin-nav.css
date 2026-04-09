@@ -58,8 +58,16 @@ body {
 }
 
 .error-container {
-    min-height: 15px !important;
+    min-height: 12px;
     margin-left: 4px;
+    position: relative;
+}
+
+.error-container p {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    position: absolute;
 }
 
 .top-bar {

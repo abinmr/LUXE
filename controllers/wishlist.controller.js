@@ -5,10 +5,17 @@ import Product from "../models/product.model.js";
 export const getWishlistProducts = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
-        const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate("products.productId");
-        // TODO: only show products in wishlist that are listed.
-        const result = wishlist.products.filter((item) => item.productId.isListed);
-        console.log(JSON.stringify(wishlist, null, 2));
+        const wishlist = await Wishlist.aggregate([
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "products.productId",
+                    foreignField: "_id",
+                    pipeline: [{ $match: { isListed: true } }],
+                    as: "products",
+                },
+            },
+        ]);
         res.render("wishlist", { categories, wishlist });
     } catch (err) {
         console.error(err);
@@ -43,7 +50,7 @@ export const addToWishlist = async (req, res) => {
         return res.status(200).json({ success: true, message: "Add to wishlist" });
     } catch (err) {
         console.error(err);
-        return res.redirect("/home");
+        return res.status(500).json({ success: false, error: err });
     }
 };
 
@@ -57,6 +64,6 @@ export const deleteWishlistProduct = async (req, res) => {
         return res.status(200).json({ success: true, message: "Removed from wishlist" });
     } catch (err) {
         console.error(err);
-        return res.redirect("/");
+        return res.status(500).json({ success: true, error: err });
     }
 };
