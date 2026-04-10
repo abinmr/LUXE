@@ -38,7 +38,35 @@ export const getHomePage = async (req, res) => {
     try {
         let userWishlist = [];
         const categories = await Category.find({ $and: [{ isActive: true, isDeleted: false }] });
-        const products = await Product.find({ isDeleted: false, isListed: true }).limit(12);
+        // const products = await Product.find({ isDeleted: false, isListed: true })
+        //     .populate({ path: "category", match: { isListed: true } })
+        //     .limit(12);
+        const products = await Product.aggregate([
+            {
+                $lookup: {
+                    from: "categories",
+                    let: { categoryId: "$category" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", "$$categoryId"] },
+                            },
+                        },
+                        {
+                            $match: {
+                                isActive: true,
+                            },
+                        },
+                    ],
+                    as: "category",
+                },
+            },
+            {
+                $match: {
+                    category: { $ne: [] },
+                },
+            },
+        ]);
         let wishlist = null;
         if (req.user) {
             wishlist = await Wishlist.findOne({ userId: req.user._id });
@@ -55,7 +83,8 @@ export const getHomePage = async (req, res) => {
 
 export const getProductDetails = async (req, res) => {
     const id = req.params.id;
-    const product = await Product.findOne({ _id: id, isListed: true, isDeleted: false });
+    const product = await Product.findOne({ _id: id, isListed: true, isDeleted: false }).populate("category");
+    if (!product.category.isActive) return res.redirect("/home");
     if (!product) {
         return res.redirect("/home");
     }

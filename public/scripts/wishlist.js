@@ -1,5 +1,6 @@
 const wishlistItem = document.querySelectorAll(".wishlist-item");
 const wishlistDelete = document.querySelectorAll(".wishlist-remove");
+const cartForms = document.querySelectorAll(".cart-form");
 
 const toastEl = document.getElementById("actionToast");
 const toastBodyEl = document.getElementById("actionToastBody");
@@ -28,6 +29,36 @@ wishlistDelete.forEach((btn) => {
             }
         } catch (err) {
             console.error(err);
+        }
+    });
+});
+
+cartForms.forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = {
+            productId: form.productId.value,
+            variantId: form.variantId.value,
+            sizeId: form.sizeId.value,
+            quantity: form.quantity.value,
+        };
+        try {
+            const response = await fetch("/cart/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            const result = await response.json();
+            // console.log("data", data);
+            if (result.success) {
+                showToast(result.message);
+            } else {
+                showToast(result.error, "error");
+            }
+        } catch (err) {
+            console.error("form submit failed", err);
         }
     });
 });

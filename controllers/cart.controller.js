@@ -14,6 +14,14 @@ async function getCartItems(userId) {
                 as: "product",
             },
         },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "product.category",
+                foreignField: "_id",
+                as: "category",
+            },
+        },
         { $unwind: "$product" },
         {
             $addFields: {
@@ -25,6 +33,7 @@ async function getCartItems(userId) {
                 productName: "$product.name",
                 description: "$product.description",
                 isListed: "$product.isListed",
+                categoryActive: { $arrayElemAt: ["$category.isActive", 0] },
                 variant: {
                     $arrayElemAt: [
                         {
@@ -65,6 +74,7 @@ async function getCartItems(userId) {
                 quantity: 1,
                 isSelected: 1,
                 isListed: 1,
+                categoryActive: 1,
                 color: { $ifNull: ["$variant.color", ""] },
                 images: { $ifNull: ["$variant.images", []] },
                 size: { $ifNull: ["$size.size", ""] },
@@ -100,8 +110,10 @@ export const getCartPage = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const cartItems = await getCartItems(req.user._id);
+        console.log(cartItems);
         const pricing = calcPricing(cartItems);
-        // console.log("cartItems", cartItems);
+        // const total = await Cart.aggregate([{ $addFields: { total: { $sum: "$items.quantity" } } }]);
+        // console.log(JSON.stringify(total, null, 2));
         return res.render("cart", { categories, cartItems, pricing });
     } catch (err) {
         console.error(err);

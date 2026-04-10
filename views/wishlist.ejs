@@ -77,7 +77,7 @@
                                             <% } %>
                                         </div>
     
-                                        <form action="/cart/add" method="POST" class="mt-auto">
+                                        <form action="/cart/add" method="POST" class="mt-auto cart-form">
                                             <input type="hidden" name="productId" value="<%= product._id %>">
                                             <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
                                             <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">

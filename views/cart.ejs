@@ -33,7 +33,7 @@
             <div class="gap-4 mt-4 item-container">
                 <div class="d-flex flex-column gap-3" id="cart-list">
                     <% cartItems.forEach((cart) => { %>
-                        <% if (!cart.isListed) { %>
+                        <% if (!cart.isListed || !cart.categoryActive) { %>
                             <div class="d-flex justify-content-between align-items-center px-4 border bg-white rounded cart-item" data-item-id="<%= cart.itemId %>" style="height: 150px;">
                                 <div class="d-flex align-items-center gap-5">
                                     <img src="<%= cart.images[0] %>" height="96" width="96" class="rounded" />
