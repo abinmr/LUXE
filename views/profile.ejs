@@ -17,6 +17,7 @@
         ></script> 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD" crossorigin="anonymous">
         <link rel="stylesheet" href="/styles/navbar.css" />
+        <link rel="stylesheet" href="/styles/profile.css">
         <script defer src="/scripts/profile.js"></script>
     </head>
     <body style="background-color: #fefbf8;">
@@ -98,21 +99,36 @@
                                 <form action="/profile/change-password" method="POST" id="passwordForm">
                                     <div class="mb-1">
                                         <label for="currentPassword" class="form-label">Current Password</label>
-                                        <input type="password" class="form-control" name="currentPassword" id="currentPassword">
+                                        <div class="input-group border border-1 rounded-2">
+                                            <input type="password" class="form-control border-0" name="currentPassword" id="currentPassword">
+                                            <button class="btn border-0" type="button" id="toggle-current-password">
+                                                <i class="bi bi-eye-slash" id="current-eye-icon"></i>
+                                            </button>
+                                        </div>
                                         <div class="mt-1 error-container">
                                             <p class="text-danger m-0" id="currentPasswordError"></p>
                                         </div>
                                     </div>
                                     <div class="mb-1">
                                         <label for="newPassword" class="form-label">New Password</label>
-                                        <input type="password" class="form-control" name="newPassword" id="newPassword">
+                                        <div class="input-group border border-1 rounded-2">
+                                            <input type="password" class="form-control border-0" name="newPassword" id="newPassword">
+                                            <button class="btn border-0" type="button" id="toggle-new-password">
+                                                <i class="bi bi-eye-slash" id="new-eye-icon"></i>
+                                            </button>
+                                        </div>
                                         <div class="error-container mt-1">
                                             <p class="text-danger m-0" id="newPasswordError"></p>
                                         </div>
                                     </div>
                                     <div class="mb-1">
                                         <label for="confirmNewPassword">Confirm New Password</label>
-                                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword">
+                                        <div class="input-group border border-1 rounded-2">
+                                            <input type="password" class="form-control border-0" name="confirmPassword" id="confirmPassword">
+                                            <button class="btn border-0" type="button" id="toggle-confirm-password">
+                                                <i class="bi bi-eye-slash" id="confirm-eye-icon"></i>
+                                            </button>
+                                        </div>
                                         <div class="error-container mt-1">
                                             <p class="text-danger m-0" id="confirmPasswordError"></p>
                                         </div>

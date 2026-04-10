@@ -26,6 +26,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const profileImageInput = document.getElementById("profileImageInput");
     const avatarImg = document.getElementById("avatarImg");
 
+    const currentPasswordBtn = document.getElementById("toggle-current-password");
+    const currentEyeIcon = document.getElementById("current-eye-icon");
+    const newPasswordBtn = document.getElementById("toggle-new-password");
+    const newEyeIcon = document.getElementById("new-eye-icon");
+    const confirmPasswordBtn = document.getElementById("toggle-confirm-password");
+    const confirmIcon = document.getElementById("confirm-eye-icon");
+
+    currentPasswordBtn.addEventListener("click", () => {
+        const type = currentPasswordInput.type === "password" ? "text" : "password";
+        currentPasswordInput.setAttribute("type", type);
+
+        currentEyeIcon.classList.toggle("bi-eye");
+        currentEyeIcon.classList.toggle("bi-eye-slash");
+    });
+
+    newPasswordBtn.addEventListener("click", () => {
+        const type = newPasswordInput.type === "password" ? "text" : "password";
+        newPasswordInput.setAttribute("type", type);
+
+        currentEyeIcon.classList.toggle("bi-eye");
+        currentEyeIcon.classList.toggle("bi-eye-slash");
+    });
+
+    confirmPasswordBtn.addEventListener("click", () => {
+        const type = confirmPasswordInput.type === "password" ? "text" : "password";
+        confirmPasswordInput.setAttribute("type", type);
+
+        currentEyeIcon.classList.toggle("bi-eye");
+        currentEyeIcon.classList.toggle("bi-eye-slash");
+    });
+
     avatarWrapper.addEventListener("click", () => profileImageInput.click());
 
     profileImageInput.addEventListener("change", () => {

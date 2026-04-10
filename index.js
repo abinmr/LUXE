@@ -18,8 +18,6 @@ import { connectDB } from "./lib/db.js";
 
 dotevn.config({ quiet: true });
 
-// TODO: admin product add page validation
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 

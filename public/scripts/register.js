@@ -14,6 +14,7 @@ const togglePassword = document.getElementById("toggle-password");
 const togglePassword2 = document.getElementById("toggle-password-2");
 const eyeIcon = document.getElementById("eye-icon");
 const eyeIcon2 = document.getElementById("eye-icon-2");
+
 togglePassword.addEventListener("click", () => {
     const type = passwordInput.type === "password" ? "text" : "password";
     passwordInput.setAttribute("type", type);
