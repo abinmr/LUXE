@@ -26,6 +26,7 @@ export const getProductPage = async (req, res) => {
         currentPage: page,
         totalPages,
         limit,
+        search,
     });
 };
 

@@ -32,9 +32,10 @@
                         <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
                         </span>
-                        <input type="search" class="form-control border-0 shadow-none" name="search" id="search" placeholder="Search categories..." style="background-color: #f3f3f5" autofocus>
+                        <input type="search" class="form-control border-0 shadow-none" name="search" id="search" value="<%= search %>" placeholder="Search categories..." style="background-color: #f3f3f5">
                     </div>
-                    <button type="submit" class="btn btn-primary">submit</button>
+                    <a href="/admin/categories/" class="btn btn-danger btn-sm rounded-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-2">Submit</button>
 
                 </form>
             </div>

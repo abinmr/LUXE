@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileForm = document.getElementById("mobileFilterForm");
     const desktopForm = document.getElementById("desktopFilterForm");
     const searchQuery = window.searchQuery;
+    const resetBtn = document.getElementById("reset-form");
 
     attachCartListeners();
 
@@ -52,6 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const otherForm = form === mobileForm ? desktopForm : mobileForm;
             if (otherForm) syncForms(form, otherForm);
             fetchFilteredProducts(form);
+        });
+        resetBtn.addEventListener("click", () => {
+            form.reset();
+            maxRangeSpan.textContent = "₹500";
+            fetchFilteredProducts();
         });
     });
 
