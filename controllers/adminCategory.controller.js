@@ -21,6 +21,7 @@ export const getCategories = async (req, res) => {
         currentPage: page,
         totalPages: totalPages,
         limit: limit,
+        search,
     });
 };
 
@@ -35,6 +36,26 @@ export const getAddCategory = (req, res) => {
         slugError,
         imageError,
     });
+};
+
+export const listCategory = async (req, res) => {
+    try {
+        await Category.findByIdAndUpdate(req.params.id, { isActive: true });
+        return res.status(200).json({ success: true, message: "category status updated successfully" });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, error: err });
+    }
+};
+
+export const unlistCategory = async (req, res) => {
+    try {
+        await Category.findByIdAndUpdate(req.params.id, { isActive: false });
+        return res.status(200).json({ success: true, message: "category status updated successfully" });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, error: err });
+    }
 };
 
 export const addCategory = async (req, res) => {
