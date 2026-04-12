@@ -12,7 +12,7 @@
                     <% for(let i = 0; i < Math.min(categories.length, 3); i++) { %>
                         <li><a href="/category/<%= categories[i]._id %>" class="text-decoration-none text-black fw-semibold"> <%= categories[i].name %> </a></li>
                     <% } %>
-                    <% if (categories.length >= 3) {%>
+                    <% if (categories.length > 3) {%>
                         <div class="dropdown">
                             <button class="btn dropdown-toggle text-black" type="button" data-bs-toggle="dropdown" aria-expanded="false">More</button>
                             <ul class="dropdown-menu">

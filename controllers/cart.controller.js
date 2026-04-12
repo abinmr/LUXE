@@ -108,13 +108,12 @@ export const getCartDetails = async (req, res) => {
 
 export const getCartPage = async (req, res) => {
     try {
-        const categories = await Category.find({ isActive: true, isDeleted: false });
         const cartItems = await getCartItems(req.user._id);
         console.log(cartItems);
         const pricing = calcPricing(cartItems);
         // const total = await Cart.aggregate([{ $addFields: { total: { $sum: "$items.quantity" } } }]);
         // console.log(JSON.stringify(total, null, 2));
-        return res.render("cart", { categories, cartItems, pricing });
+        return res.render("cart", { cartItems, pricing });
     } catch (err) {
         console.error(err);
         return res.redirect("/home");
@@ -127,8 +126,6 @@ export const addToCart = async (req, res) => {
         if (!productId || !variantId || !sizeId || !quantity) {
             return res.status(400).json({ success: false, error: "Invalid product details" });
         }
-
-        // console.log("BODY", req.body);
 
         const product = await Product.findById(productId);
         if (!product) {

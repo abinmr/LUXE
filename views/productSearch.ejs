@@ -60,7 +60,10 @@
                     </div>
                     <div class="offcanvas-body">
                         <form action="/search" class="w-100" id="mobileFilterForm">
-                            <h6 class="fw-bold mb-3">Price Range</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold">Price Range</h6>
+                                <button type="reset" class="btn mb-0 border-0 text-primary" id="mobile-reset-form">Cancel</button>
+                            </div>
                             <div class="position-relative mb-4">
                                 <input type="range" class="form-range" min="0" max="500" step="10" name="priceRange" id="priceRangeMobile" value="500">
                                 <div class="d-flex justify-content-between text-muted small mt-1">

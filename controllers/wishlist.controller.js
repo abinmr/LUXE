@@ -1,10 +1,8 @@
 import Wishlist from "../models/wishlist.model.js";
-import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
 
 export const getWishlistProducts = async (req, res) => {
     try {
-        const categories = await Category.find({ isActive: true, isDeleted: false });
         const wishlist = await Wishlist.aggregate([
             {
                 $lookup: {
@@ -16,7 +14,7 @@ export const getWishlistProducts = async (req, res) => {
                 },
             },
         ]);
-        res.render("wishlist", { categories, wishlist });
+        res.render("wishlist", { wishlist });
     } catch (err) {
         console.error(err);
         return res.redirect("/home");

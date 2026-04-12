@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import User from "../models/user.model.js";
 import Address from "../models/address.model.js";
-import Category from "../models/category.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
@@ -16,13 +15,11 @@ export const getProfile = async (req, res) => {
         if (currentSection === "address") {
             addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
         }
-        const categories = await Category.find({ isDeleted: false });
         res.render("profile", {
             section: currentSection,
             addresses: addresses,
             toast: toast ? JSON.parse(toast) : null,
             phoneError: phoneError,
-            categories: categories,
         });
     } catch (err) {
         console.error("Error rendering profile.", err);

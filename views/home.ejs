@@ -24,7 +24,7 @@
         <link rel="stylesheet" href="/styles/navbar.css" />
     </head>
     <body>
-        <%- include('partials/navbar.ejs', { categories }) %>
+        <%- include('partials/navbar.ejs') %>
         <section class="position-relative overflow-hidden" style="height: 600px">
             <img src="/images/hero-banner.png" alt="hero section image" class="w-100 object-fit-cover" />
             <div class="position-absolute d-flex align-items-center text-white" style="inset: 0px; background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)">
@@ -63,80 +63,11 @@
 <section>
     <div class="container-xxl">
         <h3 class="fw-bolder mb-0">Products</h3>
+
         
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mt-2 pb-5">
-            <% locals.products.forEach((product) => { %>
-                <% if (product.variants && product.variants.length > 0) { %>
-                    
-                    <% 
-                       const price = product.variants[0].sizes[0].price;
-                       const comparePrice = product.variants[0].sizes[0].compareAtPrice;
-                       let discount = 0;
-                       if (comparePrice > price) {
-                           discount = Math.round(((comparePrice - price) / comparePrice) * 100);
-                       }
-                    %>
-
-                    <div class="col">
-                        <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6;">
-                            
-                            <div class="position-relative">
-                                <a href="/product/<%= product._id %>" class="text-decoration-none d-block overflow-hidden" style="height: 400px;">
-                                    <img src="<%= product.variants[0].images[0] %>" 
-                                         alt="<%= product.name %>" 
-                                         class="card-img-top object-fit-cover w-100 h-100 img-animation" 
-                                         style="border-bottom: 1px solid #eaeaea;">
-                                </a>
-                                
-                                <% if (discount > 0) { %>
-                                    <span class="position-absolute top-0 start-0 badge bg-danger m-3 py-1 px-2 rounded-1 fw-medium">
-                                        -<%= discount %>%
-                                    </span>
-                                <% } %>
-
-                                <% const isInWishlist = locals.userWishlist.includes(product._id.toString()) %>
-                                <% if (isInWishlist) {%>
-                                    <button data-item-id="<%= product._id %>" class="btn glass text-dark position-absolute top-0 end-0 m-2 rounded-circle text-decoration-none wishlistRemove-btn" aria-label="Add to wishlist">
-                                        <i class="bi bi-heart-fill text-danger fs-5"></i>
-                                    </button>
-                                <% } else { %>
-                                    <button data-item-id="<%= product._id %>" class="btn btn-light border-0 glass text-dark position-absolute top-0 end-0 m-2 rounded-circle text-decoration-none wishlistAdd-btn" aria-label="Add to wishlist">
-                                        <i class="bi bi-heart fs-5"></i>
-                                    </button>
-                                <% } %>
-                            </div>
-
-                            <div class="card-body d-flex flex-column p-3">
-                                <h6 class="card-title fw-semibold text-truncate mb-1" title="<%= product.name %>">
-                                    <%= product.name %>
-                                </h6>
-                                
-                                <div class="mb-3 d-flex align-items-center gap-2">
-                                    <span class="fw-bold fs-5 mb-0 text-dark">₹<%= price %></span>
-                                    <% if (comparePrice > price) { %>
-                                        <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">
-                                            ₹<%= comparePrice %>
-                                        </span>
-                                    <% } %>
-                                </div>
-
-                                <form action="/cart/add" method="POST" class="mt-auto cart-form">
-                                    <input type="hidden" name="productId" value="<%= product._id %>">
-                                    <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
-                                    <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">
-                                    <input type="hidden" name="quantity" value="1">
-                                    
-                                    <button class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
-                                        Add to Cart
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                <% } %>
-            <% }) %>
+        <div id="product-container" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mt-2 pb-5">
         </div>
+        <h6 id="loading" class="text-center fw-bold">loading...</h6>
     </div>
 </section>
 

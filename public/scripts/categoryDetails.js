@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileForm = document.getElementById("mobileFilterForm");
     const desktopForm = document.getElementById("desktopFilterForm");
     const categoryId = window.categoryId;
+    const resetBtn = document.getElementById("reset-btn");
+    const mobileResetBtn = document.getElementById("reset-btn-mobile");
 
     attachCartListeners();
 
@@ -52,6 +54,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const otherForm = form === mobileForm ? desktopForm : mobileForm;
             if (otherForm) syncForms(form, otherForm);
             fetchFilteredProducts(form);
+        });
+
+        [resetBtn, mobileResetBtn].forEach((btn) => {
+            btn.addEventListener("click", () => {
+                form.reset();
+                maxRangeSpan.textContent = "₹500";
+                fetchFilteredProducts();
+            });
         });
     });
 

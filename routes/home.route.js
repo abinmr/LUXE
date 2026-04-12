@@ -1,9 +1,11 @@
 import express from "express";
-import { checkUserStatus, getHomePage, getProductDetails, getSearchProducts, searchProductFilter } from "../controllers/home.controller.js";
+import { checkUserStatus, getHomePage, getProductDetails, getSearchProducts, loadCategories, searchProductFilter } from "../controllers/home.controller.js";
 
 const router = express.Router();
 
 router.use(checkUserStatus);
+
+router.use(loadCategories);
 
 router.get("/home", getHomePage);
 
