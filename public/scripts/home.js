@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(window.initialToast.message, window.initialToast.type);
     }
 
-    const loadingText = document.getElementById("loading");
+    const loadingSpinner = document.getElementById("loading");
 
     let page = 1;
     let loading = false;
@@ -28,10 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const scrollPosition = window.innerHeight + window.scrollY;
         const bottom = document.body.offsetHeight - 100;
+        loadingSpinner.style.display = "block";
 
         if (scrollPosition >= bottom) {
             loading = true;
-            loadingText.textContent = "Loading...";
 
             try {
                 const response = await fetch(`/home/?page=${page}`, {
@@ -47,11 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 page++;
-                loadingText.textContent = "";
                 appendProducts(data.products, data.wishlist);
             } catch (err) {
                 console.error(err);
             } finally {
+                loadingSpinner.style.display = "none";
                 loading = false;
             }
         }

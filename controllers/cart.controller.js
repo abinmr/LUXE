@@ -88,7 +88,7 @@ async function getCartItems(userId) {
 
 function calcPricing(cartItems) {
     const selectedItems = cartItems.filter((item) => item.isSelected && item.isListed);
-    const subtotal = selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+    const subtotal = Math.floor(selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0));
     const gst = Math.round(subtotal * 0.05);
     const shipping = subtotal > 0 ? 40 : 0;
     const total = subtotal + gst + shipping;
@@ -109,7 +109,6 @@ export const getCartDetails = async (req, res) => {
 export const getCartPage = async (req, res) => {
     try {
         const cartItems = await getCartItems(req.user._id);
-        console.log(cartItems);
         const pricing = calcPricing(cartItems);
         // const total = await Cart.aggregate([{ $addFields: { total: { $sum: "$items.quantity" } } }]);
         // console.log(JSON.stringify(total, null, 2));

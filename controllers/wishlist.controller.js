@@ -3,17 +3,14 @@ import Product from "../models/product.model.js";
 
 export const getWishlistProducts = async (req, res) => {
     try {
-        const wishlist = await Wishlist.aggregate([
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "products.productId",
-                    foreignField: "_id",
-                    pipeline: [{ $match: { isListed: true } }],
-                    as: "products",
-                },
+        const result = await Wishlist.find({ userId: req.user._id }).populate({
+            path: "products.productId",
+            populate: {
+                path: "category",
+                model: "Category",
             },
-        ]);
+        });
+        const wishlist = result[0].products.map((item) => item.productId);
         res.render("wishlist", { wishlist });
     } catch (err) {
         console.error(err);

@@ -2,7 +2,6 @@ const productNameInput = document.getElementById("productName");
 const productDescInput = document.getElementById("productDescription");
 const productError = document.getElementById("productError");
 const productDescError = document.getElementById("productDescError");
-const colorError = document.querySelectorAll(".color-error");
 const productForm = document.getElementById("productForm");
 
 function validateProductName() {
@@ -38,8 +37,8 @@ function validateVariantImages() {
         const imageInput = variant.querySelector(".image-file-input");
         const imageError = variant.querySelector(".image-error");
 
-        if (!imageInput || imageInput.files.length === 0) {
-            imageError.textContent = "Please upload at least one image";
+        if (!imageInput || imageInput.files.length < 3) {
+            imageError.textContent = "Please upload at least 3 image";
             imageError.style.visibility = "visible";
             isValid = false;
         } else {
@@ -50,21 +49,39 @@ function validateVariantImages() {
     return isValid;
 }
 
-document.addEventListener("change", (e) => {
-    if (e.target.classList.contains("image-file-input")) {
-        const imageInput = e.target;
-        const variant = imageInput.closest(".color-variant-block");
-        const imageError = variant.querySelector(".image-error");
-
-        if (!imageInput || imageInput.files.length === 0) {
-            imageError.textContent = "Please upload at least one image";
-            imageError.style.visibility = "visible";
+function validateColorInput() {
+    const colorInput = document.querySelectorAll(".color-input");
+    const colorError = document.querySelectorAll(".color-error");
+    let isValid = false;
+    colorInput.forEach((input, i) => {
+        const colorText = input.value.trim();
+        if (colorText === "") {
+            colorError[i].textContent = "color is required";
+            isValid = false;
         } else {
-            imageError.textContent = "";
-            imageError.style.visibility = "hidden";
+            colorError[i].textContent = "";
+            isValid = true;
         }
-    }
-});
+    });
+    return isValid;
+}
+
+function validateSize() {
+    const sizeInput = document.querySelectorAll(".size-input");
+    const sizeError = document.querySelectorAll(".size-error");
+    let isValid = false;
+    sizeInput.forEach((input, i) => {
+        const sizeText = input.value.trim();
+        if (sizeText === "") {
+            sizeError[i].textContent = "size is required";
+            isValid = false;
+        } else {
+            sizeError[i].textContent = "";
+            isValid = true;
+        }
+    });
+    return isValid;
+}
 
 productNameInput.addEventListener("blur", validateProductName);
 productDescInput.addEventListener("blur", validateProductDesc);
@@ -72,9 +89,11 @@ productDescInput.addEventListener("blur", validateProductDesc);
 productForm.addEventListener("submit", (e) => {
     const isNameValid = validateProductName();
     const isDescValid = validateProductDesc();
+    const isColorValid = validateColorInput();
     const isImageValid = validateVariantImages();
-    console.log("Submit working");
-    if (!isNameValid || !isDescValid || !isImageValid) {
+    const isSizeValid = validateSize();
+    console.log("size", isSizeValid);
+    if (!isNameValid || !isDescValid || !isImageValid || !isColorValid || !isSizeValid) {
         e.preventDefault();
     }
 });
@@ -129,10 +148,10 @@ document.getElementById("cropConfirmBtn").addEventListener("click", () => {
 
     cropperInstance
         .getCroppedCanvas({
-            maxWidth: 2048,
+            // maxWidth: 2048,
             // width: 310,
             // height: 400,
-            maxHeight: 2048,
+            // maxHeight: 2048,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: "high",
         })

@@ -157,11 +157,9 @@ export const editProductDetails = async (req, res) => {
 export const listProduct = async (req, res) => {
     try {
         await Product.findByIdAndUpdate(req.params.id, { isListed: true });
-        // return res.redirect("/admin/products");
         return res.status(200).json({ success: true, message: "product listed" });
     } catch (err) {
         console.error(err);
-        // return res.redirect("/admin/products");
         return res.status(500).json({ success: false, error: err });
     }
 };
@@ -169,11 +167,9 @@ export const listProduct = async (req, res) => {
 export const unlistProduct = async (req, res) => {
     try {
         await Product.findByIdAndUpdate(req.params.id, { isListed: false });
-        // return res.redirect("/admin/products");
         return res.status(200).json({ success: true, message: "product unlisted" });
     } catch (err) {
         console.error(err);
-        // return res.redirect("/admin/products");
         return res.status(500).json({ success: false, error: err });
     }
 };
