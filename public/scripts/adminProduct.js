@@ -236,12 +236,20 @@ function setupImagePicker(block, ci) {
     addBtn.addEventListener("click", () => fileInput.click());
 
     fileInput.addEventListener("change", async () => {
+        const imageError = block.querySelector(".image-error");
         const remaining = MAX_IMAGES - files.length;
-        const incoming = [...fileInput.files].slice(0, remaining);
+        const selected = [...fileInput.files].slice(0, remaining);
         fileInput.value = "";
-        if (incoming.length === 0) return;
+        if (selected.length === 0) return;
 
-        for (const file of incoming) {
+        const nonImages = selected.filter((file) => !file.type.startsWith("images/"));
+        if (nonImages.length > 0) {
+            imageError.textContent = `"${nonImages[0].name}" is not a valid image file.`;
+            imageError.style.visibility = "visible";
+            return;
+        }
+
+        for (const file of selected) {
             const result = await cropSingleFile(file);
             if (result) files.push(result);
         }
