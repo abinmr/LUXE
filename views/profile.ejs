@@ -84,7 +84,7 @@
                                     </div>
                                     <div class="mb-4">
                                         <label for="phone" class="form-label">Phone</label>
-                                        <input type="number" class="form-control text-muted" name="phone" id="phoneProfile" placeholder="<%= locals.user.phone || 'Optional' %>" readonly>
+                                        <input type="number" class="form-control text-muted" name="phone" id="phoneProfile" placeholder="Optional" value="<%= locals.user.phone || 'Optional' %>" readonly>
                                     </div>
                                     <button type="button" id="editProfileBtn" class="btn btn-danger" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >Edit Profile</button>
                                     <div class="d-none" id="updateProfile">
@@ -243,8 +243,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
                                                 </div>
                                             </div>
                                         <% }); %>

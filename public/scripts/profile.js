@@ -33,31 +33,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPasswordBtn = document.getElementById("toggle-confirm-password");
     const confirmIcon = document.getElementById("confirm-eye-icon");
 
-    currentPasswordBtn.addEventListener("click", () => {
-        const type = currentPasswordInput.type === "password" ? "text" : "password";
-        currentPasswordInput.setAttribute("type", type);
+    if (currentPasswordBtn) {
+        currentPasswordBtn.addEventListener("click", () => {
+            const type = currentPasswordInput.type === "password" ? "text" : "password";
+            currentPasswordInput.setAttribute("type", type);
 
-        currentEyeIcon.classList.toggle("bi-eye");
-        currentEyeIcon.classList.toggle("bi-eye-slash");
-    });
+            currentEyeIcon.classList.toggle("bi-eye");
+            currentEyeIcon.classList.toggle("bi-eye-slash");
+        });
+    }
 
-    newPasswordBtn.addEventListener("click", () => {
-        const type = newPasswordInput.type === "password" ? "text" : "password";
-        newPasswordInput.setAttribute("type", type);
+    if (newPasswordBtn) {
+        newPasswordBtn.addEventListener("click", () => {
+            const type = newPasswordInput.type === "password" ? "text" : "password";
+            newPasswordInput.setAttribute("type", type);
 
-        currentEyeIcon.classList.toggle("bi-eye");
-        currentEyeIcon.classList.toggle("bi-eye-slash");
-    });
+            currentEyeIcon.classList.toggle("bi-eye");
+            currentEyeIcon.classList.toggle("bi-eye-slash");
+        });
+    }
 
-    confirmPasswordBtn.addEventListener("click", () => {
-        const type = confirmPasswordInput.type === "password" ? "text" : "password";
-        confirmPasswordInput.setAttribute("type", type);
+    if (confirmPasswordBtn) {
+        confirmPasswordBtn.addEventListener("click", () => {
+            const type = confirmPasswordInput.type === "password" ? "text" : "password";
+            confirmPasswordInput.setAttribute("type", type);
 
-        currentEyeIcon.classList.toggle("bi-eye");
-        currentEyeIcon.classList.toggle("bi-eye-slash");
-    });
+            currentEyeIcon.classList.toggle("bi-eye");
+            currentEyeIcon.classList.toggle("bi-eye-slash");
+        });
+    }
 
-    avatarWrapper.addEventListener("click", () => profileImageInput.click());
+    if (avatarWrapper) {
+        avatarWrapper.addEventListener("click", () => profileImageInput.click());
+    }
 
     profileImageInput.addEventListener("change", () => {
         const file = profileImageInput.files[0];
@@ -66,8 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (editBtn && updateDiv && cancelBtn) {
         editBtn.addEventListener("click", () => {
-            editBtn.classList.add("d-none");
             profileImageInput.removeAttribute("disabled");
+            editBtn.classList.add("d-none");
             updateDiv.classList.remove("d-none");
             updateDiv.classList.add("d-flex", "gap-3");
 
@@ -214,8 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
             pincodeError.style.visibility = "visible";
             return false;
         } else {
-            pincode.innerText = "";
-            pincode.style.visibility = "hidden";
+            pincodeError.innerText = "";
+            pincodeError.style.visibility = "hidden";
             return true;
         }
     }

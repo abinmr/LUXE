@@ -6,17 +6,42 @@ window.addEventListener("DOMContentLoaded", () => {
     const savedScrollPosition = sessionStorage.getItem("scrollPosition");
 
     if (savedScrollPosition) {
-        // Scroll to the saved position instantly
         window.scrollTo(0, parseInt(savedScrollPosition));
 
         sessionStorage.removeItem("scrollPosition");
         const searchInput = document.getElementById("searchCustomer");
         if (searchInput && searchInput.value.length > 0) {
-            // Move the cursor to the exact end of the text
             const textLength = searchInput.value.length;
             searchInput.setSelectionRange(textLength, textLength);
         }
     }
+
+    const customerStatusBtn = document.querySelectorAll(".customer-status");
+    customerStatusBtn.forEach((btn) => {
+        btn.addEventListener("click", async function () {
+            const itemId = this.dataset.itemId;
+            const btnText = this.textContent.trim().toLowerCase();
+            const badge = document.querySelector(`.badge-btn[data-item-id="${itemId}"]`);
+            console.log(badge);
+            if (btnText === "block customer") {
+                const response = await fetch(`/admin/customers/block/${itemId}`, { method: "PATCH" });
+                const data = await response.json();
+                if (data.success) {
+                    this.textContent = "Unblock Customer";
+                    badge.textContent = "Blocked";
+                    badge.classList.replace("btn-dark", "btn-danger");
+                }
+            } else if (btnText === "unblock customer") {
+                const response = await fetch(`/admin/customers/unblock/${itemId}`, { method: "PATCH" });
+                const data = await response.json();
+                if (data.success) {
+                    this.textContent = "Block Customer";
+                    badge.textContent = "Active";
+                    badge.classList.replace("btn-danger", "btn-dark");
+                }
+            }
+        });
+    });
 });
 
 const customerStatus = document.getElementById("customerStatus");
@@ -33,13 +58,3 @@ searchInput.addEventListener("input", () => {
         // searchInput.focus();
     }
 });
-// const customerStatus = document.getElementById("customerStatus");
-// customerStatus.addEventListener("change", () => {
-//     const selectedValue = this.value;
-
-//     fetch("/admin/customers/filter", {
-//         method: "post",
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ choice: selectedValue })
-//     })
-// });
