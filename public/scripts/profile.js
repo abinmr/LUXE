@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Toast elements
+    const toastEl = document.getElementById("actionToast");
+    const toastBodyEl = document.getElementById("actionToastBody");
+    const toastIcon = document.getElementById("toast-icon");
+    const toast = toastEl ? new bootstrap.Toast(toastEl) : null;
+
     const showToast = (message, type = "success") => {
         if (!toast || !toastBodyEl) return;
         toastBodyEl.textContent = message;
@@ -12,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(window.initialToast.message, window.initialToast.type);
     }
 
+    // ─── Profile Section ─────────────────────────────────────────────
     const editBtn = document.getElementById("editProfileBtn");
     const cancelBtn = document.getElementById("cancelProfileBtn");
     const updateDiv = document.getElementById("updateProfile");
@@ -21,71 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailError = document.getElementById("emailError");
     const profileForm = document.getElementById("profileForm");
 
-    const currentPasswordInput = document.getElementById("currentPassword");
-    const newPasswordInput = document.getElementById("newPassword");
-    const confirmPasswordInput = document.getElementById("confirmPassword");
-    const currentPassError = document.getElementById("currentPasswordError");
-    const newPassError = document.getElementById("newPasswordError");
-    const confirmPassError = document.getElementById("confirmPasswordError");
-    const passwordForm = document.getElementById("passwordForm");
-
-    const forms = document.querySelectorAll(".form");
-    const fullnameInputs = document.querySelectorAll(".fullNameAddress");
-    const fullnameErrors = document.querySelectorAll(".fullnameError");
-    const mobileInputs = document.querySelectorAll(".mobile-number");
-    const mobileErrors = document.querySelectorAll(".mobile-error");
-    const pincodeInputs = document.querySelectorAll(".pincode");
-    const pincodeErrors = document.querySelectorAll(".pincode-error");
-    const houseInputs = document.querySelectorAll(".house-number");
-    const houseErrors = document.querySelectorAll(".house-error");
-    const streetInputs = document.querySelectorAll(".street");
-    const streetErrors = document.querySelectorAll(".street-error");
-    const stateInputs = document.querySelectorAll(".state");
-    const stateErrors = document.querySelectorAll(".state-error");
-
-    const editAddressForm = document.getElementById("edit-form");
-
     const avatarWrapper = document.getElementById("avatarWrapper");
     const profileImageInput = document.getElementById("profileImageInput");
     const avatarImg = document.getElementById("avatarImg");
-
-    const currentPasswordBtn = document.getElementById("toggle-current-password");
-    const currentEyeIcon = document.getElementById("current-eye-icon");
-    const newPasswordBtn = document.getElementById("toggle-new-password");
-    const newEyeIcon = document.getElementById("new-eye-icon");
-    const confirmPasswordBtn = document.getElementById("toggle-confirm-password");
-    const confirmIcon = document.getElementById("confirm-eye-icon");
-
-    if (currentPasswordBtn) {
-        currentPasswordBtn.addEventListener("click", () => {
-            const type = currentPasswordInput.type === "password" ? "text" : "password";
-            currentPasswordInput.setAttribute("type", type);
-
-            console.log(type);
-            currentEyeIcon.classList.toggle("bi-eye");
-            currentEyeIcon.classList.toggle("bi-eye-slash");
-        });
-    }
-
-    if (newPasswordBtn) {
-        newPasswordBtn.addEventListener("click", () => {
-            const type = newPasswordInput.type === "password" ? "text" : "password";
-            newPasswordInput.setAttribute("type", type);
-
-            newEyeIcon.classList.toggle("bi-eye");
-            newEyeIcon.classList.toggle("bi-eye-slash");
-        });
-    }
-
-    if (confirmPasswordBtn) {
-        confirmPasswordBtn.addEventListener("click", () => {
-            const type = confirmPasswordInput.type === "password" ? "text" : "password";
-            confirmPasswordInput.setAttribute("type", type);
-
-            confirmIcon.classList.toggle("bi-eye");
-            confirmIcon.classList.toggle("bi-eye-slash");
-        });
-    }
 
     if (avatarWrapper) {
         avatarWrapper.addEventListener("click", () => profileImageInput.click());
@@ -143,6 +88,44 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    if (emailInput) emailInput.addEventListener("blur", validateEmail);
+
+    if (profileForm) {
+        profileForm.addEventListener("submit", (e) => {
+            const isEmailValid = validateEmail();
+            if (!isEmailValid) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // ─── Password Section ────────────────────────────────────────────
+    const currentPasswordInput = document.getElementById("currentPassword");
+    const newPasswordInput = document.getElementById("newPassword");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const currentPassError = document.getElementById("currentPasswordError");
+    const newPassError = document.getElementById("newPasswordError");
+    const confirmPassError = document.getElementById("confirmPasswordError");
+    const passwordForm = document.getElementById("passwordForm");
+
+    // Toggle password visibility — generic helper to avoid repetition
+    function setupPasswordToggle(btnId, inputEl, iconId) {
+        const btn = document.getElementById(btnId);
+        const icon = document.getElementById(iconId);
+        if (btn && inputEl && icon) {
+            btn.addEventListener("click", () => {
+                const type = inputEl.type === "password" ? "text" : "password";
+                inputEl.setAttribute("type", type);
+                icon.classList.toggle("bi-eye");
+                icon.classList.toggle("bi-eye-slash");
+            });
+        }
+    }
+
+    setupPasswordToggle("toggle-current-password", currentPasswordInput, "current-eye-icon");
+    setupPasswordToggle("toggle-new-password", newPasswordInput, "new-eye-icon");
+    setupPasswordToggle("toggle-confirm-password", confirmPasswordInput, "confirm-eye-icon");
+
     function validatePassword() {
         const password = currentPasswordInput.value.trim();
 
@@ -164,15 +147,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (password === "") {
             newPassError.innerText = "This field is required";
             newPassError.style.visibility = "visible";
+            return false;
         } else if (password.length < 8) {
             newPassError.innerText = "Password must be at least 8 characters";
             newPassError.style.visibility = "visible";
+            return false;
         } else if (numberCount < 2) {
             newPassError.innerText = "Password must contain at least 2 numbers";
             newPassError.style.visibility = "visible";
+            return false;
         } else if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
             newPassError.innerText = "Password must contain 1 special character.";
             newPassError.style.visibility = "visible";
+            return false;
         } else {
             newPassError.innerText = "placeholder";
             newPassError.style.visibility = "hidden";
@@ -215,178 +202,106 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (emailInput) emailInput.addEventListener("blur", validateEmail);
+    // ─── Address Section ─────────────────────────────────────────────
+    // Generic field validator — eliminates all repetitive per-field functions.
+    // Accepts the input element, its corresponding error element, and validation rules.
+    function validateField(input, errorEl, rules) {
+        const value = input.value.trim();
 
-    if (profileForm) {
-        profileForm.addEventListener("submit", (e) => {
-            const isEmailValid = validateEmail();
-            if (!isEmailValid) {
+        for (const rule of rules) {
+            if (!rule.test(value)) {
+                errorEl.textContent = rule.message;
+                errorEl.style.visibility = "visible";
+                return false;
+            }
+        }
+
+        errorEl.textContent = "";
+        errorEl.style.visibility = "hidden";
+        return true;
+    }
+
+    // Validation rule definitions for each address field
+    const addressFieldRules = {
+        fullName: [
+            { test: (v) => v !== "", message: "fullname is required" },
+        ],
+        mobile: [
+            { test: (v) => v.length > 0, message: "mobile number is required" },
+            { test: (v) => /^\d{10}$/.test(v), message: "please enter a valid mobile number" },
+        ],
+        pincode: [
+            { test: (v) => v !== "", message: "pincode is required" },
+            { test: (v) => /^\d{6}$/.test(v), message: "please enter a valid pincode" },
+        ],
+        house: [
+            { test: (v) => v !== "", message: "house number is required" },
+        ],
+        street: [
+            { test: (v) => v !== "", message: "street is required" },
+        ],
+        state: [
+            { test: (v) => v !== "", message: "state is required" },
+        ],
+    };
+
+    // Validates all address fields ONLY within the given form element.
+    // This fixes the core edit-modal bug: previously querySelectorAll grabbed
+    // inputs from ALL forms, so submitting the edit modal also validated the
+    // (empty) add modal inputs — and vice versa.
+    function validateAddressForm(formEl) {
+        const fieldMap = [
+            { inputClass: "fullNameAddress", errorClass: "fullnameError", rules: addressFieldRules.fullName },
+            { inputClass: "mobile-number", errorClass: "mobile-error", rules: addressFieldRules.mobile },
+            { inputClass: "pincode", errorClass: "pincode-error", rules: addressFieldRules.pincode },
+            { inputClass: "house-number", errorClass: "house-error", rules: addressFieldRules.house },
+            { inputClass: "street", errorClass: "street-error", rules: addressFieldRules.street },
+            { inputClass: "state", errorClass: "state-error", rules: addressFieldRules.state },
+        ];
+
+        let allValid = true;
+
+        fieldMap.forEach(({ inputClass, errorClass, rules }) => {
+            const input = formEl.querySelector(`.${inputClass}`);
+            const errorEl = formEl.querySelector(`.${errorClass}`);
+
+            if (input && errorEl) {
+                const valid = validateField(input, errorEl, rules);
+                if (!valid) allValid = false;
+            }
+        });
+
+        return allValid;
+    }
+
+    // Attach blur listeners to every address form on the page.
+    // Each blur validates only the field inside its own form.
+    const allAddressForms = document.querySelectorAll(".form");
+
+    allAddressForms.forEach((formEl) => {
+        const blurFields = [
+            { inputClass: "fullNameAddress", errorClass: "fullnameError", rules: addressFieldRules.fullName },
+            { inputClass: "mobile-number", errorClass: "mobile-error", rules: addressFieldRules.mobile },
+            { inputClass: "pincode", errorClass: "pincode-error", rules: addressFieldRules.pincode },
+            { inputClass: "house-number", errorClass: "house-error", rules: addressFieldRules.house },
+            { inputClass: "street", errorClass: "street-error", rules: addressFieldRules.street },
+            { inputClass: "state", errorClass: "state-error", rules: addressFieldRules.state },
+        ];
+
+        blurFields.forEach(({ inputClass, errorClass, rules }) => {
+            const input = formEl.querySelector(`.${inputClass}`);
+            const errorEl = formEl.querySelector(`.${errorClass}`);
+
+            if (input && errorEl) {
+                input.addEventListener("blur", () => validateField(input, errorEl, rules));
+            }
+        });
+
+        // Form submit — validate only THIS form's fields
+        formEl.addEventListener("submit", (e) => {
+            if (!validateAddressForm(formEl)) {
                 e.preventDefault();
             }
         });
-    }
-
-    function validateFullName() {
-        let isValid = false;
-        fullnameInputs.forEach((input, i) => {
-            const fullname = input.value.trim();
-            if (fullname === "") {
-                fullnameErrors[i].textContent = "fullname is required";
-                fullnameErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else {
-                fullnameErrors[i].textContent = "";
-                fullnameErrors[i].style.visibility = "hidden";
-                isValid = true;
-            }
-        });
-        return isValid;
-    }
-
-    function validateMoblieNumber() {
-        let isValid = false;
-        mobileInputs.forEach((input, i) => {
-            const number = input.value;
-            const regex = /^\d{10}$/;
-            if (number.toString().length === 0) {
-                mobileErrors[i].textContent = "mobile number is required";
-                mobileInputs[i].style.visibility = "visible";
-            } else if (!regex.test(number)) {
-                mobileErrors[i].textContent = "please enter a valid moblie number";
-                mobileErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else {
-                mobileErrors[i].textContent = "";
-                mobileErrors[i].style.visibility = "hidden";
-                isValid = true;
-            }
-        });
-        return isValid;
-    }
-
-    function validatePincode() {
-        let isValid = false;
-        pincodeInputs.forEach((input, i) => {
-            const pincode = input.value;
-            const regex = /^\d{6}$/;
-            if (pincode === "") {
-                pincodeErrors[i].textContent = "pincode is required";
-                pincodeErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else if (!regex.test(pincode)) {
-                pincodeErrors[i].textContent = "please enter a valid pincode";
-                pincodeErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else {
-                pincodeErrors[i].textContent = "";
-                pincodeErrors[i].style.visibility = "hidden";
-                isValid = true;
-            }
-        });
-        return isValid;
-    }
-
-    function validateHouse() {
-        let isValid = true;
-        houseInputs.forEach((input, i) => {
-            const houseNumber = input.value.trim();
-            if (houseNumber === "") {
-                houseErrors[i].textContent = "house number is required";
-                houseErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else {
-                houseErrors[i].textContent = "";
-                houseErrors[i].style.visibility = "hidden";
-                isValid = true;
-            }
-        });
-        return isValid;
-    }
-
-    function validateStreetAddress() {
-        let isValid = false;
-        streetInputs.forEach((input, i) => {
-            const street = input.value.trim();
-            if (street === "") {
-                streetErrors[i].textContent = "street is required";
-                streetErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else {
-                streetErrors[i].textContent = "";
-                streetErrors[i].style.visibility = "hidden";
-                isValid = true;
-            }
-        });
-        return isValid;
-    }
-
-    function validateState() {
-        let isValid = true;
-        stateInputs.forEach((input, i) => {
-            const state = input.value.trim();
-            if (state === "") {
-                stateErrors[i].textContent = "state is required";
-                stateErrors[i].style.visibility = "visible";
-                isValid = false;
-            } else {
-                stateErrors[i].textContent = "";
-                stateErrors[i].style.visibility = "";
-                isValid = true;
-            }
-        });
-        return isValid;
-    }
-
-    if (fullnameInputs) {
-        fullnameInputs.forEach((input) => {
-            input.addEventListener("blur", validateFullName);
-        });
-    }
-
-    if (mobileInputs) {
-        mobileInputs.forEach((input) => {
-            input.addEventListener("blur", validateMoblieNumber);
-        });
-    }
-
-    if (pincodeInputs) {
-        pincodeInputs.forEach((input) => {
-            input.addEventListener("blur", validatePincode);
-        });
-    }
-
-    if (houseInputs) {
-        houseInputs.forEach((input) => {
-            input.addEventListener("blur", validateHouse);
-        });
-    }
-
-    if (streetInputs) {
-        streetInputs.forEach((input) => {
-            input.addEventListener("blur", validateStreetAddress);
-        });
-    }
-
-    if (stateInputs) {
-        stateInputs.forEach((input) => {
-            input.addEventListener("blur", validateState);
-        });
-    }
-
-    if (forms) {
-        forms.forEach((form) => {
-            form.addEventListener("submit", (e) => {
-                const isFullNameValid = validateFullName();
-                const isPhoneValid = validateMoblieNumber();
-                const isPincodeValid = validatePincode();
-                const isHouseValid = validateHouse();
-                const isStreetValid = validateStreetAddress();
-                const isStateValid = validateState();
-
-                if (!isFullNameValid || !isPhoneValid || !isPincodeValid || !isHouseValid || !isStreetValid || !isStateValid) {
-                    e.preventDefault();
-                }
-            });
-        });
-    }
+    });
 });
