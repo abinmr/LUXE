@@ -5,21 +5,23 @@ import upload from "../lib/multer.js";
 
 const router = express.Router();
 
-router.get("/", protectedRoute, getProfile);
+router.use(protectedRoute);
 
-router.post("/update-profile", protectedRoute, upload.single("profile"), updateProfile);
+router.get("/", getProfile);
 
-router.get("/verify-email-otp", protectedRoute, getEmailOtpPage);
+router.post("/update-profile", upload.single("profile"), updateProfile);
 
-router.post("/verify-email-otp", protectedRoute, verifyEmailOtp);
+router.get("/verify-email-otp", getEmailOtpPage);
 
-router.post("/change-password", protectedRoute, changePassword);
+router.post("/verify-email-otp", verifyEmailOtp);
 
-router.post("/add-address", protectedRoute, addAddress);
+router.post("/change-password", changePassword);
 
-router.post("/address/edit/:id", protectedRoute, editAddress);
+router.post("/add-address", addAddress);
 
-router.get("/address/delete/:id", protectedRoute, deleteAddress);
+router.post("/address/edit/:id", editAddress);
+
+router.get("/address/delete/:id", deleteAddress);
 
 router.get("/logout", logout);
 

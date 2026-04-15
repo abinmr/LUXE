@@ -34,6 +34,7 @@ export const protectedRoute = async (req, res, next) => {
         }
 
         if (user.isBlocked) {
+            res.clearCookie("token");
             req.flash("loginError", "You are blocked from accessing this website");
             return res.redirect("/auth/login");
         }
@@ -42,6 +43,9 @@ export const protectedRoute = async (req, res, next) => {
         next();
     } catch (err) {
         console.error(err);
+        res.clearCookie("token");
+        req.flash("loginError", "Session expired, please login again");
+        return res.redirect("/auth/login");
     }
 };
 

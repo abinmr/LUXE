@@ -1,4 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const showToast = (message, type = "success") => {
+        if (!toast || !toastBodyEl) return;
+        toastBodyEl.textContent = message;
+        toastBodyEl.classList.remove("text-success", "text-danger");
+        toastBodyEl.classList.add(type === "success" ? "text-black" : "text-danger");
+        toastIcon.classList.add(type === "success" ? "text-black" : "text-danger");
+        toast.show();
+    };
+
+    if (window.initialToast?.message) {
+        showToast(window.initialToast.message, window.initialToast.type);
+    }
+
     const editBtn = document.getElementById("editProfileBtn");
     const cancelBtn = document.getElementById("cancelProfileBtn");
     const updateDiv = document.getElementById("updateProfile");
@@ -16,11 +29,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPassError = document.getElementById("confirmPasswordError");
     const passwordForm = document.getElementById("passwordForm");
 
-    const addressForm = document.getElementById("addAddress");
-    const phoneNumber = document.getElementById("addPhone");
-    const phoneError = document.getElementById("phoneError");
-    const pincodeInput = document.getElementById("addPincode");
-    const pincodeError = document.getElementById("pincodeError");
+    const forms = document.querySelectorAll(".form");
+    const fullnameInputs = document.querySelectorAll(".fullNameAddress");
+    const fullnameErrors = document.querySelectorAll(".fullnameError");
+    const mobileInputs = document.querySelectorAll(".mobile-number");
+    const mobileErrors = document.querySelectorAll(".mobile-error");
+    const pincodeInputs = document.querySelectorAll(".pincode");
+    const pincodeErrors = document.querySelectorAll(".pincode-error");
+    const houseInputs = document.querySelectorAll(".house-number");
+    const houseErrors = document.querySelectorAll(".house-error");
+    const streetInputs = document.querySelectorAll(".street");
+    const streetErrors = document.querySelectorAll(".street-error");
+    const stateInputs = document.querySelectorAll(".state");
+    const stateErrors = document.querySelectorAll(".state-error");
+
+    const editAddressForm = document.getElementById("edit-form");
 
     const avatarWrapper = document.getElementById("avatarWrapper");
     const profileImageInput = document.getElementById("profileImageInput");
@@ -38,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const type = currentPasswordInput.type === "password" ? "text" : "password";
             currentPasswordInput.setAttribute("type", type);
 
+            console.log(type);
             currentEyeIcon.classList.toggle("bi-eye");
             currentEyeIcon.classList.toggle("bi-eye-slash");
         });
@@ -48,8 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const type = newPasswordInput.type === "password" ? "text" : "password";
             newPasswordInput.setAttribute("type", type);
 
-            currentEyeIcon.classList.toggle("bi-eye");
-            currentEyeIcon.classList.toggle("bi-eye-slash");
+            newEyeIcon.classList.toggle("bi-eye");
+            newEyeIcon.classList.toggle("bi-eye-slash");
         });
     }
 
@@ -58,8 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const type = confirmPasswordInput.type === "password" ? "text" : "password";
             confirmPasswordInput.setAttribute("type", type);
 
-            currentEyeIcon.classList.toggle("bi-eye");
-            currentEyeIcon.classList.toggle("bi-eye-slash");
+            confirmIcon.classList.toggle("bi-eye");
+            confirmIcon.classList.toggle("bi-eye-slash");
         });
     }
 
@@ -67,10 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
         avatarWrapper.addEventListener("click", () => profileImageInput.click());
     }
 
-    profileImageInput.addEventListener("change", () => {
-        const file = profileImageInput.files[0];
-        if (file) avatarImg.src = URL.createObjectURL(file);
-    });
+    if (profileImageInput) {
+        profileImageInput.addEventListener("change", () => {
+            const file = profileImageInput.files[0];
+            if (file) avatarImg.src = URL.createObjectURL(file);
+        });
+    }
 
     if (editBtn && updateDiv && cancelBtn) {
         editBtn.addEventListener("click", () => {
@@ -200,44 +226,167 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function validatePhoneNumber() {
-        const phone = phoneNumber.value.trim();
-        const regex = /^\d{10}$/;
-        if (!regex.test(phone)) {
-            phoneError.innerText = "Please enter a valid phone number";
-            phoneError.style.visibility = "visible";
-            return false;
-        } else {
-            phoneError.innerText = "";
-            phoneError.style.visibility = "hidden";
-            return true;
-        }
+    function validateFullName() {
+        let isValid = false;
+        fullnameInputs.forEach((input, i) => {
+            const fullname = input.value.trim();
+            if (fullname === "") {
+                fullnameErrors[i].textContent = "fullname is required";
+                fullnameErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else {
+                fullnameErrors[i].textContent = "";
+                fullnameErrors[i].style.visibility = "hidden";
+                isValid = true;
+            }
+        });
+        return isValid;
+    }
+
+    function validateMoblieNumber() {
+        let isValid = false;
+        mobileInputs.forEach((input, i) => {
+            const number = input.value;
+            const regex = /^\d{10}$/;
+            if (number.toString().length === 0) {
+                mobileErrors[i].textContent = "mobile number is required";
+                mobileInputs[i].style.visibility = "visible";
+            } else if (!regex.test(number)) {
+                mobileErrors[i].textContent = "please enter a valid moblie number";
+                mobileErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else {
+                mobileErrors[i].textContent = "";
+                mobileErrors[i].style.visibility = "hidden";
+                isValid = true;
+            }
+        });
+        return isValid;
     }
 
     function validatePincode() {
-        const pincode = pincodeInput.value.trim();
-        const regex = /^\d{6}$/;
-        if (!regex.test(pincode)) {
-            pincodeError.innerText = "Please enter a valid pincode";
-            pincodeError.style.visibility = "visible";
-            return false;
-        } else {
-            pincodeError.innerText = "";
-            pincodeError.style.visibility = "hidden";
-            return true;
-        }
+        let isValid = false;
+        pincodeInputs.forEach((input, i) => {
+            const pincode = input.value;
+            const regex = /^\d{6}$/;
+            if (pincode === "") {
+                pincodeErrors[i].textContent = "pincode is required";
+                pincodeErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else if (!regex.test(pincode)) {
+                pincodeErrors[i].textContent = "please enter a valid pincode";
+                pincodeErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else {
+                pincodeErrors[i].textContent = "";
+                pincodeErrors[i].style.visibility = "hidden";
+                isValid = true;
+            }
+        });
+        return isValid;
     }
 
-    if (addressForm && phoneNumber && pincodeInput) {
-        phoneNumber.addEventListener("blur", validatePhoneNumber);
-        pincodeInput.addEventListener("blur", validatePincode);
-        addressForm.addEventListener("submit", (e) => {
-            const isPhoneValid = validatePhoneNumber();
-            const isPincodeValid = validatePincode();
-
-            if (!isPhoneValid || !isPincodeValid) {
-                e.preventDefault();
+    function validateHouse() {
+        let isValid = true;
+        houseInputs.forEach((input, i) => {
+            const houseNumber = input.value.trim();
+            if (houseNumber === "") {
+                houseErrors[i].textContent = "house number is required";
+                houseErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else {
+                houseErrors[i].textContent = "";
+                houseErrors[i].style.visibility = "hidden";
+                isValid = true;
             }
+        });
+        return isValid;
+    }
+
+    function validateStreetAddress() {
+        let isValid = false;
+        streetInputs.forEach((input, i) => {
+            const street = input.value.trim();
+            if (street === "") {
+                streetErrors[i].textContent = "street is required";
+                streetErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else {
+                streetErrors[i].textContent = "";
+                streetErrors[i].style.visibility = "hidden";
+                isValid = true;
+            }
+        });
+        return isValid;
+    }
+
+    function validateState() {
+        let isValid = true;
+        stateInputs.forEach((input, i) => {
+            const state = input.value.trim();
+            if (state === "") {
+                stateErrors[i].textContent = "state is required";
+                stateErrors[i].style.visibility = "visible";
+                isValid = false;
+            } else {
+                stateErrors[i].textContent = "";
+                stateErrors[i].style.visibility = "";
+                isValid = true;
+            }
+        });
+        return isValid;
+    }
+
+    if (fullnameInputs) {
+        fullnameInputs.forEach((input) => {
+            input.addEventListener("blur", validateFullName);
+        });
+    }
+
+    if (mobileInputs) {
+        mobileInputs.forEach((input) => {
+            input.addEventListener("blur", validateMoblieNumber);
+        });
+    }
+
+    if (pincodeInputs) {
+        pincodeInputs.forEach((input) => {
+            input.addEventListener("blur", validatePincode);
+        });
+    }
+
+    if (houseInputs) {
+        houseInputs.forEach((input) => {
+            input.addEventListener("blur", validateHouse);
+        });
+    }
+
+    if (streetInputs) {
+        streetInputs.forEach((input) => {
+            input.addEventListener("blur", validateStreetAddress);
+        });
+    }
+
+    if (stateInputs) {
+        stateInputs.forEach((input) => {
+            input.addEventListener("blur", validateState);
+        });
+    }
+
+    if (forms) {
+        forms.forEach((form) => {
+            form.addEventListener("submit", (e) => {
+                const isFullNameValid = validateFullName();
+                const isPhoneValid = validateMoblieNumber();
+                const isPincodeValid = validatePincode();
+                const isHouseValid = validateHouse();
+                const isStreetValid = validateStreetAddress();
+                const isStateValid = validateState();
+
+                if (!isFullNameValid || !isPhoneValid || !isPincodeValid || !isHouseValid || !isStreetValid || !isStateValid) {
+                    e.preventDefault();
+                }
+            });
         });
     }
 });

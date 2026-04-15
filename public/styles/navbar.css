@@ -63,11 +63,14 @@ input[type="number"] {
 }
 
 .error-container {
-    min-height: 20px !important;
-    overflow: hidden;
+    min-height: 12px;
+    margin-left: 4px;
+    position: relative;
 }
 
 .error-container p {
-    font-size: 13px !important;
-    line-height: 20px !important;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    position: absolute;
 }

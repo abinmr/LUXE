@@ -10,7 +10,7 @@ export const getProfile = async (req, res) => {
     try {
         const currentSection = req.query.section || "profile";
         const toast = req.flash("toast")[0];
-        const phoneError = req.flash("phonError")[0];
+        const phoneError = req.flash("addressError")[0];
         let addresses = [];
         if (currentSection === "address") {
             addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
@@ -20,6 +20,7 @@ export const getProfile = async (req, res) => {
             addresses: addresses,
             toast: toast ? JSON.parse(toast) : null,
             phoneError: phoneError,
+            user: req.user,
         });
     } catch (err) {
         console.error("Error rendering profile.", err);
@@ -168,7 +169,7 @@ export const addAddress = async (req, res) => {
         const regex = /^\d{10}$/;
 
         if (!regex.test(phone)) {
-            req.flash("phoneError", "Please enter a valid phone");
+            req.flash("addressError", "Please enter a valid phone");
             return res.redirect("/profile?section=address");
         }
 
@@ -180,7 +181,7 @@ export const addAddress = async (req, res) => {
             user: req.user._id,
             fullName: fullName,
             phone: phone,
-            pincode: pincode,
+            pincode: Number(pincode),
             houseNumber: house,
             street: street,
             city: city,
@@ -190,6 +191,7 @@ export const addAddress = async (req, res) => {
 
         await newAddress.save();
 
+        req.flash("toast", JSON.stringify({ type: "success", message: "Address created" }));
         res.redirect("/profile?section=address");
     } catch (err) {
         console.error("Error saving address:", err);

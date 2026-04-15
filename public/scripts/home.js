@@ -184,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Cart form submission — also delegated so it works for appended cards
     document.addEventListener("submit", async (e) => {
         const form = e.target.closest(".cart-form");
         if (!form) return;

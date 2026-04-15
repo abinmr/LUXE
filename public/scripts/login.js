@@ -2,6 +2,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("toggle-password");
 const eyeIcon = document.getElementById("eye-icon");
+const form = document.getElementById("form");
 
 function validateEmail() {
     const email = emailInput.value.trim();
