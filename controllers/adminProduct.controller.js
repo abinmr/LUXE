@@ -20,6 +20,8 @@ export const getProductPage = async (req, res) => {
     }
     const totalProductCount = await Product.countDocuments(dbQuery);
     const totalPages = Math.ceil(totalProductCount / limit);
+    // const productGthan = await Product.aggregate([{ $unwind: "$variants" }, { $unwind: "$variants.sizes" }, { $match: { "variants.sizes.stock": { $gte: 100 } } }]);
+    // console.log(JSON.stringify(productGthan, null, 2));
     return res.render("products", {
         productError: productError || null,
         products,

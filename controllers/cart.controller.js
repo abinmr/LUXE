@@ -1,5 +1,4 @@
 import Cart from "../models/cart.model.js";
-import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
 
 async function getCartItems(userId) {
@@ -110,7 +109,35 @@ export const getCartPage = async (req, res) => {
     try {
         const cartItems = await getCartItems(req.user._id);
         const pricing = calcPricing(cartItems);
-        // const total = await Cart.aggregate([{ $addFields: { total: { $sum: "$items.quantity" } } }]);
+        // const outOfStock = await Product.aggregate([
+        //     { $unwind: "$variants" },
+        //     { $unwind: "$variants.sizes" },
+        //     {
+        //         $group: {
+        //             _id: "$_id",
+        //             product: { $first: "$$ROOT" },
+        //             totalStock: { $sum: "$variants.sizes.stock" },
+        //         },
+        //     },
+        // ]);
+        // console.log(JSON.stringify(outOfStock, null, 4));
+        // const total = await Cart.aggregate([
+        //     { $unwind: "$items" },
+        //     {
+        //         $lookup: {
+        //             from: "products",
+        //             localField: "items.productId",
+        //             foreignField: "_id",
+        //             as: "products",
+        //         },
+        //     },
+        //     { $unwind: "$products" },
+        //     {
+        //         $match: {
+        //             "products.isListed": true,
+        //         },
+        //     },
+        // ]);
         // console.log(JSON.stringify(total, null, 2));
         return res.render("cart", { cartItems, pricing });
     } catch (err) {

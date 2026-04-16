@@ -29,7 +29,15 @@
 <body>
     <%- include('partials/navbar.ejs'), { categories } %>
 
+
     <div class="container-lg mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                <li class="breadcrumb-item"><a href="/category/<%= product.category._id %>"> <%= product.category.name %> </a></li>
+                <li class="breadcrumb-item active" aria-current="page"> <%= product.name %> </li>
+            </ol>
+        </nav>
         <div class="d-flex flex-column flex-lg-row gap-5 pb-4 pt-2">
 
             <div class="d-flex flex-column justify-content-center align-items-start">

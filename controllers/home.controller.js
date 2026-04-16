@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
 import Wishlist from "../models/wishlist.model.js";
+import Cart from "../models/cart.model.js";
 
 export const checkUserStatus = async (req, res, next) => {
     const token = req.cookies.token;
@@ -37,6 +38,41 @@ export const checkUserStatus = async (req, res, next) => {
 export const loadCategories = async (req, res, next) => {
     try {
         const categories = await Category.find({ isActive: true, isDeleted: false });
+        if (req.user) {
+            const wishlist = await Wishlist.findOne({ userId: req.user._id });
+            const carts = await Cart.aggregate([
+                { $match: { userId: req.user._id } },
+                { $unwind: "$items" },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "items.productId",
+                        foreignField: "_id",
+                        as: "product",
+                    },
+                },
+                { $unwind: "$product" },
+                {
+                    $match: {
+                        "product.isListed": true,
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        total: { $sum: "$items.quantity" },
+                    },
+                },
+            ]);
+            if (wishlist) {
+                res.locals.totalWishlist = wishlist.products.length;
+            }
+            if (carts.length !== 0) {
+                res.locals.totalCart = carts.reduce((acc, curr) => {
+                    return (acc += curr.total);
+                }, 0);
+            }
+        }
         res.locals.categories = categories;
         next();
     } catch (err) {

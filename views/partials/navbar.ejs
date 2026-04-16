@@ -36,8 +36,16 @@
                 <div class="d-lg-none">
                     <img src="/images/mobile-search.svg" role="button" data-bs-toggle="offcanvas" data-bs-target="#searchMobile" aria-controls="searchMobile">
                 </div>
-                <a href="/wishlist" role="button" class="user-actions d-flex justify-content-center align-items-center rounded-2"><img src="/images/wishlist.svg" alt="Wishlist" role="button" /></a>
-                <a href="/cart" role="button" class="user-actions d-flex justify-content-center align-items-center rounded-2"><img src="/images/add-cart.svg" alt="Cart" role="button" /></a>
+                <a href="/wishlist" role="button" class="user-actions d-flex justify-content-center align-items-center rounded-2 position-reletive"><img src="/images/wishlist.svg" alt="Wishlist" role="button" />
+                    <% if (locals.totalWishlist > 0) { %>
+                    <span class="position-absolute ms-4 mb-4 badge rounded-5 bg-danger badge-pill badge-danger"><%= locals.totalWishlist %></span>
+                    <% } %>
+                </a>
+                <a href="/cart" role="button" class="user-actions d-flex justify-content-center align-items-center rounded-2 position-reletive"><img src="/images/add-cart.svg" alt="Cart" role="button" />
+                    <% if (locals.totalCart > 0) { %>
+                    <span class="position-absolute ms-4 mb-4 badge rounded-5 bg-danger"> <%= locals.totalCart %> </span>
+                    <% } %>
+                </a>
                 <a href="/profile?section=profile" role="button" class="user-actions d-flex justify-content-center align-items-center rounded-2"><img src="/images/profile.svg" alt="Profile" /></a>
 
                 <div class="d-lg-none">

@@ -3,15 +3,15 @@ import Product from "../models/product.model.js";
 
 export const getWishlistProducts = async (req, res) => {
     try {
-        const result = await Wishlist.find({ userId: req.user._id }).populate({
+        const result = await Wishlist.findOne({ userId: req.user._id }).populate({
             path: "products.productId",
             populate: {
                 path: "category",
                 model: "Category",
             },
         });
-        const wishlist = result[0].products.map((item) => item.productId);
-        res.render("wishlist", { wishlist });
+        const wishlist = result?.products.map((item) => item.productId);
+        return res.render("wishlist", { wishlist });
     } catch (err) {
         console.error(err);
         return res.redirect("/home");
