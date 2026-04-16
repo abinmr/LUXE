@@ -41,7 +41,7 @@
                                }
                             %>
 
-                            <% if (product.category.isActive) { %>
+                            <% if (product.category.isActive && product.isListed) { %>
     
                             <div class="col wishlist-item" data-item-id="<%= product._id %>">
                                 <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6;">
@@ -121,13 +121,16 @@
                                             <%= product.name %>
                                         </h6>
                                         
-                                        <div class="mb-3 d-flex align-items-center gap-2">
+                                        <div class="mb-2 d-flex align-items-center gap-2">
                                             <span class="fw-bold fs-5 mb-0 text-dark">₹<%= price %></span>
                                             <% if (comparePrice > price) { %>
                                                 <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">
                                                     ₹<%= comparePrice %>
                                                 </span>
                                             <% } %>
+                                        </div>
+                                        <div class="text-danger fw-bold">
+                                            <span>product no longer available</span>
                                         </div>
     
                                         <form action="/cart/add" method="POST" class="mt-auto cart-form">

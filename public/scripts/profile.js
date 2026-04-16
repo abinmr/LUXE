@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Toast elements
     const toastEl = document.getElementById("actionToast");
     const toastBodyEl = document.getElementById("actionToastBody");
     const toastIcon = document.getElementById("toast-icon");
@@ -18,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(window.initialToast.message, window.initialToast.type);
     }
 
-    // ─── Profile Section ─────────────────────────────────────────────
     const editBtn = document.getElementById("editProfileBtn");
     const cancelBtn = document.getElementById("cancelProfileBtn");
     const updateDiv = document.getElementById("updateProfile");
@@ -99,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ─── Password Section ────────────────────────────────────────────
     const currentPasswordInput = document.getElementById("currentPassword");
     const newPasswordInput = document.getElementById("newPassword");
     const confirmPasswordInput = document.getElementById("confirmPassword");
@@ -108,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPassError = document.getElementById("confirmPasswordError");
     const passwordForm = document.getElementById("passwordForm");
 
-    // Toggle password visibility — generic helper to avoid repetition
     function setupPasswordToggle(btnId, inputEl, iconId) {
         const btn = document.getElementById(btnId);
         const icon = document.getElementById(iconId);
@@ -202,9 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ─── Address Section ─────────────────────────────────────────────
-    // Generic field validator — eliminates all repetitive per-field functions.
-    // Accepts the input element, its corresponding error element, and validation rules.
     function validateField(input, errorEl, rules) {
         const value = input.value.trim();
 
@@ -221,11 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
-    // Validation rule definitions for each address field
     const addressFieldRules = {
-        fullName: [
-            { test: (v) => v !== "", message: "fullname is required" },
-        ],
+        fullName: [{ test: (v) => v !== "", message: "fullname is required" }],
         mobile: [
             { test: (v) => v.length > 0, message: "mobile number is required" },
             { test: (v) => /^\d{10}$/.test(v), message: "please enter a valid mobile number" },
@@ -234,21 +224,11 @@ document.addEventListener("DOMContentLoaded", () => {
             { test: (v) => v !== "", message: "pincode is required" },
             { test: (v) => /^\d{6}$/.test(v), message: "please enter a valid pincode" },
         ],
-        house: [
-            { test: (v) => v !== "", message: "house number is required" },
-        ],
-        street: [
-            { test: (v) => v !== "", message: "street is required" },
-        ],
-        state: [
-            { test: (v) => v !== "", message: "state is required" },
-        ],
+        house: [{ test: (v) => v !== "", message: "house number is required" }],
+        street: [{ test: (v) => v !== "", message: "street is required" }],
+        state: [{ test: (v) => v !== "", message: "state is required" }],
     };
 
-    // Validates all address fields ONLY within the given form element.
-    // This fixes the core edit-modal bug: previously querySelectorAll grabbed
-    // inputs from ALL forms, so submitting the edit modal also validated the
-    // (empty) add modal inputs — and vice versa.
     function validateAddressForm(formEl) {
         const fieldMap = [
             { inputClass: "fullNameAddress", errorClass: "fullnameError", rules: addressFieldRules.fullName },
@@ -274,8 +254,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return allValid;
     }
 
-    // Attach blur listeners to every address form on the page.
-    // Each blur validates only the field inside its own form.
     const allAddressForms = document.querySelectorAll(".form");
 
     allAddressForms.forEach((formEl) => {
@@ -297,7 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Form submit — validate only THIS form's fields
         formEl.addEventListener("submit", (e) => {
             if (!validateAddressForm(formEl)) {
                 e.preventDefault();

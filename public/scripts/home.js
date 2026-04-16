@@ -209,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (err) {
             console.error("form submit failed", err);
+            showToast(err);
         }
     });
 });

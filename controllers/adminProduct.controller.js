@@ -13,7 +13,7 @@ export const getProductPage = async (req, res) => {
     if (search) {
         JSON.stringify((dbQuery.$or = [{ name: { $regex: search, $options: "i" } }]));
     }
-    const products = await Product.find(dbQuery).populate("category").lean().skip(skip).limit(limit);
+    const products = await Product.find(dbQuery).populate("category").lean().skip(skip).limit(limit).sort({ createdAt: -1 });
     for (const product of products) {
         const allSizes = (product.variants || []).flatMap((v) => v.sizes);
         product.totalStock = allSizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
