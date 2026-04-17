@@ -35,7 +35,7 @@
 
                     <div class="mb-1">
                         <label for="categoryName" class="form-label">Category Name</label>
-                        <input type="text" class="form-control text-capitalize" name="categoryName" id="categoryName" placeholder="Category name" value="<%= locals.categoryName || '' %>" required>
+                        <input type="text" class="form-control text-capitalize" name="categoryName" id="categoryName" placeholder="Category name" value="<%= locals.categoryName || '' %>" >
                         <div class="error-container text-danger mt-1">
                             <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.nameError %></p>
                         </div>
@@ -51,7 +51,7 @@
 
                     <div class="mb-1">
                         <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" name="description" id="description" placeholder="Description" value="<%= locals.description || '' %>" required>
+                        <input type="text" class="form-control" name="description" id="description" placeholder="Description" value="<%= locals.description || '' %>" >
                         <div class="error-container">
                             <p class="text-danger mb-0 small fw-semibold" id="descError"></p>
                         </div>
@@ -60,15 +60,12 @@
                     <div class="mb-1">
                         <label class="form-label">Image</label>
                         <div class="image-picker-area" id="imagePickerArea">
-                            <%# Preview tile injected here by JS %>
                             <div id="previewContainer"></div>
                             <button type="button" class="btn btn-light border btn-sm d-flex align-items-center gap-1" id="addImageBtn">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                                 Choose Image
                             </button>
-                            <%# One dedicated hidden input per selected file — most reliable across browsers %>
                             <div id="hiddenInputContainer"></div>
-                            <%# Trigger-only file input, no name so it won't be submitted %>
                             <input type="file" id="triggerInput" class="d-none" accept=".png,.jpg,.webp">
                         </div>
                         <div class="error-container mt-1">

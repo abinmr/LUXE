@@ -92,3 +92,9 @@ document.querySelectorAll(".delete-btn").forEach((btn) => {
         }
     });
 });
+
+document.querySelectorAll(".out-of-stock").forEach((btn) => {
+    btn.addEventListener("click", () => {
+        window.location.reload();
+    });
+});

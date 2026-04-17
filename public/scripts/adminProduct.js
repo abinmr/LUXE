@@ -242,7 +242,7 @@ function setupImagePicker(block, ci) {
         fileInput.value = "";
         if (selected.length === 0) return;
 
-        const nonImages = selected.filter((file) => !file.type.startsWith("images/"));
+        const nonImages = selected.filter((file) => !file.type.startsWith("image/"));
         if (nonImages.length > 0) {
             imageError.textContent = `"${nonImages[0].name}" is not a valid image file.`;
             imageError.style.visibility = "visible";
