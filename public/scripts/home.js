@@ -13,6 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
 
+    const updateBadge = (id, count) => {
+        const badge = document.getElementById(id);
+        if (!badge) return;
+        badge.textContent = count;
+        badge.style.display = count > 0 ? '' : 'none';
+    };
+
     if (window.initialToast?.message) {
         showToast(window.initialToast.message, window.initialToast.type);
     }
@@ -161,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon.classList.add("bi-heart");
                     button.classList.remove("wishlistRemove-btn");
                     button.classList.add("wishlistAdd-btn");
+                    if (data.totalWishlist !== undefined) updateBadge('wishlist-badge', data.totalWishlist);
                 }
                 showToast(data.message, data.success ? "success" : "error");
             } else {
@@ -175,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon.classList.add("bi-heart-fill", "text-danger");
                     button.classList.remove("wishlistAdd-btn");
                     button.classList.add("wishlistRemove-btn");
+                    if (data.totalWishlist !== undefined) updateBadge('wishlist-badge', data.totalWishlist);
                 }
                 showToast(data.message, data.success ? "success" : "error");
             }
@@ -204,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = await response.json();
             if (result.success) {
                 showToast(result.message);
+                if (result.totalCart !== undefined) updateBadge('cart-badge', result.totalCart);
             } else {
                 showToast(result.error, "error");
             }

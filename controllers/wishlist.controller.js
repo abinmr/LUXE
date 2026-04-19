@@ -30,7 +30,9 @@ export const addToWishlist = async (req, res) => {
             return res.status(400).json({ success: false, message: "product not longer available" });
         }
         if (!wishlist) {
-            await Wishlist.create({ userId: req.user._id, products: [{ productId: req.params.id }] });
+            const newWishlist = await Wishlist.create({ userId: req.user._id, products: [{ productId: req.params.id }] });
+            req.flash("toast", JSON.stringify({ type: "success", message: "Added to wishlist" }));
+            return res.status(200).json({ success: true, message: "Add to wishlist", totalWishlist: newWishlist.products.length });
         } else {
             const isAvailable = wishlist.products.some((p) => p.productId.toString() === req.params.id);
             if (!isAvailable) {
@@ -42,7 +44,7 @@ export const addToWishlist = async (req, res) => {
             }
         }
         req.flash("toast", JSON.stringify({ type: "success", message: "Added to wishlist" }));
-        return res.status(200).json({ success: true, message: "Add to wishlist" });
+        return res.status(200).json({ success: true, message: "Add to wishlist", totalWishlist: wishlist.products.length });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: false, error: err });
@@ -52,11 +54,13 @@ export const addToWishlist = async (req, res) => {
 export const deleteWishlistProduct = async (req, res) => {
     try {
         const wishlist = await Wishlist.findOne({ userId: req.user._id });
+        let totalWishlist = 0;
         if (wishlist) {
             wishlist.products = wishlist.products.filter((p) => p.productId.toString() !== req.params.id);
-            wishlist.save();
+            await wishlist.save();
+            totalWishlist = wishlist.products.length;
         }
-        return res.status(200).json({ success: true, message: "Removed from wishlist" });
+        return res.status(200).json({ success: true, message: "Removed from wishlist", totalWishlist });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: true, error: err });

@@ -161,7 +161,8 @@ export const addToCart = async (req, res) => {
         }
 
         await cart.save();
-        return res.status(200).json({ success: true, message: "Added to cart" });
+        const totalCart = cart.items.length;
+        return res.status(200).json({ success: true, message: "Added to cart", totalCart });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: false, error: "Server error" });
