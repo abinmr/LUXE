@@ -14,6 +14,8 @@ import wishlistRouter from "./routes/wishlist.route.js";
 import adminCategoryRouter from "./routes/adminCategory.route.js";
 import adminProductRouter from "./routes/adminProduct.route.js";
 import adminCustomerRouter from "./routes/adminCustomer.route.js";
+import adminOrderRouter from "./routes/adminOrders.route.js";
+import checkoutRouter from "./routes/checkout.route.js";
 import { connectDB } from "./lib/db.js";
 
 dotevn.config({ quiet: true });
@@ -41,12 +43,14 @@ app.use("/admin", adminRouter);
 app.use("/admin/categories", adminCategoryRouter);
 app.use("/admin/products", adminProductRouter);
 app.use("/admin/customers", adminCustomerRouter);
+app.use("/admin/orders", adminOrderRouter);
 app.use("/auth", userAuthRouter);
 app.use("/", homeRouter);
 app.use("/profile", profileRouter);
 app.use("/category", categoryRouter);
 app.use("/cart", cartRouter);
 app.use("/wishlist", wishlistRouter);
+app.use("/checkout", checkoutRouter);
 
 app.get("/", (req, res) => {
     return res.redirect("/home");
