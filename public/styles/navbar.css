@@ -63,7 +63,7 @@ input[type="number"] {
 }
 
 .error-container {
-    min-height: 12px;
+    min-height: 8px;
     margin-left: 4px;
     position: relative;
 }

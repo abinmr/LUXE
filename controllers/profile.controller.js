@@ -161,7 +161,7 @@ export const addAddress = async (req, res) => {
 
         const makeDefault = isDefault === "on" || isDefault === "true";
 
-        if (fullName === "" || phone === "" || pincode === "" || house === "" || city === "" || state === "") {
+        if (fullName === "" || phone === "" || pincode === "" || house === "" || state === "") {
             req.flash("toast", JSON.stringify({ type: "error", message: "Address failed to save" }));
             return res.redirect("/profile?section=address");
         }

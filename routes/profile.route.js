@@ -23,6 +23,10 @@ router.post("/address/edit/:id", editAddress);
 
 router.get("/address/delete/:id", deleteAddress);
 
+router.get("/orders/detail", (req, res) => {
+    return res.render("orderDetails");
+});
+
 router.get("/logout", logout);
 
 export default router;
