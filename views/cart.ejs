@@ -35,6 +35,7 @@
                 <div class="d-flex flex-column gap-3" id="cart-list">
                     <% cartItems.forEach((cart) => { %>
                         <% if (!cart.isListed || !cart.categoryActive) { %>
+                            <% checkoutDisable = true; %>
                             <div class="d-flex justify-content-between align-items-center px-4 border bg-white rounded cart-item" data-item-id="<%= cart.itemId %>" style="height: 150px;">
                                 <div class="d-flex align-items-center gap-5">
                                     <img src="<%= cart.images[0] %>" height="96" width="96" class="rounded" />
@@ -103,7 +104,7 @@
                                 <h5 class="text-center text-danger">Product out of stock</h5>
                                 <div>
                                     <div class="d-flex justify-content-end">
-                                        <button class="btn btn-light delete-btn out-of-stock" data-item-id="<%= cart.itemId %>">
+                                        <button class="btn btn-light delete-btn out-of-stock stock-unavailable" data-item-id="<%= cart.itemId %>">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

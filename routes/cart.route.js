@@ -1,6 +1,6 @@
 import express from "express";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
-import { addQuantity, addToCart, deleteCartItem, getCartDetails, getCartPage, minusQuantity, toggleSelection } from "../controllers/cart.controller.js";
+import { addQuantity, addToCart, deleteCartItem, getCartDetails, getCartPage, minusQuantity, toggleItemSelection } from "../controllers/cart.controller.js";
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get("/quantityAdd/:id", protectedRoute, addQuantity);
 
 router.get("/quantityMinus/:id", protectedRoute, minusQuantity);
 
-router.patch("/toggle-selection/:id", protectedRoute, toggleSelection);
+router.patch("/toggle-selection/:id", protectedRoute, toggleItemSelection);
 
 router.delete("/delete/:id", protectedRoute, deleteCartItem);
 

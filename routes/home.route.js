@@ -1,5 +1,6 @@
 import express from "express";
-import { checkUserStatus, getHomePage, getProductDetails, getSearchProducts, loadCategories, searchProductFilter } from "../controllers/home.controller.js";
+import { getHomePage, getProductDetails, getSearchProducts, loadCategories, searchProductFilter } from "../controllers/home.controller.js";
+import { checkUserStatus } from "../middlewares/user.auth.middleware.js";
 
 const router = express.Router();
 

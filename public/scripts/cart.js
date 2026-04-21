@@ -11,6 +11,13 @@ async function calculateTotal() {
     }
 }
 
+const updateBadge = (id, count) => {
+    const badge = document.getElementById(id);
+    if (!badge) return;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? "" : "none";
+};
+
 document.querySelectorAll(".cart-item-checkbox").forEach((checkbox) => {
     checkbox.addEventListener("change", async function () {
         try {
@@ -83,7 +90,12 @@ document.querySelectorAll(".delete-btn").forEach((btn) => {
         try {
             const res = await fetch(`/cart/delete/${itemId}`, { method: "DELETE" });
             const data = await res.json();
+
+            if (data.totalCart === 0) {
+                window.location.reload();
+            }
             if (data.success) {
+                updateBadge("cart-badge", data.totalCart);
                 document.querySelector(`.cart-item[data-item-id="${itemId}"]`).remove();
                 calculateTotal();
             }
