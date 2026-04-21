@@ -32,7 +32,9 @@ export const getHomePage = async (req, res) => {
         if (req.xhr || req.headers.accept.includes("json")) {
             return res.json({ products, wishlist: userWishlist });
         }
-        res.render("home", { products, userWishlist });
+        const toast = req.flash("home")[0];
+        console.log(toast);
+        res.render("home", { products, userWishlist, toast });
     } catch (err) {
         console.error(err);
         return res.render("home");
@@ -45,7 +47,8 @@ export const getProductDetails = async (req, res) => {
     if (!product || !product.category.isActive) return res.redirect("/home");
 
     const [otherProducts, userWishlist] = await Promise.all([getRelatedProducts(id), getWishlistProducts(req.user?._id)]);
-    return res.render("productDetails", { product, otherProducts, userWishlist });
+    const toast = req.flash("productDetails")[0];
+    return res.render("productDetails", { product, otherProducts, userWishlist, toast: toast ? JSON.parse(toast) : null });
 };
 
 export const getSearchProducts = async (req, res) => {

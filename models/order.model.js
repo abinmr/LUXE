@@ -77,7 +77,11 @@ const orderModel = new mongoose.Schema(
             required: true,
         },
         cancellationReason: String,
-        note: String,
+        returnReason: {
+            type: String,
+            required: true,
+        },
+        adminNote: String,
     },
     { timestamps: true },
 );

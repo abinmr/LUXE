@@ -44,14 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch(`/home/?page=${page}`, {
                     headers: { Accept: "application/json" },
                 });
-
-                console.log(response);
                 const data = await response.json();
-                console.log(data);
 
                 if (!data.products || data.products.length === 0) {
                     hasMore = false;
-                    loadingText.textContent = "";
+                    loadingSpinner.style.display = "none";
                     return;
                 }
 

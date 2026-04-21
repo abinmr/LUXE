@@ -83,31 +83,29 @@
             </div>
             <div class="border border-1 rounded-4 p-4 bg-white w-50 h-100 order-summary-card">
                 <h6 class="fw-bold mb-3">Order Summary</h6>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="">Classic Cotton T-Shirt × 1</span>
-                    <span>₹29.99</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Slim Fit Denim Jeans × 1</span>
-                    <span>₹79.99</span>
-                </div>
+                <% products.forEach((item) => { %>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class=""> <%= item.productName %> × <span> <%= item.quantity %> </span> </span>
+                        <span> <%= item.price %> </span>
+                    </div>
+                <% }); %>
                 <hr class="text-muted">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal</span>
-                    <span>₹139.97</span>
+                    <span>₹<%= data.subtotal %> </span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span>GST</span>
-                    <span>₹25.19</span>
+                    <span>₹<%= data.gst %> </span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span>Shipping</span>
-                    <span>₹50.00</span>
+                    <span>₹<%= data.shipping %></span>
                 </div>
                 <hr class="text-secondary">
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold h5">Total</span>
-                    <span class="fw-bold h5">₹215.16</span>
+                    <span class="fw-bold h5">₹<%= data.total %></span>
                 </div>
                 <a href="/checkout/success" class="btn btn-danger w-100 mt-4">Place Order</a>
             </div>
