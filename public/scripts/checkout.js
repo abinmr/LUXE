@@ -119,3 +119,27 @@ form.addEventListener("submit", (e) => {
         e.preventDefault();
     }
 });
+
+const confirmAddressBtn = document.getElementById("confirmAddress");
+if (confirmAddressBtn) {
+    confirmAddressBtn.addEventListener("click", () => {
+        const selected = document.querySelector('input[name="address"]:checked');
+        if (!selected) return;
+
+        // Read data attributes from selected radio
+        const { fullname, phone, house, street, state, pincode } = selected.dataset;
+
+        // Update the displayed address on the page
+        document.getElementById("display-name").textContent = fullname;
+        document.getElementById("display-phone").textContent = phone;
+        document.getElementById("display-address").textContent = `${house}, ${street}`;
+        document.getElementById("display-region").textContent = `${state}, ${pincode}`;
+
+        // Store the selected address ID
+        document.getElementById("selectedAddressId").value = selected.value;
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById("changeAddress"));
+        modal.hide();
+    });
+}
