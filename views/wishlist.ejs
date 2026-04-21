@@ -23,7 +23,7 @@
         />
         <link rel="stylesheet" href="/styles/navbar.css">
     </head>
-    <body>
+    <body style="background-color: #fefbf8;">
         <%- include('partials/navbar.ejs'), { categories } %>
         <div class="container-xl mt-4">
             <% if (wishlist && wishlist.length > 0) { %>
@@ -44,7 +44,7 @@
                             <% if (product.category.isActive && product.isListed) { %>
     
                             <div class="col wishlist-item" data-item-id="<%= product._id %>">
-                                <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6;">
+                                <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #ffffff;">
                                     
                                     <div class="position-relative">
                                         <a href="/product/<%= product._id %>" class="text-decoration-none d-block overflow-hidden" style="height: 400px;">
@@ -79,13 +79,13 @@
                                             <% } %>
                                         </div>
     
-                                        <form action="/cart/add" method="POST" class="mt-auto cart-form">
+                                        <form action="/wishlist/cart/" method="POST" class="mt-auto cart-form">
                                             <input type="hidden" name="productId" value="<%= product._id %>">
                                             <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
                                             <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">
                                             <input type="hidden" name="quantity" value="1">
                                             
-                                            <button class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
+                                            <button type="submit" class="btn btn-danger w-100 rounded-2 fw-medium d-flex align-items-center justify-content-center gap-2 py-2" style="background-color: #c94646; border-color: #c94646;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
                                                 Add to Cart
                                             </button>
@@ -133,7 +133,7 @@
                                             <span>product no longer available</span>
                                         </div>
     
-                                        <form action="/cart/add" method="POST" class="mt-auto cart-form">
+                                        <form action="/wishlist/cart/" method="POST" class="mt-auto cart-form">
                                             <input type="hidden" name="productId" value="<%= product._id %>">
                                             <input type="hidden" name="variantId" value="<%= product.variants[0]._id %>">
                                             <input type="hidden" name="sizeId" value="<%= product.variants[0].sizes[0]._id %>">
@@ -151,8 +151,8 @@
                         <% } %>
                     <% }) %>
                 <% } else { %>
-                    <div class="col-12 py-5 text-center w-100" style="height: 50vh;">
-                        <h4 class="fw-bold">Your wishlist is empty</h4>
+                    <div class="col-12 mt-5 text-center w-100" style="height: 48vh;">
+                        <h4 class="fw-bold fs-3">Your wishlist is empty</h4>
                         <p class="text-muted">Save items you love for later!</p>
                         <a href="/" class="btn btn-danger mt-2">Continue Shopping</a>
                     </div>
@@ -161,7 +161,7 @@
         </div>
         <%- include('partials/footer.ejs') %>
 
-            <div class="toast-container position-fixed bottom-0 end-0 p-3 m-2">
+            <div class="toast-container position-fixed top-0 end-0 pe-3 pt-5 mt-5">
                 <div id="actionToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body d-flex gap-2 align-items-center fw-bold">

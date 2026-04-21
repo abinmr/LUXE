@@ -49,7 +49,7 @@ export const protectedRoute = async (req, res, next) => {
     }
 };
 
-export const checkUser = async (req, res, next) => {
+export const checkUserStatus = async (req, res, next) => {
     const token = req.cookies.token;
 
     if (!token) {
@@ -59,9 +59,11 @@ export const checkUser = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
         const user = await User.findById(decoded.userId).select("-password");
 
         if (user && !user.isBlocked) {
+            // console.log("user mounted.");
             req.user = user;
             res.locals.user = user;
         } else {
@@ -70,6 +72,8 @@ export const checkUser = async (req, res, next) => {
 
         return next();
     } catch (err) {
+        console.error("JWT Error:", err.message);
+        res.clearCookie("token");
         res.locals.user = null;
         return next();
     }

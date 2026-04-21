@@ -11,6 +11,24 @@ async function calculateTotal() {
     }
 }
 
+const updateBadge = (id, count) => {
+    const badge = document.getElementById(id);
+    if (!badge) return;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? "" : "none";
+};
+
+function updateCheckoutState() {
+    const checkoutBtn = document.getElementById("checkout-btn");
+    if (!checkoutBtn) return;
+    const hasUnavailableItems = document.querySelectorAll(".unavailable-item").length > 0;
+    if (hasUnavailableItems) {
+        checkoutBtn.classList.add("disabled");
+    } else {
+        checkoutBtn.classList.remove("disabled");
+    }
+}
+
 document.querySelectorAll(".cart-item-checkbox").forEach((checkbox) => {
     checkbox.addEventListener("change", async function () {
         try {
@@ -83,9 +101,15 @@ document.querySelectorAll(".delete-btn").forEach((btn) => {
         try {
             const res = await fetch(`/cart/delete/${itemId}`, { method: "DELETE" });
             const data = await res.json();
+
+            if (data.totalCart === 0) {
+                window.location.reload();
+            }
             if (data.success) {
+                updateBadge("cart-badge", data.totalCart);
                 document.querySelector(`.cart-item[data-item-id="${itemId}"]`).remove();
                 calculateTotal();
+                updateCheckoutState();
             }
         } catch (err) {
             console.error("Delete failed:", err);
@@ -93,8 +117,4 @@ document.querySelectorAll(".delete-btn").forEach((btn) => {
     });
 });
 
-document.querySelectorAll(".out-of-stock").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        window.location.reload();
-    });
-});
+updateCheckoutState();

@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const badge = document.getElementById(id);
         if (!badge) return;
         badge.textContent = count;
-        badge.style.display = count > 0 ? '' : 'none';
+        badge.style.display = count > 0 ? "" : "none";
     };
 
     if (window.initialToast?.message) {
@@ -44,12 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch(`/home/?page=${page}`, {
                     headers: { Accept: "application/json" },
                 });
-
                 const data = await response.json();
 
                 if (!data.products || data.products.length === 0) {
                     hasMore = false;
-                    loadingText.textContent = "";
+                    loadingSpinner.style.display = "none";
                     return;
                 }
 
@@ -81,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const html = `
                 <div class="col">
-                    <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #f6f6f6">
+                    <div class="card h-100 border rounded-3 overflow-hidden shadow-sm" style="background-color: #ffffff">
                         <div class="position-relative">
                             <a href="/product/${product._id}" class="text-decoration-none d-block overflow-hidden" style="height: 400px">
                                 <img src="${product.variants[0].images[0]}" alt="${product.name}" class="card-img-top object-fit-cover w-100 h-100 img-animation" style="border-bottom: 1px solid #eaeaea" />
@@ -168,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon.classList.add("bi-heart");
                     button.classList.remove("wishlistRemove-btn");
                     button.classList.add("wishlistAdd-btn");
-                    if (data.totalWishlist !== undefined) updateBadge('wishlist-badge', data.totalWishlist);
+                    if (data.totalWishlist !== undefined) updateBadge("wishlist-badge", data.totalWishlist);
                 }
                 showToast(data.message, data.success ? "success" : "error");
             } else {
@@ -183,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon.classList.add("bi-heart-fill", "text-danger");
                     button.classList.remove("wishlistAdd-btn");
                     button.classList.add("wishlistRemove-btn");
-                    if (data.totalWishlist !== undefined) updateBadge('wishlist-badge', data.totalWishlist);
+                    if (data.totalWishlist !== undefined) updateBadge("wishlist-badge", data.totalWishlist);
                 }
                 showToast(data.message, data.success ? "success" : "error");
             }
@@ -213,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = await response.json();
             if (result.success) {
                 showToast(result.message);
-                if (result.totalCart !== undefined) updateBadge('cart-badge', result.totalCart);
+                if (result.totalCart !== undefined) updateBadge("cart-badge", result.totalCart);
             } else {
                 showToast(result.error, "error");
             }

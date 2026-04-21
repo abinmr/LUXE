@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const toastEl = document.getElementById("actionToast");
     const toastBodyEl = document.getElementById("actionToastBody");
+    const toastIcon = document.getElementById("toast-icon");
     const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
 
     const showToast = (message, type = "success") => {
@@ -8,12 +9,17 @@ document.addEventListener("DOMContentLoaded", () => {
         toastBodyEl.textContent = message;
         toastBodyEl.classList.remove("text-success", "text-danger");
         toastBodyEl.classList.add(type === "success" ? "text-black" : "text-danger");
+        toastIcon.classList.add(type === "success" ? "text-black" : "text-danger");
         toast.show();
     };
+
+    console.log(window.initialToast);
+
+    if (window.initialToast?.message) {
+        showToast(window.initialToast.message, window.initialToast.type);
+    }
     const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
     const cartForms = document.querySelectorAll(".cart-form");
-
-    console.log("cart form", cartForms);
 
     wishlistBtns.forEach((button) => {
         button.addEventListener("click", async function (e) {
@@ -149,12 +155,14 @@ function renderQuantity() {
     const maxStock = Math.min(10, stock);
     const select = document.getElementById("quantitySelect");
     const badge = document.getElementById("stockBadge");
+    const buyNowBtn = document.getElementById("buy-now");
 
     select.innerHTML = "";
     if (stock === 0) {
-        select.innerHTML = `<option value='0' disabled>Out of Stock</option>`;
+        select.innerHTML = `<option value='0' disabled></option>`;
         badge.innerHTML = "Out of Stock";
         badge.className = "text-danger small fw-bold";
+        buyNowBtn.classList.add("disabled");
         return;
     }
 

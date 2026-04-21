@@ -114,7 +114,7 @@
                                 </button>
                             <% } %>
                         </div>
-                        <button type="submit" formaction="/checkout/buy/" class="btn btn-light border-light-subtle w-100 d-flex justify-content-center align-items-center gap-2">
+                        <button type="submit" id="buy-now" formaction="/checkout/buy-now/" class="btn btn-light border-light-subtle w-100 d-flex justify-content-center align-items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                             Buy Now
                         </button>
@@ -199,7 +199,7 @@
 
     <%- include("partials/footer.ejs") %>
 
-        <div class="toast-container position-fixed bottom-0 end-0 p-3 m-2">
+        <div class="toast-container position-fixed top-0 end-0 px-3 pt-5 mt-5">
             <div id="actionToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
                     <div class="toast-body d-flex gap-2 align-items-center fw-bold">
@@ -212,6 +212,14 @@
             </div>
         </div>
 
+        <% if (locals.toast) { %>
+            <script>
+                window.initialToast = {
+                    message: "<%= locals.toast.message %>",
+                    type: "<%= locals.toast.type %>"
+                };
+            </script>
+        <% } %>
     <script>
         const productData = <%- JSON.stringify(product) %>;
     </script>
