@@ -77,13 +77,18 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
         return res.redirect(`/product/${productId}`);
     }
 
-    const product = await Product.findOne({ "variants.sizes._id": sizeId }, { name: 1, isListed: 1, "variants.images": 1, "variants.color": 1, "variants.sizes.$": 1 });
-    // console.log(JSON.stringify(product, null, 2));
-    if (!product.isListed) {
+    const product = await Product.findById(productId, { name: 1, isListed: 1, isDeleted: 1, variants: 1 });
+    if (!product || !product.isListed) {
         req.flash("home", { type: "error", message: "product no longer available" });
         return res.redirect("/home");
     }
-    const stock = product.variants[0]?.sizes[0]?.stock;
+    const variant = product.variants.id(variantId);
+    const size = variant.sizes.id(sizeId);
+    if (!variant || !size) {
+        req.flash("toast", { type: "error", message: "error" });
+        return res.redirect(`/product/${productId}`);
+    }
+    const stock = size.stock;
     if (stock === 0) {
         req.flash("productDetails", { type: "error", message: "out of stock" });
         return res.redirect(`/product/${productId}`);
@@ -95,7 +100,7 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
             quantity: quantity,
             isListed: product.isListed,
             isSelected: true,
-            price: product.variants[0].sizes[0].price,
+            price: size.price,
         },
     ];
 
@@ -110,11 +115,11 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
                 variantId,
                 sizeId,
                 productName: product.name,
-                productImage: product.variants[0].images[0],
-                color: product.variants[0].color,
-                size: product.variants[0].sizes[0].size,
+                productImage: variant.images[0],
+                color: variant.color,
+                size: size.size,
                 quantity,
-                price: product.variants[0].sizes[0].price,
+                price: size.price,
             },
         ],
         subtotal: data.subtotal,
