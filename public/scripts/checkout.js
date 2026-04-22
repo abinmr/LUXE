@@ -143,3 +143,41 @@ if (confirmAddressBtn) {
         modal.hide();
     });
 }
+
+const placeOrderBtn = document.getElementById("place-order-btn");
+const selectedAddressInput = document.getElementById("selectedAddressId");
+const paymentRadios = document.querySelectorAll("input[name='paymentMethod']");
+
+function togglePlaceOrder() {
+    const hasAddress = selectedAddressInput && selectedAddressInput.value.trim() !== "";
+    const hasPayment = document.querySelector("input[name='paymentMethod']:checked");
+    placeOrderBtn.disabled = !(hasAddress && hasPayment);
+}
+
+togglePlaceOrder();
+paymentRadios.forEach((radio) => {
+    radio.addEventListener("change", togglePlaceOrder);
+});
+
+placeOrderBtn.addEventListener("click", async () => {
+    const addressId = document.getElementById("selectedAddressId").value;
+    const paymentMethod = document.querySelector("input[name='paymentMethod']:checked").id;
+    console.log(addressId);
+    console.log(paymentMethod);
+
+    try {
+        const response = await fetch("/checkout/place-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ addressId, paymentMethod }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+        if (data.success) {
+            window.location.href = "/checkout/success";
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});

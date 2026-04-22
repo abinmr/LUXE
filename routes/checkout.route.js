@@ -2,8 +2,29 @@ import express from "express";
 import Address from "../models/address.model.js";
 import Product from "../models/product.model.js";
 import { calcPricing, getCartItems } from "../service/cart.service.js";
+import Order from "../models/order.model.js";
+import Cart from "../models/cart.model.js";
 
 const router = express.Router();
+
+/**
+ * @typedef {Object} CheckoutItem
+ * @property {string} productId
+ * @property {string} variantId
+ * @property {string} sizeId
+ * @property {number} quantity
+ */
+
+/**
+ * @typedef {Object} CheckoutSession
+ * @property {"buy-now" | "cart"} source
+ * @property {CheckoutItem[]} items
+ * @property {number} subtotal
+ * @property {number} discount
+ * @property {number} gst
+ * @property {number} shipping
+ * @property {number} total
+ */
 
 router.use(async (req, res, next) => {
     try {
@@ -19,7 +40,6 @@ router.use(async (req, res, next) => {
 router.get("/", async (req, res) => {
     try {
         const address = await Address.find({ user: req.user._id });
-
         return res.render("checkout", { address });
     } catch (err) {
         console.error(err);
@@ -31,6 +51,10 @@ router.post("/", async (req, res) => {
         const address = await Address.find({ user: req.user._id });
         const products = await getCartItems(req.user?._id);
         const data = calcPricing(products);
+        req.session.checkout = {
+            source: "cart",
+            items: [],
+        };
         return res.render("checkout", { address, data, products });
     } catch (err) {
         console.error(err);
@@ -68,10 +92,90 @@ router.post("/buy-now", async (req, res) => {
     ];
 
     const data = calcPricing(products);
-    console.log(data);
 
     const address = await Address.find({ user: req.user._id });
+    req.session.checkout = {
+        source: "buy-now",
+        items: [{ productId, variantId, sizeId, quantity }],
+        subtotal: data.subtotal,
+        discount: 0,
+        gst: data.gst,
+        shipping: data.shipping,
+        total: data.total,
+    };
     return res.render("checkout", { address, products, data });
+});
+
+router.post("/place-order", async (req, res) => {
+    const { addressId, paymentMethod } = req.body;
+    if (!addressId || !paymentMethod) {
+        return res.redirect("/checkout");
+    }
+
+    /** @type {CheckoutSession} */
+    const checkout = req.session.checkout;
+    if (!checkout) {
+        return res.status(400).json({ success: false, message: "Session expired" });
+    }
+
+    const address = await Address.findById(addressId);
+    if (!address) {
+        return res.status(400).json({ success: false, message: "Address not found" });
+    }
+
+    for (const item of checkout.items) {
+        const result = await Product.updateOne(
+            {
+                _id: item.productId,
+                "variants._id": item.variantId,
+            },
+            {
+                $inc: {
+                    "variants.$[v].sizes.$[s].stock": -item.quantity,
+                },
+            },
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ success: false, message: "error" });
+        }
+    }
+
+    const order = await Order.create({
+        userId: req.user?._id,
+        items: checkout.items,
+        subtotal: checkout.subtotal,
+        discount: checkout.discount,
+        GST: checkout.gst,
+        shipping: checkout.shipping,
+        total: checkout.total,
+        shippingAddress: address,
+        paymentMethod: paymentMethod,
+        paymentStatus: paymentMethod === "code" ? "pending" : "paid",
+        orderStatus: "pending",
+    });
+
+    if (checkout.source === "cart") {
+        const cart = await Cart.findOne({ userId: req.user._id });
+        const seletedIds = cart.items.map((item) => item.sizeId._id.toString());
+        await Cart.updateOne(
+            {
+                userId: req.user._id,
+            },
+            {
+                $pull: {
+                    items: {
+                        isSelected: true,
+                        sizeId: { $in: seletedIds },
+                    },
+                },
+            },
+        );
+    }
+
+    delete req.session.checkout;
+
+    return res.status(200).json({ success: true, order: order._id });
 });
 
 router.get("/success", (req, res) => {
