@@ -1,4 +1,5 @@
 import express from "express";
+import { customAlphabet } from "nanoid";
 import Address from "../models/address.model.js";
 import Product from "../models/product.model.js";
 import { calcPricing, getCartItems } from "../service/cart.service.js";
@@ -13,7 +14,12 @@ const router = express.Router();
  * @property {string} productId
  * @property {string} variantId
  * @property {string} sizeId
+ * @property {string} productName
+ * @property {string} images
+ * @property {string} color
+ * @property {string} size
  * @property {number} quantity
+ * @property {number} price
  */
 
 /**
@@ -71,7 +77,8 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
         return res.redirect(`/product/${productId}`);
     }
 
-    const product = await Product.findOne({ "variants.sizes._id": sizeId }, { name: 1, isListed: 1, "variants.sizes.$": 1 });
+    const product = await Product.findOne({ "variants.sizes._id": sizeId }, { name: 1, isListed: 1, "variants.images": 1, "variants.color": 1, "variants.sizes.$": 1 });
+    // console.log(JSON.stringify(product, null, 2));
     if (!product.isListed) {
         req.flash("home", { type: "error", message: "product no longer available" });
         return res.redirect("/home");
@@ -97,7 +104,19 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
     const address = await Address.find({ user: req.user._id });
     req.session.checkout = {
         source: "buy-now",
-        items: [{ productId, variantId, sizeId, quantity }],
+        items: [
+            {
+                productId,
+                variantId,
+                sizeId,
+                productName: product.name,
+                productImage: product.variants[0].images[0],
+                color: product.variants[0].color,
+                size: product.variants[0].sizes[0].size,
+                quantity,
+                price: product.variants[0].sizes[0].price,
+            },
+        ],
         subtotal: data.subtotal,
         discount: 0,
         gst: data.gst,
@@ -145,18 +164,30 @@ router.post("/place-order", async (req, res) => {
         }
     }
 
+    const nanoid = customAlphabet("1234567890", 12);
+
     const order = await Order.create({
         userId: req.user?._id,
+        orderId: Number(nanoid()),
         items: checkout.items,
         subtotal: checkout.subtotal,
         discount: checkout.discount,
         GST: checkout.gst,
         shipping: checkout.shipping,
         total: checkout.total,
-        shippingAddress: address,
+        shippingAddress: {
+            fullName: address.fullName,
+            phone: address.phone,
+            pincode: address.pincode,
+            houseNumber: address.houseNumber,
+            street: address?.street,
+            city: address.city,
+            state: address.state,
+        },
         paymentMethod: paymentMethod,
-        paymentStatus: paymentMethod === "code" ? "pending" : "paid",
+        paymentStatus: paymentMethod === "cod" ? "pending" : "paid",
         orderStatus: "pending",
+        estimatedDeliveryDate: Date.now(Date.now(1000 * 60 * 60 * 24 * 3)),
     });
 
     if (checkout.source === "cart") {
@@ -182,8 +213,10 @@ router.post("/place-order", async (req, res) => {
     return res.status(200).json({ success: true, order: order._id });
 });
 
-router.get("/success", (req, res) => {
-    return res.render("checkoutSuccess");
+router.get("/success", async (req, res) => {
+    const id = req.query.orderId;
+    const order = await Order.findOne({ _id: id });
+    return res.render("checkoutSuccess", { order });
 });
 
 router.get("/failure", (req, res) => {

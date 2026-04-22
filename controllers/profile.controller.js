@@ -5,6 +5,7 @@ import Address from "../models/address.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
+import Order from "../models/order.model.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -12,8 +13,12 @@ export const getProfile = async (req, res) => {
         const toast = req.flash("toast")[0];
         const phoneError = req.flash("addressError")[0];
         let addresses = [];
+        let orders = [];
         if (currentSection === "address") {
             addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
+        }
+        if (currentSection === "order-history") {
+            orders = await Order.find({ userId: req.user?._id });
         }
         res.render("profile", {
             section: currentSection,
@@ -21,6 +26,7 @@ export const getProfile = async (req, res) => {
             toast: toast ? JSON.parse(toast) : null,
             phoneError: phoneError,
             user: req.user,
+            orders: orders,
         });
     } catch (err) {
         console.error("Error rendering profile.", err);
