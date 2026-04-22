@@ -4,6 +4,7 @@ import Product from "../models/product.model.js";
 import { calcPricing, getCartItems } from "../service/cart.service.js";
 import Order from "../models/order.model.js";
 import Cart from "../models/cart.model.js";
+import { protectedRoute } from "../middlewares/user.auth.middleware.js";
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ const router = express.Router();
 
 router.use(async (req, res, next) => {
     try {
-        const address = await Address.find({ user: req.user._id });
+        const address = await Address.find({ user: req.user?._id });
         const defaultAddress = address.find((add) => add.isDefault) || address[0];
         res.locals.defaultAddress = defaultAddress;
         next();
@@ -46,9 +47,9 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", protectedRoute, async (req, res) => {
     try {
-        const address = await Address.find({ user: req.user._id });
+        const address = await Address.find({ user: req.user?._id });
         const products = await getCartItems(req.user?._id);
         const data = calcPricing(products);
         req.session.checkout = {
@@ -61,7 +62,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.post("/buy-now", async (req, res) => {
+router.post("/buy-now", protectedRoute, async (req, res) => {
     console.log(req.body);
 
     const { productId, variantId, sizeId, quantity } = req.body;
@@ -133,6 +134,9 @@ router.post("/place-order", async (req, res) => {
                 $inc: {
                     "variants.$[v].sizes.$[s].stock": -item.quantity,
                 },
+            },
+            {
+                arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
             },
         );
 

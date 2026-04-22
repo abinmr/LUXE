@@ -26,16 +26,12 @@ const orderModel = new mongoose.Schema(
                     min: 1,
                     max: 10,
                 },
-                price: {
-                    type: Number,
-                    required: true,
-                    min: 1,
-                },
             },
         ],
         subtotal: {
             type: Number,
             required: true,
+            min: 1,
         },
         discount: {
             type: Number,
@@ -52,6 +48,7 @@ const orderModel = new mongoose.Schema(
         total: {
             type: Number,
             required: true,
+            min: 1,
         },
         couponId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -77,10 +74,7 @@ const orderModel = new mongoose.Schema(
             required: true,
         },
         cancellationReason: String,
-        returnReason: {
-            type: String,
-            required: true,
-        },
+        returnReason: String,
         adminNote: String,
     },
     { timestamps: true },
