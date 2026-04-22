@@ -2,6 +2,7 @@ import express from "express";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
 import { addAddress, changePassword, deleteAddress, editAddress, getEmailOtpPage, getProfile, logout, updateProfile, verifyEmailOtp } from "../controllers/profile.controller.js";
 import upload from "../lib/multer.js";
+import Order from "../models/order.model.js";
 
 const router = express.Router();
 
@@ -23,8 +24,10 @@ router.post("/address/edit/:id", editAddress);
 
 router.get("/address/delete/:id", deleteAddress);
 
-router.get("/orders/detail", (req, res) => {
-    return res.render("orderDetails");
+router.get("/orders/:id", async (req, res) => {
+    const id = req.params.id;
+    const orderDetails = await Order.findOne({ orderId: id });
+    return res.render("orderDetails", { orderDetails });
 });
 
 router.get("/logout", logout);

@@ -26,9 +26,15 @@
     </head>
     <body style="background-color: #fefbf8">
         <%- include('partials/navbar.ejs', { categories }) %>
-
-        <% if (cartItems && cartItems.length > 0) { %>
+        
         <section class="container mt-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" href="/">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Cart</li>
+                </ol>
+            </nav>
+            <% if (cartItems && cartItems.length > 0) { %>
             <h3 class="fw-bold fs-2">Shopping Cart</h3>
             <div class="gap-4 mt-4 item-container">
                 <div class="d-flex flex-column gap-3" id="cart-list">

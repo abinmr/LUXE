@@ -25,7 +25,7 @@
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#cf4040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big mx-auto h-20 w-20 text-primary" aria-hidden="true"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
             </div>
-            <h2 class="fw-bold mt-2">Payment Successful!</h2>
+            <h2 class="fw-bold mt-2">Order Successful!</h2>
             <p class="text-muted">Your order has been confirmed and will be delivered soon.</p>
         </div>
         <div class="w-75 mx-auto mt-4">
@@ -40,51 +40,42 @@
                         <span>Status</span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>1776516694466</span>
-                        <span class="text-danger">Confirmed</span>
+                        <span> <%= locals.order.orderId %> </span>
+                        <span class="text-danger"> <%= locals.order.orderStatus %></span>
                     </div>
-                    <br class="text-muted">
+                    <hr class="text-muted">
                 </div>
                 <div>
-                    <p class="fw-semibold">Items</p>
+                    <p class="fw-bold">Items</p>
                     <div class="d-flex justify-content-between mb-3">
-                        <div class="d-flex flex-column gap-1">
-                            <span class="fw-semibold">Classic Cotton T-Shirt</span>
-                            <div>
-                                <span>Price: <span class="fw-bold">₹29.99</span></span>
-                                <span>Quantity: <span class="fw-bold">2</span></span>
+                        <% locals.order.items.forEach((item) => { %>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="fw-semibold h5 mb-0"> <%= item.productName %> </span>
+                                <div>
+                                    <span class="small">Quantity: <span class="fw-bold"> <%= item.quantity %> </span></span>
+                                </div>
                             </div>
-                        </div>
-                        <span class="fw-semibold">₹29.99</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex flex-column gap-2">
-                            <span class="fw-semibold">Slim Fit Denim Jeans</span>
-                            <div>
-                                <span>Price: <span class="fw-bold">₹79.99</span></span>
-                                <span>Quantity: <span class="fw-bold">1</span></span>
-                            </div>
-                        </div>
-                        <span class="fw-semibold">₹79.99</span>
+                            <span class="fw-semibold">₹<%= item.price %></span>
+                        <% }) %>
                     </div>
                 </div>
                 <hr class="text-muted">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal</span>
-                    <span>₹139.97</span>
+                    <span>₹<%= locals.order.subtotal %></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span>GST</span>
-                    <span>₹25.19</span>
+                    <span>₹<%= locals.order.GST %></span>
                 </div>
                 <div class="d-flex justify-content-between">
                     <span>Shipping</span>
-                    <span>₹50.00</span>
+                    <span>₹<%= locals.order.shipping %></span>
                 </div>
                 <hr class="text-muted">
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold h5">Grand Total</span>
-                    <span class="fw-bold h5">₹215.16</span>
+                    <span class="fw-bold h5">₹<%= locals.order.total %></span>
                 </div>
             </div>
 
@@ -94,8 +85,9 @@
                     <p class="mb-0 fw-bold">Estimated Delivery</p>
                 </div>
                 <div>
-                    <p class="fw-semibold mb-2">Tuesday, April 21, 2026</p>
-                    <span class="text-muted">Your order will arrive in 3-4 days</span>
+                    <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
+                    <p class="fw-semibold mb-2"> <%= locals.order.estimatedDeliveryDate.toLocaleDateString('en-US', options); %></p>
+                    <span class="text-muted">Your order will arrive in 3 days</span>
                 </div>
             </div>
 
@@ -105,10 +97,10 @@
                     <p class="fw-bold mb-0">Shipping Address</p>
                 </div>
                 <div class="d-flex flex-column mt-3">
-                    <span class="fw-semibold">john doe</span>
-                    <span class="text-muted">31B, ojhpowuehfp</span>
-                    <span class="text-muted">hiopuhp, upuhpuhp 989787</span>
-                    <span class="text-muted">Phone: 084019742</span>
+                    <span class="fw-semibold"> <%= locals.order.shippingAddress.fullName %> </span>
+                    <span class="text-muted"> <%= locals.order.shippingAddress.houseNumber %>, <%= locals.order.shippingAddress.street %> </span>
+                    <span class="text-muted"> <%= locals.order.shippingAddress.state %>, <%= locals.order.shippingAddress.pincode %> </span>
+                    <span class="text-muted">Phone: <%= locals.order.shippingAddress.phone %> </span>
                 </div>
             </div>
 

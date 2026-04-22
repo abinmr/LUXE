@@ -26,6 +26,12 @@
     <body style="background-color: #fefbf8;">
         <%- include('partials/navbar.ejs'), { categories } %>
         <div class="container-xl mt-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" href="/">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+                </ol>
+            </nav>
             <% if (wishlist && wishlist.length > 0) { %>
             <h3 class="fw-bolder mb-0">My Wishlist</h3>
             

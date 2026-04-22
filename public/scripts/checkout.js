@@ -175,7 +175,7 @@ placeOrderBtn.addEventListener("click", async () => {
         const data = await response.json();
         console.log(data);
         if (data.success) {
-            window.location.href = "/checkout/success";
+            window.location.href = `/checkout/success?orderId=${data.order}`;
         }
     } catch (err) {
         console.error(err);

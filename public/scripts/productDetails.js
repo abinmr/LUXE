@@ -158,6 +158,7 @@ function renderQuantity() {
     const buyNowBtn = document.getElementById("buy-now");
 
     select.innerHTML = "";
+    // FIX: buy now button now working when selecting different variant that has stock available.
     if (stock === 0) {
         select.innerHTML = `<option value='0' disabled></option>`;
         badge.innerHTML = "Out of Stock";

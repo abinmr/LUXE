@@ -5,6 +5,12 @@ const orderModel = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
+            index: true,
+        },
+        orderId: {
+            type: Number,
+            required: true,
+            unique: true,
         },
         items: [
             {
@@ -20,6 +26,22 @@ const orderModel = new mongoose.Schema(
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
                 },
+                productName: {
+                    type: String,
+                    required: true,
+                },
+                productImage: {
+                    type: String,
+                    required: true,
+                },
+                color: {
+                    type: String,
+                    required: true,
+                },
+                size: {
+                    type: String,
+                    required: true,
+                },
                 quantity: {
                     type: Number,
                     required: true,
@@ -29,13 +51,13 @@ const orderModel = new mongoose.Schema(
                 price: {
                     type: Number,
                     required: true,
-                    min: 1,
                 },
             },
         ],
         subtotal: {
             type: Number,
             required: true,
+            min: 1,
         },
         discount: {
             type: Number,
@@ -52,13 +74,40 @@ const orderModel = new mongoose.Schema(
         total: {
             type: Number,
             required: true,
+            min: 1,
         },
         couponId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "coupon",
         },
         couponCode: String,
-        shippingAddress: {},
+        shippingAddress: {
+            fullName: {
+                type: String,
+                required: true,
+            },
+            phone: {
+                type: Number,
+                required: true,
+            },
+            pincode: {
+                type: Number,
+                required: true,
+            },
+            houseNumber: {
+                type: String,
+                required: true,
+            },
+            street: String,
+            city: {
+                type: String,
+                required: true,
+            },
+            state: {
+                type: String,
+                required: true,
+            },
+        },
         paymentMethod: {
             type: String,
             enum: ["cod", "card", "upi", "wallet"],
@@ -76,11 +125,9 @@ const orderModel = new mongoose.Schema(
             default: "pending",
             required: true,
         },
+        estimatedDeliveryDate: Date,
         cancellationReason: String,
-        returnReason: {
-            type: String,
-            required: true,
-        },
+        returnReason: String,
         adminNote: String,
     },
     { timestamps: true },
