@@ -158,7 +158,6 @@ function renderQuantity() {
     const buyNowBtn = document.getElementById("buy-now");
 
     select.innerHTML = "";
-    // FIX: buy now button now working when selecting different variant that has stock available.
     if (stock === 0) {
         select.innerHTML = `<option value='0' disabled></option>`;
         badge.innerHTML = "Out of Stock";
@@ -167,6 +166,7 @@ function renderQuantity() {
         return;
     }
 
+    buyNowBtn.classList.remove("disabled");
     for (let i = 1; i <= maxStock; i++) {
         const opt = document.createElement("option");
         opt.value = i;

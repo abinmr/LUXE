@@ -47,22 +47,29 @@
 
                 <div class="border border-1 rounded-4 p-4 bg-white shadow-sm">
                     <p>Order Items</p>
-                    <div>
-                        <div class="mb-3">
-                            <img src="<%= orderDetails.items[0].productImage %>" class="rounded-2" height="80" width="80">
-                        </div>
-                        <div>
-                            <span> <%= orderDetails.items[0].productName%></span>
-                            <div>
-                                <span>Size: XS</span>
-                                <span>Color: White</span>
-                                <span>Qty: 1</span>
+                    <% orderDetails.items.forEach((item, i) => { %>
+                        <% if (i !== 0) { %>
+                        <hr class="text-muted">
+                        <% } %>
+                        <div class="mt-2 d-flex align-items-center gap-4">
+                            <div class="mb-3">
+                                <img src="<%= item.productImage %>" class="rounded-2" height="80" width="80">
                             </div>
-                            <span class="fw-bold">₹29.99</span>
+                            <div>
+                                <p class="mb-1 fw-bold"> <%= item.productName %></p>
+                                <div>
+                                    <span>Size: <span class="fw-semibold"> <%= item.size %> </span></span>
+                                    <span>Color: <span class="fw-semibold"> <%= item.color %> </span></span>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span>Qty: <span class="fw-semibold"> <%= item.quantity %> </span></span>
+                                    <span class="fw-bold">₹<%= item.price %></span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    <% }); %>
                 </div>
-                <button class="btn btn-danger w-100 mt-4">Cancel</button>
+                <button id="cancel-btn" class="btn btn-danger w-100 my-4" data-order-id="<%= orderDetails._id %>">Cancel</button>
             </div>
 
             <div class="w-50">
@@ -85,7 +92,9 @@
                         <span class="h5 fw-bold mb-0">Payment Method</span>
                     </div>
                     <div class="pt-2">
-                        <p class="fw-semibold">Cash on Delivery</p>
+                        <% if (orderDetails.paymentMethod === "cod") { %>
+                            <p class="fw-semibold">Cash on Delivery</p>
+                        <% } %>
                     </div>
                 </div>
 
@@ -112,5 +121,8 @@
             </div>
         </div>
     </div>
+
+    <%- include('partials/footer.ejs') %>
+    <script src="/scripts/orderDetails.js"></script>
 </body>
 </html>

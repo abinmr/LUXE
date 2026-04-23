@@ -56,11 +56,22 @@ router.get("/", async (req, res) => {
 router.post("/", protectedRoute, async (req, res) => {
     try {
         const address = await Address.find({ user: req.user?._id });
-        const products = await getCartItems(req.user?._id);
+        const allCartItems = await getCartItems(req.user?._id);
+        const products = allCartItems.filter((item) => item.isSelected);
+        // console.log(products);
         const data = calcPricing(products);
+        const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
+            ...rest,
+            productImage: productImage[0],
+        }));
         req.session.checkout = {
             source: "cart",
-            items: [],
+            items: formattedProducts,
+            subtotal: data.subtotal,
+            discount: 0,
+            gst: data.gst,
+            shipping: data.shipping,
+            total: data.total,
         };
         return res.render("checkout", { address, data, products });
     } catch (err) {
@@ -69,21 +80,24 @@ router.post("/", protectedRoute, async (req, res) => {
 });
 
 router.post("/buy-now", protectedRoute, async (req, res) => {
-    console.log(req.body);
-
     const { productId, variantId, sizeId, quantity } = req.body;
     if (!productId || !variantId || !sizeId) {
         req.flash("toast", JSON.stringify({ type: "error", message: "error" }));
         return res.redirect(`/product/${productId}`);
     }
 
-    const product = await Product.findOne({ "variants.sizes._id": sizeId }, { name: 1, isListed: 1, "variants.images": 1, "variants.color": 1, "variants.sizes.$": 1 });
-    // console.log(JSON.stringify(product, null, 2));
-    if (!product.isListed) {
+    const product = await Product.findById(productId, { name: 1, isListed: 1, isDeleted: 1, variants: 1 });
+    if (!product || !product.isListed) {
         req.flash("home", { type: "error", message: "product no longer available" });
         return res.redirect("/home");
     }
-    const stock = product.variants[0]?.sizes[0]?.stock;
+    const variant = product.variants.id(variantId);
+    const size = variant.sizes.id(sizeId);
+    if (!variant || !size) {
+        req.flash("toast", { type: "error", message: "error" });
+        return res.redirect(`/product/${productId}`);
+    }
+    const stock = size.stock;
     if (stock === 0) {
         req.flash("productDetails", { type: "error", message: "out of stock" });
         return res.redirect(`/product/${productId}`);
@@ -95,7 +109,7 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
             quantity: quantity,
             isListed: product.isListed,
             isSelected: true,
-            price: product.variants[0].sizes[0].price,
+            price: size.price,
         },
     ];
 
@@ -110,11 +124,11 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
                 variantId,
                 sizeId,
                 productName: product.name,
-                productImage: product.variants[0].images[0],
-                color: product.variants[0].color,
-                size: product.variants[0].sizes[0].size,
+                productImage: variant.images[0],
+                color: variant.color,
+                size: size.size,
                 quantity,
-                price: product.variants[0].sizes[0].price,
+                price: size.price,
             },
         ],
         subtotal: data.subtotal,
@@ -129,7 +143,11 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
 router.post("/place-order", async (req, res) => {
     const { addressId, paymentMethod } = req.body;
     if (!addressId || !paymentMethod) {
-        return res.redirect("/checkout");
+        return res.status(400).json({ success: false, message: "error processing request" });
+    }
+
+    if (paymentMethod === "cod") {
+        return res.status(400).json({ success: false, message: "Payment method not supported" });
     }
 
     /** @type {CheckoutSession} */
