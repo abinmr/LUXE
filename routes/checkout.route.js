@@ -56,11 +56,22 @@ router.get("/", async (req, res) => {
 router.post("/", protectedRoute, async (req, res) => {
     try {
         const address = await Address.find({ user: req.user?._id });
-        const products = await getCartItems(req.user?._id);
+        const allCartItems = await getCartItems(req.user?._id);
+        const products = allCartItems.filter((item) => item.isSelected);
+        // console.log(products);
         const data = calcPricing(products);
+        const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
+            ...rest,
+            productImage: productImage[0],
+        }));
         req.session.checkout = {
             source: "cart",
-            items: [],
+            items: formattedProducts,
+            subtotal: data.subtotal,
+            discount: 0,
+            gst: data.gst,
+            shipping: data.shipping,
+            total: data.total,
         };
         return res.render("checkout", { address, data, products });
     } catch (err) {
@@ -69,8 +80,6 @@ router.post("/", protectedRoute, async (req, res) => {
 });
 
 router.post("/buy-now", protectedRoute, async (req, res) => {
-    console.log(req.body);
-
     const { productId, variantId, sizeId, quantity } = req.body;
     if (!productId || !variantId || !sizeId) {
         req.flash("toast", JSON.stringify({ type: "error", message: "error" }));
@@ -134,7 +143,11 @@ router.post("/buy-now", protectedRoute, async (req, res) => {
 router.post("/place-order", async (req, res) => {
     const { addressId, paymentMethod } = req.body;
     if (!addressId || !paymentMethod) {
-        return res.redirect("/checkout");
+        return res.status(400).json({ success: false, message: "error processing request" });
+    }
+
+    if (paymentMethod === "cod") {
+        return res.status(400).json({ success: false, message: "Payment method not supported" });
     }
 
     /** @type {CheckoutSession} */

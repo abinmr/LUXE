@@ -47,8 +47,11 @@
 
                 <div class="border border-1 rounded-4 p-4 bg-white shadow-sm">
                     <p>Order Items</p>
-                    <% orderDetails.items.forEach(item => { %>
-                        <div class="mt-2">
+                    <% orderDetails.items.forEach((item, i) => { %>
+                        <% if (i !== 0) { %>
+                        <hr class="text-muted">
+                        <% } %>
+                        <div class="mt-2 d-flex align-items-center gap-4">
                             <div class="mb-3">
                                 <img src="<%= item.productImage %>" class="rounded-2" height="80" width="80">
                             </div>
@@ -64,10 +67,9 @@
                                 </div>
                             </div>
                         </div>
-                        <hr class="text-muted">
                     <% }); %>
                 </div>
-                <button class="btn btn-danger w-100 mt-4">Cancel</button>
+                <button id="cancel-btn" class="btn btn-danger w-100 my-4" data-order-id="<%= orderDetails._id %>">Cancel</button>
             </div>
 
             <div class="w-50">
@@ -119,5 +121,8 @@
             </div>
         </div>
     </div>
+
+    <%- include('partials/footer.ejs') %>
+    <script src="/scripts/orderDetails.js"></script>
 </body>
 </html>
