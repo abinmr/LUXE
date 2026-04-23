@@ -6,6 +6,7 @@ import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
 import Order from "../models/order.model.js";
+import { createAddress } from "../service/profile.service.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -18,7 +19,7 @@ export const getProfile = async (req, res) => {
             addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
         }
         if (currentSection === "order-history") {
-            orders = await Order.find({ userId: req.user?._id });
+            orders = await Order.find({ userId: req.user?._id }).sort({ createdAt: -1 });
         }
         res.render("profile", {
             section: currentSection,
@@ -167,7 +168,7 @@ export const addAddress = async (req, res) => {
 
         const makeDefault = isDefault === "on" || isDefault === "true";
 
-        if (fullName === "" || phone === "" || pincode === "" || house === "" || state === "") {
+        if (fullName === "" || phone === "" || pincode === "" || house === "" || city === "" || state === "") {
             req.flash("toast", JSON.stringify({ type: "error", message: "Address failed to save" }));
             return res.redirect("/profile?section=address");
         }
@@ -183,19 +184,7 @@ export const addAddress = async (req, res) => {
             await Address.updateMany({ user: req.user._id }, { isDefault: false });
         }
 
-        const newAddress = await Address.create({
-            user: req.user._id,
-            fullName: fullName,
-            phone: phone,
-            pincode: Number(pincode),
-            houseNumber: house,
-            street: street,
-            city: city,
-            state: state,
-            isDefault: isDefault === "on" ? true : false,
-        });
-
-        await newAddress.save();
+        await createAddress(req.body, req.user?._id);
 
         req.flash("toast", JSON.stringify({ type: "success", message: "Address created" }));
         res.redirect("/profile?section=address");

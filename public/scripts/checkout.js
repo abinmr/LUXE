@@ -121,7 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
     streetInput.addEventListener("blur", validateStreet);
     stateInput.addEventListener("blur", validateState);
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
         const isNameValid = validateFullname();
         const isMobileValid = validateMobile();
         const isPincodeValid = validatePincode();
@@ -129,9 +130,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const isStreetValid = validateStreet();
         const isStateValid = validateState();
 
-        if (!isNameValid || !isMobileValid || !isPincodeValid || !isHouseValid || !isStreetValid || !isStateValid) {
-            e.preventDefault();
-        }
+        if (!isNameValid || !isMobileValid || !isPincodeValid || !isHouseValid || !isStreetValid || !isStateValid) return;
+        const formData = new FormData(form);
+        const body = Object.fromEntries(formData.entries());
+        const response = await fetch("/checkout/add-address", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
+        const data = await response.json();
+        if (!data.success) return showToast(data.message, "error");
+        const address = data.address;
+        document.getElementById("selectedAddressId").value = address._id;
+        document.getElementById("display-name").textContent = address.fullname;
+        document.getElementById("display-phone").textContent = address.phone;
+        document.getElementById("display-address").textContent = `${address.house}, ${address.street}`;
+        document.getElementById("display-region").textContent = `${address.state}, ${address.pincode}`;
+        togglePlaceOrder();
+        const modal = bootstrap.Modal.getInstance(document.getElementById("addressModal"));
+        modal.hide();
+        form.reset();
     });
 
     const confirmAddressBtn = document.getElementById("confirmAddress");
@@ -140,19 +158,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const selected = document.querySelector('input[name="address"]:checked');
             if (!selected) return;
 
-            // Read data attributes from selected radio
             const { fullname, phone, house, street, state, pincode } = selected.dataset;
 
-            // Update the displayed address on the page
             document.getElementById("display-name").textContent = fullname;
             document.getElementById("display-phone").textContent = phone;
             document.getElementById("display-address").textContent = `${house}, ${street}`;
             document.getElementById("display-region").textContent = `${state}, ${pincode}`;
 
-            // Store the selected address ID
             document.getElementById("selectedAddressId").value = selected.value;
 
-            // Close the modal
             const modal = bootstrap.Modal.getInstance(document.getElementById("changeAddress"));
             modal.hide();
         });

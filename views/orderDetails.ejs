@@ -28,7 +28,13 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package h-5 w-5" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><path d="m7.5 4.27 9 5.15"></path></svg>
                             <span>Order #<%= orderDetails.orderId %></span>
                         </div>
-                        <button class="btn btn-light btn-sm"> <%= orderDetails.orderStatus %> </button>
+                        <div class="d-flex align-items-center gap-3">
+                            <button class="btn btn-light btn-sm"> <%= orderDetails.orderStatus %> </button>
+                            <a href="/profile/orders/<%= orderDetails._id %>/invoice" target="_blank" class="btn btn-light btn-sm border d-flex align-items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download h-3.5 w-3.5" aria-hidden="true"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                invoice
+                            </a>
+                        </div>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Order Date</span>

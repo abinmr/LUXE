@@ -6,6 +6,7 @@ import { calcPricing, getCartItems } from "../service/cart.service.js";
 import Order from "../models/order.model.js";
 import Cart from "../models/cart.model.js";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
+import { createAddress } from "../service/profile.service.js";
 
 const router = express.Router();
 
@@ -50,6 +51,16 @@ router.get("/", async (req, res) => {
         return res.render("checkout", { address });
     } catch (err) {
         console.error(err);
+    }
+});
+
+router.post("/add-address", protectedRoute, async (req, res) => {
+    try {
+        const address = await createAddress(req.body, req.user?._id);
+        return res.status(201).json({ success: true, address });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: "Failed to save address" });
     }
 });
 
@@ -146,7 +157,7 @@ router.post("/place-order", async (req, res) => {
         return res.status(400).json({ success: false, message: "error processing request" });
     }
 
-    if (paymentMethod === "cod") {
+    if (paymentMethod !== "cod") {
         return res.status(400).json({ success: false, message: "Payment method not supported" });
     }
 
