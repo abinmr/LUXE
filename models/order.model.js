@@ -4,13 +4,18 @@ const orderModel = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
             required: true,
             index: true,
         },
         orderId: {
-            type: Number,
+            type: String,
             required: true,
             unique: true,
+        },
+        username: {
+            type: String,
+            required: true,
         },
         items: [
             {

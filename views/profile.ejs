@@ -379,6 +379,10 @@
                                                 <div>
                                                     <p class="mb-2">Order <%= order.orderId %></p>
                                                     <span class="text-muted"> <%= order.estimatedDeliveryDate.toLocaleDateString("en-US", options) %></span>
+                                                    <br>
+                                                    <% if (order.items.length > 1) { %>
+                                                    <span class="text-muted">+<%= order.items.length - 1 %> more</span>
+                                                    <% } %>
                                                 </div>
                                             </div>
                                             <div>
