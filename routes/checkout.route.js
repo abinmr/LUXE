@@ -194,10 +194,12 @@ router.post("/place-order", async (req, res) => {
     }
 
     const nanoid = customAlphabet("1234567890", 12);
+    const orderId = `ORD-${nanoid()}`;
 
     const order = await Order.create({
         userId: req.user?._id,
-        orderId: Number(nanoid()),
+        orderId: orderId,
+        username: req.user?.fullname,
         items: checkout.items,
         subtotal: checkout.subtotal,
         discount: checkout.discount,

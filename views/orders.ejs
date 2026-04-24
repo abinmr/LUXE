@@ -27,22 +27,23 @@
                 <button class="btn btn-primary btn-sm fw-semibold rounded-2">Submit</button>
                 <select name="customerStatus" id="customerStatus" class="form-select form-select-sm w-auto shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px; border-color: #f2f2f2;">
                     <option value="all-status">All Status</option>
+                    <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
                     <option value="shipped">Shipped</option>
                     <option value="delivered">Delivered</option>
-                    <option value="pending">Pending</option>
-                    <option value="return-request">Return Request</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="return-request">Return Request</option>
                 </select>
             </form>
         </div>
 
-        <div class="bg-white mt-4 px-3 py-4 border rounded-4">
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 500px; display: block;">
             <div>
                 <h5>All Orders</h5>
             </div>
             <table class="table mt-4">
                 <thead>
+                    <th scope="col">id</th>
                     <th scope="col">Customer</th>
                     <th scope="col">Date</th>
                     <th scope="col">Items</th>
@@ -51,22 +52,46 @@
                     <th scope="col">Action</th>
                 </thead>
                 <tbody>
-                    <th scope="row">John Does</th>
-                    <td>Feb 10, 2026</td>
-                    <td>3</td>
-                    <td>₹249.99</td>
-                    <td>
-                        <span class="btn btn-sm bg-secondary-subtle rounded-2 py-1 ">processing</span>
-                    </td>
-                    <td>
-                        <a href="/admin/orders/details" class="btn btn-light btn-sm rounded-2">
-                            <img src="/images/view-details.svg" alt="">
-                            view
-                        </a>
-                    </td>
+                    <% orders.forEach((order) => { %>
+                    <% const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }; %>
+                    <tr>
+                        <th scope="row"><%= order.orderId %></th>
+                        <th><%= order.username %></th>
+                        <td> <%= order.createdAt.toLocaleDateString('en-US', options) %> </td>
+                        <td> <%= order.items.length %> </td>
+                        <td>₹<%= order.total %> </td>
+                        <td>
+                            <span class="btn btn-sm bg-secondary-subtle rounded-2 py-1 "> <%= order.orderStatus %></span>
+                        </td>
+                        <td>
+                            <a href="/admin/orders/<%= order._id %>" class="btn btn-light btn-sm rounded-2">
+                                <img src="/images/view-details.svg" alt="">
+                                view
+                            </a>
+                        </td>
+                    </tr>
+                    <% }) %>
                 </tbody>
             </table>
         </div>
+
+        <% if (locals.totalPage > 1) { %>
+        <nav aria-label="Orders page navigation" class="mt-2">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item <%= currentPageNumber === 1 ? 'disabled' : '' %>">
+                    <a href="?page=<%= currentPageNumber - 1 %>" class="page-link">Previous</a>
+                </li>
+                <% for (let i = 1; i <= totalPages; i++ ) { %>
+                <li class="page-item <%= currentPageNumber === i ? 'active': '' %>">
+                    <a href="?page=<%= i %>" class="page-link"> <%= i %> </a>
+                </li>
+                <% } %>
+                <li class="page-item <%= currentPageNumber === totalPages ? 'disabled' : '' %>">
+                    <a href="?page=<%= currentPageNumber + 1 %>" class="page-link">Next</a>
+                </li>
+            </ul>
+        </nav>
+        <% } %>
 
     </div>
     <%- include('partials/admin-footer.ejs') %>

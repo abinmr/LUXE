@@ -23,6 +23,7 @@
                 <p class="text-muted">details about the order</p>
             </div>
 
+        <% const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }; %>
         </div>
         <div class="border border-1 rounded-4 bg-white">
             <div class="mt-4 px-4">
@@ -30,9 +31,9 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-muted fw-semibold">Order date</h6>
-                        <h5 class="fw-semibold">Tuesday, February 10, 2026</h5>
+                        <h5 class="fw-semibold"><%= order.createdAt.toLocaleDateString('en-US', options) %></h5>
                     </div>
-                    <button class="btn btn-light border border-1 rounded-3">processing</button>
+                    <button class="btn btn-light border border-1 rounded-3"> <%= order.orderStatus %> </button>
                 </div>
                 <hr class="text-muted">
 
@@ -45,15 +46,15 @@
                         <div class="p-4 mt-3 rounded-4" style="background-color: #f9fafb;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Name</span>
-                                <span>John Doe</span>
+                                <span> <%= order.userId.fullname %></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Email</span>
-                                <span>john@gmail.com</span>
+                                <span> <%= order.userId.email %> </span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>Phone</span>
-                                <span>+91 98765 43210</span>
+                                <span> <%= order.userId.phone || "unavailable" %> </span>
                             </div>
                         </div>
                     </div>
@@ -64,8 +65,8 @@
                         </div>
                         <div class="p-4 mt-3 rounded-3" style="background-color: #f9fafb;">
                             <div class="d-flex flex-column">
-                                <span class="fw-bold mb-3">123 Main Street</span>
-                                <span class="text-muted mb-3">Mumbai, Maharashtra 400001</span>
+                                <span class="fw-bold mb-3"> <%= order.shippingAddress.street %> </span>
+                                <span class="text-muted mb-3"> <%= order.shippingAddress.city %> , <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %> </span>
                                 <span class="text-muted">India</span>
                             </div>
                         </div>
@@ -79,39 +80,25 @@
                         <span class="fw-semibold h5 mb-0">Order Items</span>
                     </div>
 
+                    <% order.items.forEach((item) => { %>
+
                     <div class="border border-1 rounded-4 p-4 mt-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-4">
                                 <div>
-                                    <img src="/images/product-03.png" class="rounded-2" height="80" width="80">
+                                    <img src="<%= item.productImage %> " class="rounded-2" height="80" width="80">
                                 </div>
                                 <div>
-                                    <p class="mb-2 fw-semibold">Linen Shirt</p>
-                                    <span class="text-muted">Quantity 1</span>
+                                    <p class="mb-2 fw-semibold"> <%= item.productName %> </p>
+                                    <span class="text-muted">Quantity <%= item.quantity %> </span>
                                 </div>
                             </div>
                             <div>
-                                <span class="fw-bold">₹2999.00</span>
+                                <span class="fw-bold">₹<%= item.price %> </span>
                             </div>
                         </div>
                     </div>
-                                        <div class="border border-1 rounded-4 p-4 mt-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-4">
-                                <div>
-                                    <img src="/images/product-03.png" class="rounded-2" height="80" width="80">
-                                </div>
-                                <div>
-                                    <p class="mb-2 fw-semibold">Linen Shirt</p>
-                                    <span class="text-muted">Quantity 1</span>
-                                </div>
-                            </div>
-                            <div>
-                                <span class="fw-bold">₹2999.00</span>
-                            </div>
-                        </div>
-                    </div>
-
+                    <% }) %>
                 </div>
 
                 <hr class="text-muted">
@@ -121,12 +108,14 @@
                             <span>Update Status</span>
                         </div>
                         <div class="mt-2">
-                            <form action="">
-                                <span class="small">Order status</span>
+                            <form action="/admin/orders/<%= order._id %>/update" method="get">
+                                <label for="status" class="form-label small mb-0 ms-1">Order status</label>
                                 <select class="form-select mt-2" name="status" id="status">
-                                    <option value="processing">Processing</option>
-                                    <option value="shipped">Shipped</option>
-                                    <option value="delivered">Delivered</option>
+                                    <option value="pending" <%= order.orderStatus === "pending" ? 'selected' : '' %> >Pending</option>
+                                    <option value="processing" <%= order.orderStatus === "processing" ? 'selected' : '' %> >Processing</option>
+                                    <option value="shipped" <%= order.orderStatus === "shipped" ? 'selected' : '' %> >Shipped</option>
+                                    <option value="delivered" <%= order.orderStatus === "delivered" ? 'selected' : '' %> >Delivered</option>
+                                    <option value="cancelled" <%= order.orderStatus === "cancelled" ? 'selected' : '' %> >Cancelled</option>
                                 </select>
                                 <button type="submit" class="btn btn-primary mt-4 w-100">Save Changes</button>
                             </form>
@@ -140,25 +129,27 @@
                         <div class="p-4 rounded-4 mt-2" style="background-color: #f9fafb;">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal</span>
-                                <span class="fw-semibold">₹233.97</span>
+                                <span class="fw-semibold">₹<%= order.subtotal %> </span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping</span>
-                                <span class="fw-semibold">₹40.00</span>
+                                <span class="fw-semibold">₹<%= order.shipping %> </span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>GST</span>
-                                <span class="fw-semibold">₹13.00</span>
+                                <span class="fw-semibold">₹<%= order.GST %> </span>
                             </div>
                             <hr class="text-muted">
                             <div class="d-flex justify-content-between">
                                 <span class="fw-bold">Total</span>
-                                <span class="text-primary fw-bold">₹259.97</span>
+                                <span class="text-primary fw-bold">₹<%= order.total %> </span>
                             </div>
                             <hr class="text-muted">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Payment Method</span>
-                                <span>Debit Cart</span>
+                                <% if (order.paymentMethod === "cod") { %>
+                                    <span class="fw-semibold">Cash on Delivery</span>
+                                <% } %>
                             </div>
                         </div>
                     </div>

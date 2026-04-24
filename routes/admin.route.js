@@ -2,7 +2,6 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Admin from "../models/admin.model.js";
-import User from "../models/user.model.js";
 import { preventLoggedInAdmin, requireAdminAuth, noCache } from "../middlewares/admin-auth.middleware.js";
 
 const router = express.Router();
@@ -13,10 +12,6 @@ router.get("/login", noCache, preventLoggedInAdmin, (req, res) => {
 
 router.get("/dashboard", requireAdminAuth, (req, res) => {
     return res.render("dashboard", { currentPage: "dashboard" });
-});
-
-router.get("/orders", requireAdminAuth, (req, res) => {
-    return res.render("orders", { currentPage: "orders" });
 });
 
 router.get("/coupons", requireAdminAuth, (req, res) => {
