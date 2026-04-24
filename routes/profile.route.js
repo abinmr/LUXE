@@ -44,6 +44,12 @@ router.get("/orders/:id/invoice", async (req, res) => {
     }
 });
 
+router.post("/orders/:id/cancel", async (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+    console.log(body, id);
+});
+
 router.get("/logout", logout);
 
 export default router;
