@@ -200,8 +200,6 @@ router.post("/place-order", async (req, res) => {
         estimatedDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
-    console.log(order);
-
     if (order) {
         for (const item of checkout.items) {
             const result = await Product.updateOne(

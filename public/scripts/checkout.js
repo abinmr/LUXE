@@ -209,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             showToast(err.message, "error");
             console.error(err);
+            window.location.href = `/checkout/failure`;
         }
     });
 });
