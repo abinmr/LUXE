@@ -53,4 +53,14 @@ router.get("/:id/update", async (req, res) => {
     }
 });
 
+router.post("/:id/approve-return", requireAdminAuth, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const body = req.body;
+        console.log(body, id);
+    } catch (err) {
+        console.error(err);
+    }
+});
+
 export default router;
