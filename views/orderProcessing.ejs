@@ -115,14 +115,14 @@
                         <div class="mt-2">
                             <form action="/admin/orders/<%= order._id %>/update" method="get">
                                 <label for="status" class="form-label small mb-0 ms-1">Order status</label>
-                                <select class="form-select mt-2" name="status" id="status">
+                                <select class="form-select mt-2" name="status" id="status" <%= order.orderStatus === "returned" ? 'disabled' : '' %>>
                                     <option value="pending" <%= order.orderStatus === "pending" ? 'selected' : '' %> >Pending</option>
                                     <option value="processing" <%= order.orderStatus === "processing" ? 'selected' : '' %> >Processing</option>
                                     <option value="shipped" <%= order.orderStatus === "shipped" ? 'selected' : '' %> >Shipped</option>
                                     <option value="delivered" <%= order.orderStatus === "delivered" ? 'selected' : '' %> >Delivered</option>
                                     <option value="cancelled" <%= order.orderStatus === "cancelled" ? 'selected' : '' %> >Cancelled</option>
                                 </select>
-                                <button type="submit" class="btn btn-primary mt-4 w-100">Save Changes</button>
+                                <button type="submit" class="btn btn-primary mt-4 w-100" <%= order.orderStatus === "returned" ? 'disabled' : '' %>>Save Changes</button>
                             </form>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                     <h5 class="modal-title">Process Return</h5>
                     <button class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form accept="/admin/orders/<%= order._id %>/approve-return" method="POST" id="form">
+                <form action="/admin/orders/<%= order._id %>/approve-return" method="POST" id="form">
                     <div class="modal-body">
                         <% order.items.forEach((order, i) => { %>
                             <div class="border rounded-2 p-4 mb-2">

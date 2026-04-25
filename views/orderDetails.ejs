@@ -76,9 +76,9 @@
                     <% }); %>
                 </div>
 
-                <% if (orderDetails.estimatedDeliveryDate < new Date() && orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested") { %>
+                <% if (orderDetails.estimatedDeliveryDate < new Date() && orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested" && orderDetails.orderStatus !== "returned") { %>
                     <button id="return" class="btn btn-danger w-100 my-4" data-bs-toggle="modal" data-bs-target="#returnModal">Return</button>
-                <% } else if (orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested") { %>
+                <% } else if (orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested" && orderDetails.orderStatus !== "returned") { %>
                     <button id="cancel-btn" class="btn btn-danger w-100 my-4" data-bs-toggle="modal" data-bs-target="#cancelModal" >Cancel</button>
                 <% } %>
             </div>

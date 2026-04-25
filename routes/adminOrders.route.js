@@ -1,6 +1,7 @@
 import express from "express";
 import Order from "../models/order.model.js";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
+import Product from "../models/product.model.js";
 
 const router = express.Router();
 
@@ -55,11 +56,38 @@ router.get("/:id/update", async (req, res) => {
 
 router.post("/:id/approve-return", requireAdminAuth, async (req, res) => {
     try {
-        const id = req.params.id;
-        const body = req.body;
-        console.log(body, id);
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.redirect("/admin/orders");
+        }
+        const selectedIts = req.body.product;
+
+        for (const itemId of selectedIts) {
+            const item = order.items.id(itemId);
+            if (!item) return;
+
+            await Product.updateOne(
+                {
+                    _id: item.productId,
+                    "variants._id": item.variantId,
+                    "variants.sizes._id": item.sizeId,
+                },
+                {
+                    $inc: { "variants.$[v].sizes.$[s].stock": item.quantity },
+                },
+                {
+                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
+                },
+            );
+        }
+        order.orderStatus = "returned";
+        order.paymentStatus = "refunded";
+        order.adminNote = req.body["admin-note"] || "";
+        await order.save();
+        return res.redirect(`/admin/orders/${order._id}`);
     } catch (err) {
         console.error(err);
+        return res.redirect("/admin/orders");
     }
 });
 
