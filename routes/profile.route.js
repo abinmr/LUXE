@@ -44,6 +44,28 @@ router.get("/orders/:id/invoice", async (req, res) => {
     }
 });
 
+router.post("/orders/:id/cancel", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const reason = req.body.reason;
+        const update = await Order.findByIdAndUpdate(id, { orderStatus: "cancelled", cancellationReason: reason });
+        return res.status(200).json({ success: true, message: "Order cancelled" });
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+router.post("/orders/:id/return", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const reason = req.body.reason;
+        const update = await Order.findByIdAndUpdate(id, { orderStatus: "return-requested", returnReason: reason });
+        return res.status(200).json({ success: true, message: "Return requested" });
+    } catch (err) {
+        console.error(err);
+    }
+});
+
 router.get("/logout", logout);
 
 export default router;
