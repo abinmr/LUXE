@@ -172,27 +172,6 @@ router.post("/place-order", async (req, res) => {
         return res.status(400).json({ success: false, message: "Address not found" });
     }
 
-    for (const item of checkout.items) {
-        const result = await Product.updateOne(
-            {
-                _id: item.productId,
-                "variants._id": item.variantId,
-            },
-            {
-                $inc: {
-                    "variants.$[v].sizes.$[s].stock": -item.quantity,
-                },
-            },
-            {
-                arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
-            },
-        );
-
-        if (result.modifiedCount === 0) {
-            return res.status(400).json({ success: false, message: "error" });
-        }
-    }
-
     const nanoid = customAlphabet("1234567890", 12);
     const orderId = `ORD-${nanoid()}`;
 
@@ -218,8 +197,33 @@ router.post("/place-order", async (req, res) => {
         paymentMethod: paymentMethod,
         paymentStatus: paymentMethod === "cod" ? "pending" : "paid",
         orderStatus: "pending",
-        estimatedDeliveryDate: Date.now(Date.now(1000 * 60 * 60 * 24 * 3)),
+        estimatedDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
+
+    console.log(order);
+
+    if (order) {
+        for (const item of checkout.items) {
+            const result = await Product.updateOne(
+                {
+                    _id: item.productId,
+                    "variants._id": item.variantId,
+                },
+                {
+                    $inc: {
+                        "variants.$[v].sizes.$[s].stock": -item.quantity,
+                    },
+                },
+                {
+                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
+                },
+            );
+
+            if (result.modifiedCount === 0) {
+                return res.status(400).json({ success: false, message: "error" });
+            }
+        }
+    }
 
     if (checkout.source === "cart") {
         const cart = await Cart.findOne({ userId: req.user._id });
