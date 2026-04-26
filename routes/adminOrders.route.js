@@ -1,6 +1,7 @@
 import express from "express";
 import Order from "../models/order.model.js";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
+import Product from "../models/product.model.js";
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.get("/", requireAdminAuth, async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const search = req.query.search || "";
         const customerStatus = req.query.customerStatus;
-        const limit = 6;
+        const limit = 7;
         const skip = (page - 1) * limit;
         let dbQuery = {};
         if (search) {
@@ -17,12 +18,10 @@ router.get("/", requireAdminAuth, async (req, res) => {
                 $or: [{ username: { $regex: search, $options: "i" } }, { orderId: { $regex: search, $options: "i" } }],
             };
         }
-        if (customerStatus === "processing") {
-            dbQuery.orderStatus = "processing";
-        } else if (customerStatus === "pending") {
-            dbQuery.orderStatus = "pending";
+        if (customerStatus && customerStatus !== "all-status") {
+            dbQuery.orderStatus = customerStatus;
         }
-        const orders = await Order.find(dbQuery).skip(skip).limit(limit);
+        const orders = await Order.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
         const totalOrders = await Order.countDocuments(dbQuery);
         const totalPages = Math.ceil(totalOrders / limit);
         return res.render("orders", {
@@ -31,6 +30,8 @@ router.get("/", requireAdminAuth, async (req, res) => {
             totalPages: totalPages,
             limit,
             search: search,
+            customerStatus,
+            currentPageNumber: page,
         });
     } catch (err) {
         console.error(err);
@@ -46,6 +47,10 @@ router.get("/:id/update", async (req, res) => {
     try {
         const status = req.query.status;
         const update = await Order.findByIdAndUpdate(req.params.id, { orderStatus: status });
+        if (status === "delivered") {
+            update.estimatedDeliveryDate = new Date(Date.now());
+        }
+        update.save();
         return res.redirect("/admin/orders");
     } catch (err) {
         console.error(err);
@@ -55,11 +60,42 @@ router.get("/:id/update", async (req, res) => {
 
 router.post("/:id/approve-return", requireAdminAuth, async (req, res) => {
     try {
-        const id = req.params.id;
-        const body = req.body;
-        console.log(body, id);
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.redirect("/admin/orders");
+        }
+        let selectedIts = req.body.product || [];
+
+        if (!Array.isArray(selectedIts)) {
+            selectedIts = [selectedIts];
+        }
+
+        for (const itemId of selectedIts) {
+            const item = order.items.id(itemId);
+            if (!item) return;
+
+            await Product.updateOne(
+                {
+                    _id: item.productId,
+                    "variants._id": item.variantId,
+                    "variants.sizes._id": item.sizeId,
+                },
+                {
+                    $inc: { "variants.$[v].sizes.$[s].stock": item.quantity },
+                },
+                {
+                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
+                },
+            );
+        }
+        order.orderStatus = "returned";
+        order.paymentStatus = "refunded";
+        order.adminNote = req.body["admin-note"] || "";
+        await order.save();
+        return res.redirect(`/admin/orders/${order._id}`);
     } catch (err) {
         console.error(err);
+        return res.redirect("/admin/orders");
     }
 });
 

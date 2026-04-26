@@ -45,7 +45,7 @@
                         <span>₹<%= orderDetails.total %></span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
+                        <!-- <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %> -->
                         <span>Expected Arrival</span>
                         <span> <%= orderDetails.estimatedDeliveryDate.toLocaleDateString("en-US", options) %></span>
                     </div>
@@ -76,9 +76,9 @@
                     <% }); %>
                 </div>
 
-                <% if (orderDetails.estimatedDeliveryDate < new Date() && orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested") { %>
+                <% if (orderDetails.estimatedDeliveryDate < new Date() || orderDetails.orderStatus === "delivered" && orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested" && orderDetails.orderStatus !== "returned") { %>
                     <button id="return" class="btn btn-danger w-100 my-4" data-bs-toggle="modal" data-bs-target="#returnModal">Return</button>
-                <% } else if (orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested") { %>
+                <% } else if (orderDetails.orderStatus !== "cancelled" && orderDetails.orderStatus !== "return-requested" && orderDetails.orderStatus !== "returned") { %>
                     <button id="cancel-btn" class="btn btn-danger w-100 my-4" data-bs-toggle="modal" data-bs-target="#cancelModal" >Cancel</button>
                 <% } %>
             </div>
@@ -141,12 +141,28 @@
                     <h5 class="modal-title fw-bold">Reson for cancelling</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="cancel-form">
+                <form id="cancel-form" data-id="<%= orderDetails._id %>">
                     <div class="modal-body">
-                        <div>
-                            <label for="reason" class="form-label">Reason</label>
-                            <textarea class="form-control" name="reason" id="reason-textarea" rows="10" placeholder="Reason for cancelling" style="resize: none;" data-id="<%= orderDetails._id %>"></textarea>
-                        </div>
+                        <label for="reason1" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Changed my mind" id="reason1" class="form-check-input ms-1">
+                            Changed my mind
+                        </label>
+                        <label for="reason2" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Found a better price elsewhere" id="reason2" class="form-check-input ms-1">
+                            Found a better price elsewhere
+                        </label>
+                        <label for="reason3" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Ordered by mistake" id="reason3" class="form-check-input ms-1">
+                            Ordered by mistake
+                        </label>
+                        <label for="reason4" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Item take too long to arrive" id="reason4" class="form-check-input ms-1">
+                            Item take too long to arrive
+                        </label>
+                        <label for="reason5" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Other" id="reason5" class="form-check-input ms-1">
+                            Other
+                        </label>
                     </div>
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-light border rounded-2" data-bs-dismiss="modal">Cancel</button>
@@ -166,10 +182,30 @@
                 </div>
                 <form id="return-form">
                     <div class="modal-body">
-                        <div>
-                            <label for="reason" class="form-label">Reason</label>
-                            <textarea class="form-control" name="reason" id="return-textarea" rows="10" placeholder="Reason for cancelling" style="resize: none;" data-id="<%= orderDetails._id %>"></textarea>
-                        </div>
+                        <label for="return-reason1" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Changed my mind" id="return-reason1" class="form-check-input ms-1">
+                            Item arrived damaged
+                        </label>
+                        <label for="return-reason2" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Changed my mind" id="return-reason2" class="form-check-input ms-1">
+                            Improper fit
+                        </label>
+                        <label for="return-reason3" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Changed my mind" id="return-reason3" class="form-check-input ms-1">
+                            Product not matching the description
+                        </label>
+                        <label for="return-reason4" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Changed my mind" id="return-reason4" class="form-check-input ms-1">
+                            Size to small / too large
+                        </label>
+                        <label for="return-reason5" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" value="Changed my mind" id="return-reason5" class="form-check-input ms-1">
+                            Color different from what was shown
+                        </label>
+                        <label for="return-reason6" class="form-check-label p-3 border rounded-4 w-100 mb-2">
+                            <input type="radio" name="reason" id="return-reason6" class="form-check-input ms-1">
+                            Other
+                        </label>
                     </div>
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-light border rounded-2" data-bs-dismiss="modal">Cancel</button>

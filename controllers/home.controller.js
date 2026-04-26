@@ -13,7 +13,8 @@ export const loadCategories = async (req, res, next) => {
                 res.locals.totalWishlist = wishlist.products.length;
             }
             if (carts.length !== 0) {
-                res.locals.totalCart = carts.items.length;
+                const total = carts.items.reduce((acc, curr) => acc + curr.quantity, 0);
+                res.locals.totalCart = total;
             }
         }
         res.locals.categories = categories;
@@ -33,7 +34,7 @@ export const getHomePage = async (req, res) => {
             return res.json({ products, wishlist: userWishlist });
         }
         const toast = req.flash("home")[0];
-        console.log(toast);
+        // console.log(toast);
         res.render("home", { products, userWishlist, toast });
     } catch (err) {
         console.error(err);

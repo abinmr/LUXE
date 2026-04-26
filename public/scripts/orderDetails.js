@@ -7,12 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const cancelOrderBtn = document.getElementById("cancel-btn");
     const cancelForm = document.getElementById("cancel-form");
     const continueBtn = document.getElementById("continue");
-    const reasonTextarea = document.getElementById("reason-textarea");
+    const radioBtns = document.querySelectorAll('input[name="reason"]');
     const orderStatusBtn = document.getElementById("order-status");
 
     const returnTextarea = document.getElementById("return-textarea");
     const continueReturn = document.getElementById("continue-return");
     const continueReturnBtn = document.getElementById("continue-return");
+    const returnBtn = document.getElementById("return");
     const returnForm = document.getElementById("return-form");
 
     const showToast = (message, type = "success") => {
@@ -24,28 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
 
-    reasonTextarea.addEventListener("input", () => {
-        let len = reasonTextarea.value.length;
-        if (len > 10) {
-            continueBtn.disabled = false;
-        } else {
-            continueBtn.disabled = true;
-        }
-    });
-
-    returnTextarea.addEventListener("input", () => {
-        let len = returnTextarea.value.trim().length;
-        if (len > 10) {
+    radioBtns.forEach((radio) => {
+        radio.addEventListener("change", () => {
             continueReturn.disabled = false;
-        } else {
-            continueBtn.disabled = true;
-        }
+            continueBtn.disabled = false;
+        });
     });
 
     cancelForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(cancelForm);
-        const id = reasonTextarea.dataset.id;
+        const id = cancelForm.dataset.id;
         const body = Object.fromEntries(formData.entries());
 
         try {
@@ -89,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 orderStatusBtn.classList.replace("btn-light", "btn-danger");
                 orderStatusBtn.classList.remove("border");
                 orderStatusBtn.textContent = "Return requested";
+                returnBtn.remove();
                 showToast(data.message);
             }
         } catch (err) {

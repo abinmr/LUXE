@@ -4,6 +4,7 @@ import { addAddress, changePassword, deleteAddress, editAddress, getEmailOtpPage
 import upload from "../lib/multer.js";
 import Order from "../models/order.model.js";
 import { generateInvoice } from "../service/profile.service.js";
+import Product from "../models/product.model.js";
 
 const router = express.Router();
 
@@ -48,7 +49,27 @@ router.post("/orders/:id/cancel", async (req, res) => {
     try {
         const id = req.params.id;
         const reason = req.body.reason;
-        const update = await Order.findByIdAndUpdate(id, { orderStatus: "cancelled", cancellationReason: reason });
+        console.log("Reason", reason);
+        const order = await Order.findById(id);
+        order.orderStatus = "cancelled";
+        order.cancellationReason = reason;
+        for (const item of order.items) {
+            if (!item) return;
+            await Product.updateOne(
+                {
+                    _id: item.productId,
+                    "variants._id": item.variantId,
+                    "variants.sizes._id": item.sizeId,
+                },
+                {
+                    $inc: { "variants.$[v].sizes.$[s].stock": item.quantity },
+                },
+                {
+                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
+                },
+            );
+        }
+        order.save();
         return res.status(200).json({ success: true, message: "Order cancelled" });
     } catch (err) {
         console.error(err);

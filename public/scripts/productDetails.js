@@ -18,6 +18,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.initialToast?.message) {
         showToast(window.initialToast.message, window.initialToast.type);
     }
+
+    const updateBadge = (id, count) => {
+        const badge = document.getElementById(id);
+        if (!badge) return;
+        badge.textContent = count;
+        badge.style.display = count > 0 ? "" : "none";
+    };
+
     const wishlistBtns = document.querySelectorAll(".wishlistAdd-btn, .wishlistRemove-btn");
     const cartForms = document.querySelectorAll(".cart-form");
 
@@ -35,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         icon.classList.remove("bi-heart-fill", "text-danger");
                         icon.classList.add("bi-heart");
+                        if (data.totalWishlist !== undefined) updateBadge("wishlist-badge", data.totalWishlist);
                         showToast(data.message);
                     }
                 } else {
@@ -43,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         icon.classList.remove("bi-heart");
                         icon.classList.add("bi-heart-fill", "text-danger");
+                        if (data.totalWishlist !== undefined) updateBadge("wishlist-badge", data.totalWishlist);
                         showToast(data.message);
                     }
                 }
@@ -68,13 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const response = await fetch("/cart/add", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                 });
                 const result = await response.json();
                 if (result.success) {
+                    if (result.totalCart !== undefined) updateBadge("cart-badge", result.totalCart);
                     showToast(result.message);
                 }
             } catch (err) {
