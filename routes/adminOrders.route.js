@@ -10,7 +10,7 @@ router.get("/", requireAdminAuth, async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const search = req.query.search || "";
         const customerStatus = req.query.customerStatus;
-        const limit = 6;
+        const limit = 7;
         const skip = (page - 1) * limit;
         let dbQuery = {};
         if (search) {
@@ -18,12 +18,10 @@ router.get("/", requireAdminAuth, async (req, res) => {
                 $or: [{ username: { $regex: search, $options: "i" } }, { orderId: { $regex: search, $options: "i" } }],
             };
         }
-        if (customerStatus === "processing") {
-            dbQuery.orderStatus = "processing";
-        } else if (customerStatus === "pending") {
-            dbQuery.orderStatus = "pending";
+        if (customerStatus && customerStatus !== "all-status") {
+            dbQuery.orderStatus = customerStatus;
         }
-        const orders = await Order.find(dbQuery).skip(skip).limit(limit);
+        const orders = await Order.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
         const totalOrders = await Order.countDocuments(dbQuery);
         const totalPages = Math.ceil(totalOrders / limit);
         return res.render("orders", {
@@ -32,6 +30,8 @@ router.get("/", requireAdminAuth, async (req, res) => {
             totalPages: totalPages,
             limit,
             search: search,
+            customerStatus,
+            currentPageNumber: page,
         });
     } catch (err) {
         console.error(err);
@@ -47,6 +47,10 @@ router.get("/:id/update", async (req, res) => {
     try {
         const status = req.query.status;
         const update = await Order.findByIdAndUpdate(req.params.id, { orderStatus: status });
+        if (status === "delivered") {
+            update.estimatedDeliveryDate = new Date(Date.now());
+        }
+        update.save();
         return res.redirect("/admin/orders");
     } catch (err) {
         console.error(err);
@@ -60,7 +64,11 @@ router.post("/:id/approve-return", requireAdminAuth, async (req, res) => {
         if (!order) {
             return res.redirect("/admin/orders");
         }
-        const selectedIts = req.body.product;
+        let selectedIts = req.body.product || [];
+
+        if (!Array.isArray(selectedIts)) {
+            selectedIts = [selectedIts];
+        }
 
         for (const itemId of selectedIts) {
             const item = order.items.id(itemId);

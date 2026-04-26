@@ -132,8 +132,10 @@ export const addToCartService = async (userId, { productId, variantId, sizeId, q
         cart.items.push({ productId, variantId, sizeId, quantity });
     }
 
+    const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);
+
     await cart.save();
-    return { totalCart: cart.items.length };
+    return { totalCart: total };
 };
 
 export const changeQuantity = async (userId, itemId, amount) => {
@@ -145,6 +147,7 @@ export const toggleSelection = async (userId, itemId, isSelected) => {
 };
 
 export const removeCartItem = async (userId, itemId) => {
-    const cart = await Cart.findOneAndUpdate({ userId: userId }, { $pull: { items: { _id: itemId } } }, { new: true });
-    return { totalCart: cart.items.length };
+    const cart = await Cart.findOneAndUpdate({ userId: userId }, { $pull: { items: { _id: itemId } } }, { returnDocument: "after" });
+    const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);
+    return { totalCart: total };
 };

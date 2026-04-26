@@ -71,7 +71,7 @@ export const generateInvoice = (order, res) => {
     doc.font("Helvetica-Bold").fontSize(20).text("INVOICE", 0, margin, { align: "right" });
 
     y = margin + 50; // move y down past the header
-    detailRow("Invoice Number", `#${order._id}`);
+    detailRow("Invoice Number", `#${order.orderId}`);
     detailRow("Order Date", new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }));
     y += 10;
     detailRow("Payment Method", paymentMethod(order.paymentMethod));

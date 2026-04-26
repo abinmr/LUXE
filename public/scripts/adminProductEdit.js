@@ -1,114 +1,14 @@
-const productNameInput = document.getElementById("productName");
-const productDescInput = document.getElementById("productDescription");
-const productError = document.getElementById("productError");
-const productDescError = document.getElementById("productDescError");
-const submitBtn = document.getElementById("submit-btn");
-const productForm = document.getElementById("productForm");
-
-function validateProductName() {
-    const productName = productNameInput.value.trim();
-    if (productName === "") {
-        productError.innerText = "product name is required";
-        productError.style.visibility = "visible";
-        return false;
-    } else {
-        productError.innerText = "";
-        productError.style.visibility = "hidden";
-        return true;
-    }
-}
-
-function validateProductDesc() {
-    const productDescription = productDescInput.value.trim();
-    if (productDescription === "") {
-        productDescError.innerText = "product description is required";
-        productDescError.style.visibility = "visible";
-        return false;
-    } else {
-        productDescError.innerText = "";
-        productDescError.style.visibility = "hidden";
-        return true;
-    }
-}
-
-function validateVariantImages() {
-    const variants = document.querySelectorAll(".color-variant-block");
-    let isValid = true;
-    variants.forEach((variant) => {
-        const imageInput = variant.querySelector(".image-file-input");
-        const imageError = variant.querySelector(".image-error");
-
-        if (!imageInput || imageInput.files.length < 3) {
-            imageError.textContent = "Please upload at least 3 image";
-            imageError.style.visibility = "visible";
-            isValid = false;
-        } else {
-            imageError.textContent = "";
-            imageError.style.visibility = "hidden";
-        }
-    });
-    return isValid;
-}
-
-function validateColorInput() {
-    const colorInput = document.querySelectorAll(".color-input");
-    const colorError = document.querySelectorAll(".color-error");
-    let isValid = false;
-    colorInput.forEach((input, i) => {
-        const colorText = input.value.trim();
-        if (colorText === "") {
-            colorError[i].textContent = "color is required";
-            isValid = false;
-        } else {
-            colorError[i].textContent = "";
-            isValid = true;
-        }
-    });
-    return isValid;
-}
-
-function validateSize() {
-    const sizeInput = document.querySelectorAll(".size-input");
-    const sizeError = document.querySelectorAll(".size-error");
-    let isValid = false;
-    sizeInput.forEach((input, i) => {
-        const sizeText = input.value.trim();
-        if (sizeText === "") {
-            sizeError[i].textContent = "size is required";
-            isValid = false;
-        } else {
-            sizeError[i].textContent = "";
-            isValid = true;
-        }
-    });
-    return isValid;
-}
-
-productNameInput.addEventListener("blur", validateProductName);
-productDescInput.addEventListener("blur", validateProductDesc);
-
-productForm.addEventListener("submit", (e) => {
-    const isNameValid = validateProductName();
-    const isDescValid = validateProductDesc();
-    const isColorValid = validateColorInput();
-    const isImageValid = validateVariantImages();
-    const isSizeValid = validateSize();
-    console.log("size", isSizeValid);
-    if (!isNameValid || !isDescValid || !isImageValid || !isColorValid || !isSizeValid) {
-        e.preventDefault();
-    }
-    submitBtn.disabled = true;
-    submitBtn.textContent = "creating...";
-});
+import { document } from "pdfkit/js/page";
 
 const MAX_IMAGES = 8;
-let colorCount = 1;
+let colorCount = document.querySelectorAll(".color-variant-block").length;
 
+/* ── Shared cropper state ──────────────────────────────────── */
 let cropperInstance = null;
-let currentResolve = null;
-let currentFile = null;
-let currentObjURL = null;
-let croppedDataURL = null;
+let currentResolve = null; // resolves the promise for the active image
+let currentFile = null; // the raw File being cropped
+let currentObjURL = null; // object URL for the raw file
+let croppedDataURL = null; // data-URL produced after cropping
 
 const cropModalEl = document.getElementById("cropModal");
 const resultModalEl = document.getElementById("resultModal");
@@ -129,7 +29,7 @@ cropModalEl.addEventListener("shown.bs.modal", () => {
     cropperInstance = new Cropper(cropImg, {
         viewMode: 1,
         dragMode: "move",
-        aspectRatio: 1,
+        aspectRatio: NaN,
         autoCropArea: 0.85,
         movable: true,
         zoomable: true,
@@ -148,13 +48,10 @@ cropModalEl.addEventListener("hidden.bs.modal", () => {
 
 document.getElementById("cropConfirmBtn").addEventListener("click", () => {
     if (!cropperInstance) return;
-
     cropperInstance
         .getCroppedCanvas({
-            // maxWidth: 2048,
-            // width: 310,
-            // height: 400,
-            // maxHeight: 2048,
+            maxWidth: 2048,
+            maxHeight: 2048,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: "high",
         })
@@ -216,6 +113,28 @@ document.getElementById("resultUseBtn").addEventListener("click", () => {
         });
 });
 
+function validateVariantImage() {
+    const variants = document.querySelectorAll(".color-variant-block");
+    let isValid = true;
+    variants.forEach((variant) => {
+        const imageError = variant.querySelector(".image-error");
+        const existingCount = variant.querySelectorAll(".existing-image-item").length;
+        const fileInput = variant.querySelector(".image-file-input");
+        const newCount = fileInput ? fileInput.files.length : 0;
+        const total = existingCount + newCount;
+
+        if (total < 3) {
+            imageError.textContent = "Each variant should have atleast 3 images";
+            imageError.style.visiblity = "visible";
+            isValid = false;
+        } else {
+            imageError.textContent = "";
+            imageError.style.visiblity = "hidden";
+        }
+    });
+    return isValid;
+}
+
 function cropSingleFile(file) {
     return new Promise((resolve) => {
         currentFile = file;
@@ -227,97 +146,97 @@ function cropSingleFile(file) {
     });
 }
 
+// ── Image picker ──────────────────────────────────────────────────────────
+// Existing images are EJS-rendered .preview-item nodes already in the grid.
+// New files are appended to the same grid as identical-looking .preview-item nodes.
+// The cap is: existingCount + newFilesCount <= 8.
 function setupImagePicker(block, ci) {
     const fileInput = block.querySelector(".image-file-input");
-    const previewGrid = block.querySelector(".image-preview-grid");
+    const grid = block.querySelector(".image-preview-grid");
     const addBtn = block.querySelector(".add-images-btn");
     const counter = block.querySelector(".image-count");
 
     fileInput.name = `variants[${ci}][newImages]`;
-    let files = [];
+
+    let newFiles = []; // pending File objects (not yet on server)
+
+    function existingCount() {
+        return grid.querySelectorAll(".existing-image-item").length;
+    }
+
+    function totalCount() {
+        return existingCount() + newFiles.length;
+    }
+
+    function updateUI() {
+        counter.textContent = `(${totalCount()}/8)`;
+        addBtn.disabled = totalCount() >= MAX_IMAGES;
+        const dt = new DataTransfer();
+        newFiles.forEach((f) => dt.items.add(f));
+        fileInput.files = dt.files;
+    }
+
+    function appendNewPreview(file, idx) {
+        const url = URL.createObjectURL(file);
+        const item = document.createElement("div");
+        item.className = "preview-item new-image-item";
+        item.dataset.idx = idx;
+        item.innerHTML = `
+                        <img src="${url}" alt="preview">
+                        <button type="button" class="remove-preview-btn" title="Remove">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                        </button>`;
+        item.querySelector(".remove-preview-btn").addEventListener("click", () => {
+            URL.revokeObjectURL(url);
+            const currentIdx = newFiles.indexOf(file);
+            if (currentIdx !== -1) newFiles.splice(currentIdx, 1);
+            item.remove();
+            updateUI();
+        });
+        grid.appendChild(item);
+    }
+
+    grid.querySelectorAll(".remove-existing-image").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            btn.closest(".existing-image-item").remove();
+            updateUI();
+        });
+    });
 
     addBtn.addEventListener("click", () => fileInput.click());
 
     fileInput.addEventListener("change", async () => {
-        const imageError = block.querySelector(".image-error");
-        const remaining = MAX_IMAGES - files.length;
-        const selected = [...fileInput.files].slice(0, remaining);
-        fileInput.value = "";
-        if (selected.length === 0) return;
-
-        const nonImages = selected.filter((file) => !file.type.startsWith("image/"));
-        if (nonImages.length > 0) {
-            imageError.textContent = `"${nonImages[0].name}" is not a valid image file.`;
-            imageError.style.visibility = "visible";
+        const remaining = MAX_IMAGES - totalCount();
+        const incoming = [...fileInput.files].slice(0, remaining);
+        fileInput.value = ""; // reset so same file can be re-picked if needed
+        const imageError = document.querySelector(".image-error")[0];
+        const nonImage = incoming.filter((file) => !file.type.startsWith("image/"));
+        if (nonImage.length > 0) {
+            imageError.textContent = `${nonImage[0].name} is not a valid image file`;
+            imageError.style.visiblity = "visible";
             return;
         }
 
-        for (const file of selected) {
+        for (const file of incoming) {
             const result = await cropSingleFile(file);
-            if (result) files.push(result);
+            if (result) {
+                newFiles.push(result);
+                appendNewPreview(result, newFiles.length - 1);
+            }
         }
-
-        sync();
-        render();
+        updateUI();
     });
 
-    function sync() {
-        const dt = new DataTransfer();
-        files.forEach((f) => dt.items.add(f));
-        fileInput.files = dt.files;
-        counter.textContent = `(${files.length}/8)`;
-        addBtn.disabled = files.length >= MAX_IMAGES;
-    }
-
-    function render() {
-        previewGrid.innerHTML = "";
-        files.forEach((file, idx) => {
-            const url = URL.createObjectURL(file);
-            const item = document.createElement("div");
-            item.className = "preview-item";
-            item.innerHTML = `
-                            <img src="${url}" alt="preview">
-                            <button type="button" class="remove-preview-btn" title="Remove">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-                            </button>`;
-            item.querySelector(".remove-preview-btn").addEventListener("click", () => {
-                URL.revokeObjectURL(url);
-                files.splice(idx, 1);
-                sync();
-                render();
-            });
-            previewGrid.appendChild(item);
-        });
-    }
+    updateUI();
 }
 
 function sizeRowHTML(ci, si) {
     return `
                     <div class="size-row row g-2 align-items-center mb-2">
-                        <div class="col">
-                            <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[${ci}][sizes][${si}][size]" placeholder="e.g., M"required>
-                            <div class="error-container">
-                                <p class="text-danger mb-0 small size-error"></p>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <input type="number" class="form-control bg-light price-input" name="variants[${ci}][sizes][${si}][price]" placeholder="0.00" step="0.01" min="0" required>
-                            <div class="error-container">
-                                <p class="text-danger mb-0 small price-error"></p>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <input type="number" class="form-control bg-light compare-price-input" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0" required>
-                            <div class="error-container">
-                                <p class="text-danger mb-0 small compare-error"></p>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <input type="number" class="form-control bg-light stock-input" name="variants[${ci}][sizes][${si}][stock]" placeholder="0" min="0" required>
-                            <div class="error-container">
-                                <p class="text-danger mb-0 small stock-input"></p>
-                            </div>
-                        </div>
+                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[${ci}][sizes][${si}][size]"           placeholder="e.g., M"></div>
+                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][price]"          placeholder="0.00" step="0.01" min="0"></div>
+                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
+                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][stock]"          placeholder="0"    min="0"></div>
                         <div style="width:36px;">
                             <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -326,6 +245,7 @@ function sizeRowHTML(ci, si) {
                     </div>`;
 }
 
+// ── New variant block HTML ────────────────────────────────────────────────
 function colorVariantHTML(ci) {
     return `
                     <div class="color-variant-block border rounded-4 bg-white mb-3">
@@ -340,7 +260,7 @@ function colorVariantHTML(ci) {
                             <div class="row g-3 mb-3">
                                 <div class="col">
                                     <label class="form-label small fw-semibold text-muted">Color Name</label>
-                                    <input type="text" class="form-control bg-light color-input" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red" required>
+                                    <input type="text" class="form-control bg-light" name="variants[${ci}][color]" placeholder="e.g., Black, Navy Blue, Red">
                                 </div>
                                 <div class="col">
                                     <label class="form-label small fw-semibold text-muted">
@@ -377,12 +297,20 @@ function colorVariantHTML(ci) {
                     </div>`;
 }
 
+// ── Reindex names after variant add/remove ────────────────────────────────
 function reindex() {
     document.querySelectorAll(".color-variant-block").forEach((block, ci) => {
         block.querySelector(".fw-semibold").textContent = `Variant ${ci + 1}`;
         block.querySelector('[name*="[color]"]').name = `variants[${ci}][color]`;
+        const variantIdInput = block.querySelector('.row.g-3.mb-3 > input[type="hidden"][name*="[_id]"]');
+        if (variantIdInput) variantIdInput.name = `variants[${ci}][_id]`;
         block.querySelector(".image-file-input").name = `variants[${ci}][newImages]`;
+        block.querySelectorAll('[name*="[existingImages]"]').forEach((inp) => {
+            inp.name = `variants[${ci}][existingImages][]`;
+        });
         block.querySelectorAll(".size-row").forEach((row, si) => {
+            const sizeIdInput = row.querySelector('input[type="hidden"][name*="[_id]"]');
+            if (sizeIdInput) sizeIdInput.name = `variants[${ci}][sizes][${si}][_id]`;
             row.querySelector('[name*="][size]"]').name = `variants[${ci}][sizes][${si}][size]`;
             row.querySelector('[name*="[price]"]').name = `variants[${ci}][sizes][${si}][price]`;
             row.querySelector('[name*="[compareAtPrice]"]').name = `variants[${ci}][sizes][${si}][compareAtPrice]`;
@@ -434,8 +362,9 @@ document.getElementById("addVariantBtn").addEventListener("click", () => {
     colorCount++;
 });
 
-const firstBlock = document.querySelector(".color-variant-block");
-setupImagePicker(firstBlock, 0);
-attachSizeBtn(firstBlock);
-attachRemoveSizeBtns(firstBlock);
-attachRemoveVariantBtn(firstBlock);
+document.querySelectorAll(".color-variant-block").forEach((block, ci) => {
+    setupImagePicker(block, ci);
+    attachSizeBtn(block);
+    attachRemoveSizeBtns(block);
+    attachRemoveVariantBtn(block);
+});

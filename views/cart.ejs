@@ -36,7 +36,7 @@
             </nav>
             <% if (cartItems && cartItems.length > 0) { %>
             <h3 class="fw-bold fs-2">Shopping Cart</h3>
-            <div class="gap-4 mt-4 item-container">
+            <div class="gap-4 mt-4 item-container" style="min-height: 40vh;">
                 <div class="d-flex flex-column gap-3" id="cart-list">
                     <% cartItems.forEach((cart) => { %>
                         <% if (!cart.isListed || !cart.categoryActive) { %>
@@ -201,22 +201,6 @@
                 </div>
 
                 <div class="d-flex flex-column gap-4">
-                    <div class="border rounded-4 px-4 pt-5 pb-4 bg-white">
-                        <h5>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"></path>
-                                <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"></circle>
-                            </svg>
-                            Coupon Code
-                        </h5>
-                        <form action="/cart/coupon" class="d-flex gap-3 mt-2">
-                            <input type="search" class="form-control" name="search" placeholder="Enter code" />
-                            <button class="btn btn-danger">Apply</button>
-                        </form>
-                        <p class="mt-2 text-muted small">Try: CODE10</p>
-                    </div>
 
                     <div class="border rounded-4 px-3 pt-5 pb-4 bg-white">
                         <div class="d-flex flex-column gap-2">

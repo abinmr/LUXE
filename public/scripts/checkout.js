@@ -212,4 +212,11 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = `/checkout/failure`;
         }
     });
+
+    const couponForm = document.getElementById("coupon-form");
+    couponForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const formData = new FormData(couponForm);
+        console.log(formData);
+    });
 });

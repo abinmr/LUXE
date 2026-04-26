@@ -11,7 +11,6 @@ export const getCategories = async (req, res) => {
     if (search) {
         dbQuery.$or = [{ name: { $regex: search, $options: "i" } }, { slug: { $regex: search, $options: "i" } }];
     }
-    console.log("dbQuery", dbQuery);
     const totalCategory = await Category.countDocuments();
     const categories = await Category.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
     const totalPages = Math.ceil(totalCategory / limit);
