@@ -2,6 +2,7 @@ const categoryNameInput = document.getElementById("categoryName");
 const categoryNameError = document.getElementById("categoryNameError");
 const categoryDescription = document.getElementById("description");
 const catDescriptionError = document.getElementById("descError");
+const saveBtn = document.getElementById("save-btn");
 const categoryForm = document.getElementById("form");
 
 function validateCategoryName() {
@@ -38,8 +39,10 @@ categoryForm.addEventListener("submit", (e) => {
     const isDescValid = validateCategoryDesc();
     const isFileValid = validateImageFile();
     if (!isNameValid || !isDescValid || !isFileValid) {
-        e.preventDefault();
+        return e.preventDefault();
     }
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving Changes...";
 });
 
 let cropperInstance = null;

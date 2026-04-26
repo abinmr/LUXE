@@ -95,10 +95,10 @@ productForm.addEventListener("submit", (e) => {
     const isSizeValid = validateSize();
     console.log("size", isSizeValid);
     if (!isNameValid || !isDescValid || !isImageValid || !isColorValid || !isSizeValid) {
-        e.preventDefault();
+        return e.preventDefault();
     }
     submitBtn.disabled = true;
-    submitBtn.textContent = "creating...";
+    submitBtn.textContent = "creating product...";
 });
 
 const MAX_IMAGES = 8;

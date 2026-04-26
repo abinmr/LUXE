@@ -4,6 +4,7 @@ const categoryDescription = document.getElementById("description");
 const catDescriptionError = document.getElementById("descError");
 const hiddenInputDivContainer = document.getElementById("hiddenInputContainer");
 const imageError = document.getElementById("image-error");
+const categoryBtn = document.getElementById("add-category-btn");
 const categoryForm = document.getElementById("form");
 
 function validateCategoryName() {
@@ -55,8 +56,10 @@ categoryForm.addEventListener("submit", (e) => {
     const isFileValid = validateImageFile();
 
     if (!isNameValid || !isDescValid || !isFileValid) {
-        e.preventDefault();
+        return e.preventDefault();
     }
+    categoryBtn.disabled = true;
+    categoryBtn.textContent = "Creating category...";
 });
 
 let cropperInstance = null;
