@@ -167,11 +167,11 @@
     <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0">
                     <h5 class="modal-title">Process Return</h5>
                     <button class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="/admin/orders/<%= order._id %>/approve-return" method="POST" id="form">
+                <form id="admin-return-form" data-id="<%= order._id %>">
                     <div class="modal-body">
                         <% order.items.forEach((order, i) => { %>
                             <div class="border rounded-2 p-4 mb-2">
