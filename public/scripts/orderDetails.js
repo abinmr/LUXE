@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const radioBtns = document.querySelectorAll('input[name="reason"]');
     const orderStatusBtn = document.getElementById("order-status");
 
-    const returnTextarea = document.getElementById("return-textarea");
     const continueReturn = document.getElementById("continue-return");
     const continueReturnBtn = document.getElementById("continue-return");
     const returnBtn = document.getElementById("return");
@@ -64,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         try {
             const formData = new FormData(returnForm);
-            const id = returnTextarea.dataset.id;
+            const id = returnForm.dataset.id;
             const body = Object.fromEntries(formData.entries());
             const response = await fetch(`/profile/orders/${id}/return`, {
                 method: "post",

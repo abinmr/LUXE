@@ -1,5 +1,3 @@
-import { document } from "pdfkit/js/page";
-
 const MAX_IMAGES = 8;
 let colorCount = document.querySelectorAll(".color-variant-block").length;
 
@@ -16,6 +14,7 @@ const cropModal = new bootstrap.Modal(cropModalEl);
 const resultModal = new bootstrap.Modal(resultModalEl);
 const cropImg = document.getElementById("cropImg");
 const resultImg = document.getElementById("resultImg");
+const saveBtn = document.getElementById("save-btn");
 
 function destroyCropper() {
     if (cropperInstance) {
@@ -125,11 +124,11 @@ function validateVariantImage() {
 
         if (total < 3) {
             imageError.textContent = "Each variant should have atleast 3 images";
-            imageError.style.visiblity = "visible";
+            imageError.style.visibility = "visible";
             isValid = false;
         } else {
             imageError.textContent = "";
-            imageError.style.visiblity = "hidden";
+            imageError.style.visibility = "hidden";
         }
     });
     return isValid;
@@ -209,11 +208,11 @@ function setupImagePicker(block, ci) {
         const remaining = MAX_IMAGES - totalCount();
         const incoming = [...fileInput.files].slice(0, remaining);
         fileInput.value = ""; // reset so same file can be re-picked if needed
-        const imageError = document.querySelector(".image-error")[0];
+        const imageError = block.querySelector(".image-error");
         const nonImage = incoming.filter((file) => !file.type.startsWith("image/"));
         if (nonImage.length > 0) {
             imageError.textContent = `${nonImage[0].name} is not a valid image file`;
-            imageError.style.visiblity = "visible";
+            imageError.style.visibility = "visible";
             return;
         }
 
@@ -367,4 +366,13 @@ document.querySelectorAll(".color-variant-block").forEach((block, ci) => {
     attachSizeBtn(block);
     attachRemoveSizeBtns(block);
     attachRemoveVariantBtn(block);
+});
+
+document.getElementById("productEditForm").addEventListener("submit", (e) => {
+    const isImageValid = validateVariantImage();
+    if (!isImageValid) {
+        return e.preventDefault();
+    }
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving Changes...";
 });

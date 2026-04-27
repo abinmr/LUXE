@@ -6,7 +6,7 @@ import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
 import Order from "../models/order.model.js";
-import { createAddress } from "../service/profile.service.js";
+import { createAddress, findAddresses } from "../service/profile.service.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -16,7 +16,7 @@ export const getProfile = async (req, res) => {
         let addresses = [];
         let orders = [];
         if (currentSection === "address") {
-            addresses = await Address.find({ user: req.user._id }).sort({ createdAt: -1 });
+            addresses = await findAddresses(req.user?._id);
         }
         if (currentSection === "order-history") {
             orders = await Order.find({ userId: req.user?._id }).sort({ createdAt: -1 });
