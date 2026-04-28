@@ -92,7 +92,8 @@ router.post("/:id/approve-return", requireAdminAuth, async (req, res) => {
         order.paymentStatus = "refunded";
         order.adminNote = req.body["admin-note"] || "";
         await order.save();
-        return res.redirect(`/admin/orders/${order._id}`);
+        // return res.redirect(`/admin/orders/${order._id}`);
+        return res.status(200).json({ success: true, message: "money refunded" });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/orders");

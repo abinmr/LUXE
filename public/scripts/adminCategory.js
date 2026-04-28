@@ -5,7 +5,7 @@ const catDescriptionError = document.getElementById("descError");
 const hiddenInputDivContainer = document.getElementById("hiddenInputContainer");
 const imageError = document.getElementById("image-error");
 const categoryBtn = document.getElementById("add-category-btn");
-const categoryForm = document.getElementById("form");
+const categoryForm = document.getElementById("admin-category-form");
 
 function validateCategoryName() {
     const name = categoryNameInput.value.trim();

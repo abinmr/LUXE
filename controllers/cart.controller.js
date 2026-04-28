@@ -34,8 +34,8 @@ export const addToCart = async (req, res) => {
 
 export const addQuantity = async (req, res) => {
     try {
-        await changeQuantity(req.user._id, req.params.id, 1);
-        return res.status(200).json({ success: true });
+        const total = await changeQuantity(req.user._id, req.params.id, 1);
+        return res.status(200).json({ success: true, totalCart: total });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: false });
@@ -44,8 +44,8 @@ export const addQuantity = async (req, res) => {
 
 export const minusQuantity = async (req, res) => {
     try {
-        await changeQuantity(req.user._id, req.params.id, -1);
-        return res.status(200).json({ success: true });
+        const total = await changeQuantity(req.user._id, req.params.id, -1);
+        return res.status(200).json({ success: true, totalCart: total });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ success: false });

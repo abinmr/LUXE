@@ -231,17 +231,17 @@ function setupImagePicker(block, ci) {
 
 function sizeRowHTML(ci, si) {
     return `
-                    <div class="size-row row g-2 align-items-center mb-2">
-                        <div class="col"><input type="text"   class="form-control bg-light" name="variants[${ci}][sizes][${si}][size]"           placeholder="e.g., M"></div>
-                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][price]"          placeholder="0.00" step="0.01" min="0"></div>
-                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
-                        <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][stock]"          placeholder="0"    min="0"></div>
-                        <div style="width:36px;">
-                            <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-                            </button>
-                        </div>
-                    </div>`;
+            <div class="size-row row g-2 align-items-center mb-2">
+                <div class="col"><input type="text"   class="form-control bg-light" name="variants[${ci}][sizes][${si}][size]" placeholder="e.g., M" required></div>
+                <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][price]" placeholder="0.00" step="0.01" min="0" required></div>
+                <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][compareAtPrice]" placeholder="0.00" step="0.01" min="0"></div>
+                <div class="col"><input type="number" class="form-control bg-light" name="variants[${ci}][sizes][${si}][stock]" placeholder="0" min="0" required></div>
+                <div style="width:36px;">
+                    <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                </div>
+            </div>`;
 }
 
 // ── New variant block HTML ────────────────────────────────────────────────
