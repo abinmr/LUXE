@@ -64,7 +64,12 @@ document.querySelectorAll(".quantityAdd").forEach((addBtn) => {
 
         try {
             const res = await fetch(`/cart/quantityAdd/${this.dataset.itemId}`);
-            if (res.ok) calculateTotal();
+            // if (res.ok) calculateTotal();
+            const data = await res.json();
+            if (data.success) {
+                calculateTotal();
+                updateBadge("cart-badge", data.totalCart);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -88,7 +93,14 @@ document.querySelectorAll(".quantityMinus").forEach((minusBtn) => {
 
         try {
             const res = await fetch(`/cart/quantityMinus/${this.dataset.itemId}`);
-            if (res.ok) calculateTotal();
+            // if (res.ok) calculateTotal();
+            const data = await res.json();
+            console.log(data);
+
+            if (data.success) {
+                calculateTotal();
+                updateBadge("cart-badge", data.totalCart);
+            }
         } catch (err) {
             console.error(err);
         }

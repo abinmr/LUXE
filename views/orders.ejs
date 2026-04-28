@@ -29,11 +29,11 @@
                 <select name="customerStatus" id="customerStatus" class="form-select form-select-sm w-auto shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px; border-color: #f2f2f2;">
                     <option value="all-status">All Status</option>
                     <option value="pending" <%= locals.customerStatus === "pending" ? 'selected' : '' %> >Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="return-request">Return Request</option>
+                    <option value="processing" <%= locals.customerStatus === "processing" ? 'selected' : '' %> >Processing</option>
+                    <option value="shipped" <%= locals.customerStatus === "shipped" ? 'selected' : '' %> >Shipped</option>
+                    <option value="delivered" <%= locals.customerStatus === "delivered" ? 'selected' : '' %> >Delivered</option>
+                    <option value="cancelled" <%= locals.customerStatus === "cancelled" ? 'selected' : '' %> >Cancelled</option>
+                    <option value="return-request" <%= locals.customerStatus === "return-request" ? 'selected' : '' %> >Return Request</option>
                     <option value="returned" <%= locals.customerStatus === "returned" ? 'selected' : '' %> >Returned</option>
                 </select>
             </form>

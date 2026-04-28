@@ -43,7 +43,6 @@ export const addToWishlist = async (req, res) => {
                 return res.status(409).json({ success: false, message: "product already in wishlist" });
             }
         }
-        req.flash("toast", JSON.stringify({ type: "success", message: "Added to wishlist" }));
         return res.status(200).json({ success: true, message: "Add to wishlist", totalWishlist: wishlist.products.length });
     } catch (err) {
         console.error(err);

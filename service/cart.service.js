@@ -139,7 +139,9 @@ export const addToCartService = async (userId, { productId, variantId, sizeId, q
 };
 
 export const changeQuantity = async (userId, itemId, amount) => {
-    return await Cart.updateOne({ userId, "items._id": itemId }, { $inc: { "items.$.quantity": amount } });
+    const cart = await Cart.findOneAndUpdate({ userId: userId, "items._id": itemId }, { $inc: { "items.$.quantity": amount } }, { returnDocument: "after" });
+    const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);
+    return total;
 };
 
 export const toggleSelection = async (userId, itemId, isSelected) => {

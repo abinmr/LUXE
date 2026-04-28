@@ -37,8 +37,7 @@ categoryDescription.addEventListener("blur", validateCategoryDesc);
 categoryForm.addEventListener("submit", (e) => {
     const isNameValid = validateCategoryName();
     const isDescValid = validateCategoryDesc();
-    const isFileValid = validateImageFile();
-    if (!isNameValid || !isDescValid || !isFileValid) {
+    if (!isNameValid || !isDescValid) {
         return e.preventDefault();
     }
     saveBtn.disabled = true;
