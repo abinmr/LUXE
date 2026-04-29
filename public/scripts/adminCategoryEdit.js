@@ -3,6 +3,7 @@ const categoryNameError = document.getElementById("categoryNameError");
 const categoryDescription = document.getElementById("description");
 const catDescriptionError = document.getElementById("descError");
 const saveBtn = document.getElementById("save-btn");
+let hasImage = !!document.getElementById("previewTile");
 const categoryForm = document.getElementById("form");
 
 function validateCategoryName() {
@@ -31,13 +32,26 @@ function validateCategoryDesc() {
     }
 }
 
+function validateImage() {
+    const imageError = document.getElementById("imageError");
+    if (!hasImage) {
+        imageError.textContent = "Image is required";
+        imageError.style.visibility = "visible";
+        return false;
+    }
+    imageError.textContent = "";
+    imageError.style.visibility = "hidden";
+    return true;
+}
+
 categoryNameInput.addEventListener("blur", validateCategoryName);
 categoryDescription.addEventListener("blur", validateCategoryDesc);
 
 categoryForm.addEventListener("submit", (e) => {
     const isNameValid = validateCategoryName();
     const isDescValid = validateCategoryDesc();
-    if (!isNameValid || !isDescValid) {
+    const imageValid = validateImage();
+    if (!isNameValid || !isDescValid || !imageValid) {
         return e.preventDefault();
     }
     saveBtn.disabled = true;
@@ -173,6 +187,7 @@ if (removeBtn) {
     removeBtn.addEventListener("click", () => {
         clearAll();
         showAddBtn();
+        hasImage = false;
     });
 }
 
@@ -211,9 +226,11 @@ triggerInput.addEventListener("change", async () => {
         URL.revokeObjectURL(url);
         clearAll();
         showAddBtn();
+        hasImage = false;
     });
     previewContainer.appendChild(tile);
     hideAddBtn();
+    hasImage = true;
 });
 
 function clearAll() {
