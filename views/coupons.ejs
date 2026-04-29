@@ -5,15 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="/styles/admin-nav.css">
     <title>LUXE</title>
+    <link rel="stylesheet" href="/styles/admin-nav.css">
 </head>
 <body>
     
     <%- include('partials/admin-header.ejs', { activePage: 'coupons' }) %>
-    <main>
+    <div class="m-4">
         <h1>coupons</h1>
-    </main>
+        <p class="text-muted">Create and manage discount coupons</p>
+
+        <div class="border border-1 rounded-4 p-4 mt-4 bg-white">
+            <form action="/admin/coupons" method="GET" id="searchForm" class="d-flex align-items-center gap-2">
+                <div class="input-group flex-grow-1 focus-ring-wrapper me-2 rounded-3">
+                    <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    </span>
+                    <input type="search" value="<%= locals.search || '' %>" id="searchCustomer" name="search" class="form-control border-0 shadow-none" placeholder="search orders..." style="background-color: #f3f3f5;" autofocus>
+                </div>
+                <a href="/admin/orders" class="btn btn-danger btn-sm rounded-2">Cancel</a>
+                <button class="btn btn-primary btn-sm fw-semibold rounded-2">Submit</button>
+                <select name="couponStatus" id="couponStatus" class="form-select form-select-sm w-auto shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px; border-color: #f2f2f2;">
+                    <option value="all-status">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 500px; display: block; min-width: 100%;">
+            <div>
+                <h5>All Coupons</h5>
+            </div>
+            <table class="table mt-4">
+                <thead>
+                    <th scope="col">Code</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Min Purchase</th>
+                    <th scope="col">Usage</th>
+                    <th scope="col">Valid Period</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">WELCOME20</th>
+                        <td>Welcome discount for new customers</td>
+                        <td>20%(max ₹50)</td>
+                        <td>₹50</td>
+                        <td>234/1000</td>
+                        <td>Jan 1</td>
+                        <td>
+                            <button class="btn btn-dark btn-sm rounded-2">Active</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-light rounded-2" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     <%- include('partials/admin-footer.ejs') %>
 </body>
 </html>
