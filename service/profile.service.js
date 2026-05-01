@@ -85,7 +85,7 @@ export const generateInvoice = (order, res) => {
     detailRow("Order Date", new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }));
     y += 10;
     detailRow("Payment Method", paymentMethod(order.paymentMethod));
-    detailRow("Status", order.orderStatus);
+    detailRow("Status", order.items[0].orderStatus);
 
     y += 20;
     doc.moveTo(margin, y).lineTo(rightEdge, y).strokeColor("#cccccc").lineWidth(1).stroke();

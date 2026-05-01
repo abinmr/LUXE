@@ -4,16 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const toastIcon = document.getElementById("toast-icon");
     const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
 
-    const cancelOrderBtn = document.getElementById("cancel-btn");
     const cancelForm = document.getElementById("cancel-form");
     const continueBtn = document.getElementById("continue");
     const radioBtns = document.querySelectorAll('input[name="reason"]');
     const orderStatusBtn = document.getElementById("order-status");
 
     const continueReturn = document.getElementById("continue-return");
-    const continueReturnBtn = document.getElementById("continue-return");
-    const returnBtn = document.getElementById("return");
     const returnForm = document.getElementById("return-form");
+
+    let activeItemId = null;
+    let activeButton = null;
 
     const showToast = (message, type = "success") => {
         if (!toast || !toastBodyEl) return;
@@ -24,10 +24,26 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
 
+    // Capture which item's cancel button was clicked
+    document.querySelectorAll(".cancel-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            activeItemId = btn.dataset.itemId;
+            activeButton = btn;
+        });
+    });
+
+    // Capture which item's return button was clicked
+    document.querySelectorAll(".return-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            activeItemId = btn.dataset.itemId;
+            activeButton = btn;
+        });
+    });
+
     radioBtns.forEach((radio) => {
         radio.addEventListener("change", () => {
-            continueReturn.disabled = false;
-            continueBtn.disabled = false;
+            if (continueReturn) continueReturn.disabled = false;
+            if (continueBtn) continueBtn.disabled = false;
         });
     });
 
@@ -36,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData(cancelForm);
         const id = cancelForm.dataset.id;
         const body = Object.fromEntries(formData.entries());
+        body.itemId = activeItemId;
 
         try {
             const response = await fetch(`/profile/orders/${id}/cancel`, {
@@ -47,11 +64,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.success) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById("cancelModal"));
                 modal.hide();
-                cancelOrderBtn.remove();
-                orderStatusBtn.classList.replace("btn-light", "btn-danger");
-                orderStatusBtn.classList.remove("border");
-                orderStatusBtn.textContent = "cancelled";
+                if (activeButton) {
+                    activeButton.remove();
+                }
                 showToast(data.message);
+                // Update order-level status badge if all items are now cancelled
+                if (data.allCancelled) {
+                    orderStatusBtn.classList.replace("btn-light", "btn-danger");
+                    orderStatusBtn.classList.remove("border");
+                    orderStatusBtn.textContent = "cancelled";
+                }
             }
         } catch (err) {
             console.error(err);
@@ -65,6 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData(returnForm);
             const id = returnForm.dataset.id;
             const body = Object.fromEntries(formData.entries());
+            body.itemId = activeItemId;
+
             const response = await fetch(`/profile/orders/${id}/return`, {
                 method: "post",
                 headers: { "Content-Type": "application/json" },
@@ -74,12 +98,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.success) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById("returnModal"));
                 modal.hide();
-                continueReturnBtn.remove();
-                orderStatusBtn.classList.replace("btn-light", "btn-danger");
-                orderStatusBtn.classList.remove("border");
-                orderStatusBtn.textContent = "Return requested";
-                returnBtn.remove();
+                if (activeButton) {
+                    activeButton.remove();
+                }
                 showToast(data.message);
+                if (data.allReturnRequested) {
+                    orderStatusBtn.classList.replace("btn-light", "btn-danger");
+                    orderStatusBtn.classList.remove("border");
+                    orderStatusBtn.textContent = "Return requested";
+                }
             }
         } catch (err) {
             console.error(err);

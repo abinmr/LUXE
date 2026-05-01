@@ -5,6 +5,7 @@ import upload from "../lib/multer.js";
 import Order from "../models/order.model.js";
 import { generateInvoice } from "../service/profile.service.js";
 import Product from "../models/product.model.js";
+import { updateProduct } from "../service/product.service.js";
 
 const router = express.Router();
 
@@ -49,30 +50,33 @@ router.post("/orders/:id/cancel", async (req, res) => {
     try {
         const id = req.params.id;
         const reason = req.body.reason;
-        console.log("Reason", reason);
+        const itemId = req.body.itemId;
         const order = await Order.findById(id);
-        order.orderStatus = "cancelled";
-        order.cancellationReason = reason;
-        for (const item of order.items) {
-            if (!item) return;
-            await Product.updateOne(
-                {
-                    _id: item.productId,
-                    "variants._id": item.variantId,
-                    "variants.sizes._id": item.sizeId,
-                },
-                {
-                    $inc: { "variants.$[v].sizes.$[s].stock": item.quantity },
-                },
-                {
-                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
-                },
-            );
+
+        if (itemId) {
+            // Cancel a specific item
+            const item = order.items.id(itemId);
+            if (!item) {
+                return res.status(404).json({ success: false, message: "Item not found" });
+            }
+            item.orderStatus = "cancelled";
+            item.cancellationReason = reason;
+            await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+        } else {
+            // Cancel all items (fallback)
+            for (const item of order.items) {
+                item.orderStatus = "cancelled";
+                item.cancellationReason = reason;
+                await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+            }
         }
-        order.save();
-        return res.status(200).json({ success: true, message: "Order cancelled" });
+
+        await order.save();
+        const allCancelled = order.items.every((item) => item.orderStatus === "cancelled");
+        return res.status(200).json({ success: true, message: "Order cancelled", allCancelled });
     } catch (err) {
         console.error(err);
+        return res.status(500).json({ success: false, message: "Failed to cancel order" });
     }
 });
 
@@ -80,10 +84,29 @@ router.post("/orders/:id/return", async (req, res) => {
     try {
         const id = req.params.id;
         const reason = req.body.reason;
-        const update = await Order.findByIdAndUpdate(id, { orderStatus: "return-requested", returnReason: reason });
-        return res.status(200).json({ success: true, message: "Return requested" });
+        const itemId = req.body.itemId;
+        const order = await Order.findById(id);
+
+        if (itemId) {
+            const item = order.items.id(itemId);
+            if (!item) {
+                return res.status(404).json({ success: false, message: "Item not found" });
+            }
+            item.orderStatus = "return-requested";
+            item.returnReason = reason;
+        } else {
+            for (const item of order.items) {
+                item.orderStatus = "return-requested";
+                item.returnReason = reason;
+            }
+        }
+
+        await order.save();
+        const allReturnRequested = order.items.every((item) => item.orderStatus === "return-requested");
+        return res.status(200).json({ success: true, message: "Return requested", allReturnRequested });
     } catch (err) {
         console.error(err);
+        return res.status(500).json({ success: false, message: "Failed to request return" });
     }
 });
 

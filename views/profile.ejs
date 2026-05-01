@@ -378,7 +378,7 @@
                                                 <img src="<%= order.items[0].productImage %>" class="rounded-2" height="80" width="80">
                                                 <div>
                                                     <p class="mb-2">Order <%= order.orderId %></p>
-                                                    <span class="text-muted"> <%= order.estimatedDeliveryDate.toLocaleDateString("en-US", options) %></span>
+                                                    <span class="text-muted"> <%= order.items[0].estimatedDeliveryDate ? order.items[0].estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
                                                     <br>
                                                     <% if (order.items.length > 1) { %>
                                                     <span class="text-muted">+<%= order.items.length - 1 %> more</span>
@@ -386,7 +386,7 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <button class="btn btn-danger btn-sm rounded-2"> <%= order.orderStatus %></button>
+                                                <button class="btn btn-danger btn-sm rounded-2"> <%= order.items[0].orderStatus %></button>
                                             </div>
                                         </a>
                                     </div>
