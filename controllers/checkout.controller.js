@@ -3,8 +3,9 @@ import Cart from "../models/cart.model.js";
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import { calcPricing, getCartItems } from "../service/cart.service.js";
+import { createOrder } from "../service/checkout.service.js";
+import { updateProduct } from "../service/product.service.js";
 import { createAddress, findAddresses } from "../service/profile.service.js";
-import { customAlphabet } from "nanoid";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -137,51 +138,11 @@ export const checkoutPlaceOrder = async (req, res) => {
         return res.status(400).json({ success: false, message: "Address not found" });
     }
 
-    const nanoid = customAlphabet("1234567890", 12);
-    const orderId = `ORD-${nanoid()}`;
-
-    const order = await Order.create({
-        userId: req.user?._id,
-        orderId: orderId,
-        username: req.user?.fullname,
-        items: checkout.items,
-        subtotal: checkout.subtotal,
-        discount: checkout.discount,
-        GST: checkout.gst,
-        shipping: checkout.shipping,
-        total: checkout.total,
-        shippingAddress: {
-            fullName: address.fullName,
-            phone: address.phone,
-            pincode: address.pincode,
-            houseNumber: address.houseNumber,
-            street: address?.street,
-            city: address.city,
-            state: address.state,
-        },
-        paymentMethod: paymentMethod,
-        paymentStatus: paymentMethod === "cod" ? "pending" : "paid",
-        orderStatus: "pending",
-        estimatedDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-    });
+    const order = await createOrder(req, checkout, address, paymentMethod);
 
     if (order) {
         for (const item of checkout.items) {
-            const result = await Product.updateOne(
-                {
-                    _id: item.productId,
-                    "variants._id": item.variantId,
-                },
-                {
-                    $inc: {
-                        "variants.$[v].sizes.$[s].stock": -item.quantity,
-                    },
-                },
-                {
-                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
-                },
-            );
-
+            const result = await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
             if (result.modifiedCount === 0) {
                 return res.status(400).json({ success: false, message: "error" });
             }

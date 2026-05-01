@@ -1,7 +1,7 @@
 import express from "express";
 import Order from "../models/order.model.js";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
-import Product from "../models/product.model.js";
+import { updateProduct } from "../service/product.service.js";
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.get("/", requireAdminAuth, async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const search = req.query.search || "";
         const customerStatus = req.query.customerStatus;
-        const limit = 7;
+        const limit = 10;
         const skip = (page - 1) * limit;
         let dbQuery = {};
         if (search) {
@@ -19,7 +19,7 @@ router.get("/", requireAdminAuth, async (req, res) => {
             };
         }
         if (customerStatus && customerStatus !== "all-status") {
-            dbQuery.orderStatus = customerStatus;
+            dbQuery["items.orderStatus"] = customerStatus;
         }
         const orders = await Order.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
         const totalOrders = await Order.countDocuments(dbQuery);
@@ -46,11 +46,14 @@ router.get("/:id", async (req, res) => {
 router.get("/:id/update", async (req, res) => {
     try {
         const status = req.query.status;
-        const update = await Order.findByIdAndUpdate(req.params.id, { orderStatus: status });
-        if (status === "delivered") {
-            update.estimatedDeliveryDate = new Date(Date.now());
+        const order = await Order.findById(req.params.id);
+        for (const item of order.items) {
+            item.orderStatus = status;
+            if (status === "delivered") {
+                item.estimatedDeliveryDate = new Date(Date.now());
+            }
         }
-        update.save();
+        await order.save();
         return res.redirect("/admin/orders");
     } catch (err) {
         console.error(err);
@@ -73,27 +76,13 @@ router.post("/:id/approve-return", requireAdminAuth, async (req, res) => {
         for (const itemId of selectedIts) {
             const item = order.items.id(itemId);
             if (!item) return;
-
-            await Product.updateOne(
-                {
-                    _id: item.productId,
-                    "variants._id": item.variantId,
-                    "variants.sizes._id": item.sizeId,
-                },
-                {
-                    $inc: { "variants.$[v].sizes.$[s].stock": item.quantity },
-                },
-                {
-                    arrayFilters: [{ "v._id": item.variantId }, { "s._id": item.sizeId }],
-                },
-            );
+            await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+            item.orderStatus = "returned";
+            item.paymentStatus = "refunded";
+            item.adminNote = req.body["admin-note"] || "";
         }
-        order.orderStatus = "returned";
-        order.paymentStatus = "refunded";
-        order.adminNote = req.body["admin-note"] || "";
         await order.save();
-        // return res.redirect(`/admin/orders/${order._id}`);
-        return res.status(200).json({ success: true, message: "money refunded" });
+        return res.status(200).json({ success: true, message: "money refunded", returnedItems: selectedIts });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/orders");

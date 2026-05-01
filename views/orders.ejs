@@ -39,11 +39,11 @@
             </form>
         </div>
 
-        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 500px; display: block; min-width: 100%;">
+        <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 630px; display: block; min-width: 100%;">
             <div>
                 <h5>All Orders</h5>
             </div>
-            <table class="table mt-4">
+            <table class="table mt-4 h-100" style="table-layout: fixed;">
                 <thead>
                     <th scope="col">Order ID</th>
                     <th scope="col">Customer</th>
@@ -63,7 +63,7 @@
                         <td> <%= order.items.length %> </td>
                         <td>₹<%= order.total %> </td>
                         <td>
-                            <button class="btn <%= bgColor(order.orderStatus) %> btn-secondary btn-sm rounded-2 py-1 "> <%= order.orderStatus %></button>
+                            <button class="btn <%= bgColor(order.items[0].orderStatus) %> btn-secondary btn-sm rounded-2 py-1 "> <%= order.items[0].orderStatus %></button>
                         </td>
                         <td>
                             <a href="/admin/orders/<%= order._id %>" class="btn btn-light btn-sm rounded-2">

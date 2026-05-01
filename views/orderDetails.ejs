@@ -29,7 +29,8 @@
                             <span>Order #<%= orderDetails.orderId %></span>
                         </div>
                         <div class="d-flex align-items-center gap-3">
-                            <button id="order-status" class="btn btn-sm <%= (orderDetails.orderStatus === "cancelled" || "return-requested") ? 'btn-danger' : "btn-light border" %> rounded-2"> <%= orderDetails.orderStatus === "return-requested" ? 'Return requested' : orderDetails.orderStatus %> </button>
+                            <% const displayStatus = orderDetails.items[0].orderStatus || 'pending'; %>
+                            <button id="order-status" class="btn btn-sm <%= (displayStatus === "cancelled" || displayStatus === "return-requested") ? 'btn-danger' : "btn-light border" %> rounded-2"> <%= displayStatus === "return-requested" ? 'Return requested' : displayStatus %> </button>
                             <a href="/profile/orders/<%= orderDetails._id %>/invoice" target="_blank" class="btn btn-light btn-sm rounded-2 border d-flex align-items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download h-3.5 w-3.5" aria-hidden="true"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
                                 invoice
@@ -47,47 +48,52 @@
                     <div class="d-flex justify-content-between">
                         <!-- <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %> -->
                         <span>Expected Arrival</span>
-                        <span> <%= orderDetails.estimatedDeliveryDate.toLocaleDateString("en-US", options) %></span>
+                        <span> <%= orderDetails.items[0].estimatedDeliveryDate ? orderDetails.items[0].estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
                     </div>
                 </div>
 
                 <div class="border border-1 rounded-4 p-4 bg-white shadow-sm">
                     <p>Order Items</p>
                     <% orderDetails.items.forEach((item, i) => { %>
+                        <% const status = item.orderStatus || 'pending';
+                            const terminalStatues = ["cancelled", "return-requested", "returned"];
+                            const isTerminal = terminalStatues.includes(status);
+                            const isDelivered = status === "delivered";
+                            const returnWindowOpen = isDelivered && item.estimatedDeliveryDate && new Date() < new Date(item.estimatedDeliveryDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+                        %>
                         <% if (i !== 0) { %>
                         <hr class="text-muted">
                         <% } %>
-                        <div class="mt-2 d-flex align-items-center gap-4">
-                            <div class="mb-3">
-                                <img src="<%= item.productImage %>" class="rounded-2" height="80" width="80">
-                            </div>
-                            <div>
-                                <p class="mb-1 fw-bold"> <%= item.productName %></p>
+                        <div class="mt-2 d-flex justify-content-between align-items-center gap-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="mb-3">
+                                    <img src="<%= item.productImage %>" class="rounded-2" height="80" width="80">
+                                </div>
                                 <div>
-                                    <span>Size: <span class="fw-semibold"> <%= item.size %> </span></span>
-                                    <span>Color: <span class="fw-semibold"> <%= item.color %> </span></span>
-                                </div>
-                                <div class="d-flex flex-column">
-                                    <span>Qty: <span class="fw-semibold"> <%= item.quantity %> </span></span>
-                                    <span class="fw-bold">₹<%= item.price %></span>
+                                    <div>
+                                        <p class="mb-1 fw-bold"> <%= item.productName %></p>
+                                        <div>
+                                            <span>Size: <span class="fw-semibold"> <%= item.size %> </span></span>
+                                            <span>Color: <span class="fw-semibold"> <%= item.color %> </span></span>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span>Qty: <span class="fw-semibold"> <%= item.quantity %> </span></span>
+                                            <span class="fw-bold">₹<%= item.price %></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <% if (!isTerminal) { %>
+                                <% if (returnWindowOpen) { %>
+                                    <button class="btn btn-danger btn-sm return-btn" data-bs-toggle="modal" data-bs-target="#returnModal" data-item-id="<%= item._id %>">Return</button>
+                                <% } else if (!isDelivered) { %>
+                                    <button class="btn btn-outline-danger btn-sm cancel-btn" data-bs-toggle="modal" data-bs-target="#cancelModal" data-item-id="<%= item._id %>">Cancel</button>
+                                <% } %>
+                            <% } %>
                         </div>
                     <% }); %>
                 </div>
 
-                <% const status = orderDetails.orderStatus;
-                   const terminalStatues = ["cancelled", "return-requested", "returned"];
-                   const isTerminal = terminalStatues.includes(status);
-                   const isDelivered = status === "delivered";
-                   const returnWindowOpen = isDelivered && orderDetails.estimatedDeliveryDate > new Date();
-                 %>
-
-                <% if (returnWindowOpen) { %>
-                    <button id="return" class="btn btn-danger w-100 my-4" data-bs-toggle="modal" data-bs-target="#returnModal">Return</button>
-                <% } else if (!isTerminal) { %>
-                    <button id="cancel-btn" class="btn btn-danger w-100 my-4" data-bs-toggle="modal" data-bs-target="#cancelModal" >Cancel</button>
-                <% } %>
             </div>
 
             <div class="w-50">

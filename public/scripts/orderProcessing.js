@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     calculateBtn.addEventListener("click", () => {
         calculateTotal();
         const value = refundInput.value.trim();
-        if (value.length > 1) {
+        if (value.length > 0 && Number(value) > 0) {
             refundBtn.disabled = false;
         } else {
             refundBtn.disabled = true;
@@ -43,8 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
-        const body = Object.fromEntries(formData.entries());
         const id = form.dataset.id;
+
+        // Build body manually to handle multiple checkboxes with same name
+        const body = {};
+        body["admin-note"] = formData.get("admin-note") || "";
+        body["refund"] = formData.get("refund") || "";
+        // Get ALL selected product checkboxes (not just one)
+        body["product"] = formData.getAll("product");
+
         const response = await fetch(`/admin/orders/${id}/approve-return`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -55,8 +62,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const modal = bootstrap.Modal.getInstance(document.getElementById("returnModal"));
             modal.hide();
             showToast(data.message);
-            returnModalBtn.remove();
-            orderStatusBtn.textContent = "returned";
+
+            // Update per-item status badges to "returned"
+            if (data.returnedItems && data.returnedItems.length > 0) {
+                data.returnedItems.forEach((itemId) => {
+                    const badge = document.querySelector(`.item-status-badge[data-item-id="${itemId}"]`);
+                    if (badge) {
+                        badge.textContent = "returned";
+                        badge.classList.remove("btn-light", "btn-success", "border");
+                        badge.classList.add("btn-danger");
+                    }
+                });
+            }
+
+            // Hide the Process Return button
+            if (returnModalBtn) {
+                returnModalBtn.remove();
+            }
         }
     });
 });
