@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
 
-    // Capture which item's cancel button was clicked
     document.querySelectorAll(".cancel-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             activeItemId = btn.dataset.itemId;
@@ -32,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Capture which item's return button was clicked
     document.querySelectorAll(".return-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             activeItemId = btn.dataset.itemId;
@@ -68,8 +66,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     activeButton.remove();
                 }
                 showToast(data.message);
-                // Update order-level status badge if all items are now cancelled
-                if (data.allCancelled) {
+                if (activeItemId) {
+                    const itemStatusBadge = document.getElementById(`item-status-${activeItemId}`);
+                    if (itemStatusBadge) {
+                        itemStatusBadge.textContent = "cancelled";
+                        itemStatusBadge.className = "btn btn-danger btn-sm rounded-2 mt-2";
+                    }
+                }
+
+                if (data.allCancelled && orderStatusBtn) {
                     orderStatusBtn.classList.replace("btn-light", "btn-danger");
                     orderStatusBtn.classList.remove("border");
                     orderStatusBtn.textContent = "cancelled";
@@ -102,7 +107,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     activeButton.remove();
                 }
                 showToast(data.message);
-                if (data.allReturnRequested) {
+                if (activeItemId) {
+                    const itemStatusBadge = document.getElementById(`item-status-${activeItemId}`);
+                    if (itemStatusBadge) {
+                        itemStatusBadge.textContent = "return-requested";
+                        itemStatusBadge.className = "btn btn-danger btn-sm rounded-2 mt-2";
+                    }
+                }
+
+                if (data.allReturnRequested && orderStatusBtn) {
                     orderStatusBtn.classList.replace("btn-light", "btn-danger");
                     orderStatusBtn.classList.remove("border");
                     orderStatusBtn.textContent = "Return requested";

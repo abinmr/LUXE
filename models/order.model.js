@@ -69,7 +69,6 @@ const orderModel = new mongoose.Schema(
                     default: "pending",
                     required: true,
                 },
-                estimatedDeliveryDate: Date,
                 cancellationReason: String,
                 returnReason: String,
                 adminNote: String,
@@ -134,6 +133,7 @@ const orderModel = new mongoose.Schema(
             enum: ["cod", "card", "upi", "wallet"],
             required: true,
         },
+        estimatedDeliveryDate: Date,
     },
     { timestamps: true },
 );

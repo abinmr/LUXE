@@ -48,7 +48,7 @@
                     <div class="d-flex justify-content-between">
                         <!-- <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %> -->
                         <span>Expected Arrival</span>
-                        <span> <%= orderDetails.items[0].estimatedDeliveryDate ? orderDetails.items[0].estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
+                        <span> <%= orderDetails.estimatedDeliveryDate ? orderDetails.estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
                     </div>
                 </div>
 
@@ -59,41 +59,41 @@
                             const terminalStatues = ["cancelled", "return-requested", "returned"];
                             const isTerminal = terminalStatues.includes(status);
                             const isDelivered = status === "delivered";
-                            const returnWindowOpen = isDelivered && item.estimatedDeliveryDate && new Date() < new Date(item.estimatedDeliveryDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+                            const returnWindowOpen = isDelivered && orderDetails.estimatedDeliveryDate && new Date() < new Date(orderDetails.estimatedDeliveryDate.getTime() + 7 * 24 * 60 * 60 * 1000);
                         %>
                         <% if (i !== 0) { %>
                         <hr class="text-muted">
                         <% } %>
                         <div class="mt-2 d-flex justify-content-between align-items-center gap-4">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="mb-3">
-                                    <img src="<%= item.productImage %>" class="rounded-2" height="80" width="80">
+                                <div>
+                                    <img src="<%= item.productImage %>" alt="<%= item.productName %>" class="rounded-2" height="140" width="140">
                                 </div>
                                 <div>
+                                    <p class="mb-1 fw-bold"> <%= item.productName %></p>
                                     <div>
-                                        <p class="mb-1 fw-bold"> <%= item.productName %></p>
-                                        <div>
-                                            <span>Size: <span class="fw-semibold"> <%= item.size %> </span></span>
-                                            <span>Color: <span class="fw-semibold"> <%= item.color %> </span></span>
-                                        </div>
-                                        <div class="d-flex flex-column">
-                                            <span>Qty: <span class="fw-semibold"> <%= item.quantity %> </span></span>
-                                            <span class="fw-bold">₹<%= item.price %></span>
-                                        </div>
+                                        <span>Size: <span class="fw-semibold"> <%= item.size %> </span></span>
+                                        <span>Color: <span class="fw-semibold"> <%= item.color %> </span></span>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span>Qty: <span class="fw-semibold"> <%= item.quantity %> </span></span>
+                                        <span class="fw-bold">₹<%= item.price %></span>
+                                    </div>
+                                    <div>
+                                        <button id="item-status-<%= item._id %>" class="btn <%= isDelivered ? 'btn-success' : 'btn-danger' %> btn-sm rounded-2 mt-2"><%= item.orderStatus %></button>
                                     </div>
                                 </div>
                             </div>
                             <% if (!isTerminal) { %>
                                 <% if (returnWindowOpen) { %>
-                                    <button class="btn btn-danger btn-sm return-btn" data-bs-toggle="modal" data-bs-target="#returnModal" data-item-id="<%= item._id %>">Return</button>
+                                    <button class="btn btn-danger btn-sm return-btn rounded-2" data-bs-toggle="modal" data-bs-target="#returnModal" data-item-id="<%= item._id %>">Return</button>
                                 <% } else if (!isDelivered) { %>
-                                    <button class="btn btn-outline-danger btn-sm cancel-btn" data-bs-toggle="modal" data-bs-target="#cancelModal" data-item-id="<%= item._id %>">Cancel</button>
+                                    <button class="btn btn-outline-danger btn-sm cancel-btn rounded-2" data-bs-toggle="modal" data-bs-target="#cancelModal" data-item-id="<%= item._id %>">Cancel</button>
                                 <% } %>
                             <% } %>
                         </div>
                     <% }); %>
                 </div>
-
             </div>
 
             <div class="w-50">
