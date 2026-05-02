@@ -5,7 +5,7 @@ import Order from "../models/order.model.js";
  *@param {import('express').Request} req
  */
 export const createOrder = async (req, checkout, address, paymentMethod) => {
-    const nanoid = customAlphabet("1234567890", 8);
+    const nanoid = customAlphabet("1234567890", 10);
     const orderId = `ORD-${nanoid()}`;
 
     const itemPaymentStatus = paymentMethod === "cod" ? "pending" : "paid";
@@ -15,7 +15,6 @@ export const createOrder = async (req, checkout, address, paymentMethod) => {
         ...item,
         paymentStatus: itemPaymentStatus,
         orderStatus: "pending",
-        estimatedDeliveryDate,
     }));
 
     return await Order.create({
@@ -38,5 +37,6 @@ export const createOrder = async (req, checkout, address, paymentMethod) => {
             state: address.state,
         },
         paymentMethod: paymentMethod,
+        estimatedDeliveryDate,
     });
 };

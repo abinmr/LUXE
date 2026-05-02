@@ -63,7 +63,12 @@
                         <td> <%= order.items.length %> </td>
                         <td>₹<%= order.total %> </td>
                         <td>
-                            <button class="btn <%= bgColor(order.items[0].orderStatus) %> btn-secondary btn-sm rounded-2 py-1 "> <%= order.items[0].orderStatus %></button>
+                            <%
+                                const terminalStates = ["returned", "delivered", "cancelled", "return-requested"];
+                                const activeItem = order.items.find(item => !terminalStates.includes(item.orderStatus));
+                                const displayStatus = activeItem ? activeItem.orderStatus : order.items[0].orderStatus;
+                            %>
+                            <button class="btn <%= bgColor(displayStatus) %> btn-secondary btn-sm rounded-2 py-1 "> <%= displayStatus %></button>
                         </td>
                         <td>
                             <a href="/admin/orders/<%= order._id %>" class="btn btn-light btn-sm rounded-2">

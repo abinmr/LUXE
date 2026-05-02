@@ -86,7 +86,7 @@
                 </div>
                 <div>
                     <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
-                    <p class="fw-semibold mb-2"> <%= locals.order.items[0].estimatedDeliveryDate ? locals.order.items[0].estimatedDeliveryDate.toLocaleDateString('en-US', options) : 'N/A' %></p>
+                    <p class="fw-semibold mb-2"> <%= locals.order.estimatedDeliveryDate ? locals.order.estimatedDeliveryDate.toLocaleDateString('en-US', options) : 'N/A' %></p>
                     <span class="text-muted">Your order will arrive in 3 days</span>
                 </div>
             </div>

@@ -121,13 +121,19 @@
                         <div class="mt-2">
                             <form action="/admin/orders/<%= order._id %>/update" method="get">
                                 <label for="status" class="form-label small mb-0 ms-1">Order status</label>
-                                <select class="form-select mt-2" name="status" id="status" <%= (order.items[0].orderStatus === "returned" || order.items[0].orderStatus === "delivered" || order.items[0].orderStatus === "cancelled" || order.items[0].orderStatus === "return-requested") ? 'disabled' : '' %> >
-                                    <option value="pending" <%= order.items[0].orderStatus === "pending" ? 'selected' : '' %> >Pending</option>
-                                    <option value="processing" <%= order.items[0].orderStatus === "processing" ? 'selected' : '' %> >Processing</option>
-                                    <option value="shipped" <%= order.items[0].orderStatus === "shipped" ? 'selected' : '' %> >Shipped</option>
-                                    <option value="delivered" <%= order.items[0].orderStatus === "delivered" ? 'selected' : '' %> >Delivered</option>
+                                <%
+                                    const terminalStates = ["returned", "delivered", "cancelled", "return-requested"];
+                                    const activeItem = order.items.find(item => !terminalStates.includes(item.orderStatus));
+                                    const allTerminal = !activeItem;
+                                    const currentStatus = activeItem ? activeItem.orderStatus : order.items[0].orderStatus;
+                                %>
+                                <select class="form-select mt-2" name="status" id="status" <%= allTerminal ? 'disabled' : '' %> >
+                                    <option value="pending" <%= currentStatus === "pending" ? 'selected' : '' %> >Pending</option>
+                                    <option value="processing" <%= currentStatus === "processing" ? 'selected' : '' %> >Processing</option>
+                                    <option value="shipped" <%= currentStatus === "shipped" ? 'selected' : '' %> >Shipped</option>
+                                    <option value="delivered" <%= currentStatus === "delivered" ? 'selected' : '' %> >Delivered</option>
                                 </select>
-                                <button type="submit" class="btn btn-primary mt-4 w-100" <%= order.items[0].orderStatus === "returned" ? 'disabled' : '' %>>Save Changes</button>
+                                <button type="submit" class="btn btn-primary mt-4 w-100" <%= allTerminal ? 'disabled' : '' %>>Save Changes</button>
                             </form>
                         </div>
                     </div>
