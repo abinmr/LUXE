@@ -8,6 +8,7 @@ import Otp from "../models/otp.model.js";
 import Order from "../models/order.model.js";
 import { createAddress, findAddresses, generateInvoice } from "../service/profile.service.js";
 import { updateProduct } from "../service/product.service.js";
+import { notFound, serverError, success } from "../service/status.service.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -288,10 +289,10 @@ export const cancelOrder = async (req, res) => {
 
         await order.save();
         const allCancelled = order.items.every((item) => item.orderStatus === "cancelled");
-        return res.status(200).json({ success: true, message: "Order cancelled", allCancelled });
+        return res.status(success).json({ success: true, message: "Order cancelled", allCancelled });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: "Failed to cancel order" });
+        return res.status(serverError).json({ success: false, message: "Failed to cancel order" });
     }
 };
 
@@ -305,7 +306,7 @@ export const returnOrder = async (req, res) => {
         if (itemId) {
             const item = order.items.id(itemId);
             if (!item) {
-                return res.status(404).json({ success: false, message: "Item not found" });
+                return res.status(notFound).json({ success: false, message: "Item not found" });
             }
             item.orderStatus = "return-requested";
             item.returnReason = reason;
@@ -318,10 +319,10 @@ export const returnOrder = async (req, res) => {
 
         await order.save();
         const allReturnRequested = order.items.every((item) => item.orderStatus === "return-requested");
-        return res.status(200).json({ success: true, message: "Return requested", allReturnRequested });
+        return res.status(success).json({ success: true, message: "Return requested", allReturnRequested });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: "Failed to request return" });
+        return res.status(serverError).json({ success: false, message: "Failed to request return" });
     }
 };
 

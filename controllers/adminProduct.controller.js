@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import Product from "../models/product.model.js";
 import Category from "../models/category.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import { serverError, success } from "../service/status.service.js";
 
 export const getProductPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -159,29 +160,29 @@ export const editProductDetails = async (req, res) => {
 export const listProduct = async (req, res) => {
     try {
         await Product.findByIdAndUpdate(req.params.id, { isListed: true });
-        return res.status(200).json({ success: true, message: "product listed" });
+        return res.status(success).json({ success: true, message: "product listed" });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, error: err });
+        return res.status(serverError).json({ success: false, error: err });
     }
 };
 
 export const unlistProduct = async (req, res) => {
     try {
         await Product.findByIdAndUpdate(req.params.id, { isListed: false });
-        return res.status(200).json({ success: true, message: "product unlisted" });
+        return res.status(success).json({ success: true, message: "product unlisted" });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, error: err });
+        return res.status(serverError).json({ success: false, error: err });
     }
 };
 
 export const deleteProduct = async (req, res) => {
     try {
         await Product.findByIdAndUpdate(req.params.id, { isDeleted: true });
-        return res.status(200).json({ success: true, message: "product deleted successfully " });
+        return res.status(success).json({ success: true, message: "product deleted successfully " });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: err, message: "Server failure" });
+        return res.status(serverError).json({ error: err, message: "Server failure" });
     }
 };

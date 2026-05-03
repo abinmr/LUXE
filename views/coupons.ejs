@@ -12,8 +12,18 @@
     
     <%- include('partials/admin-header.ejs', { activePage: 'coupons' }) %>
     <div class="m-4">
-        <h1>coupons</h1>
-        <p class="text-muted">Create and manage discount coupons</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2>Coupons</h2>
+                <p class="text-muted">Manage your product inventory</p>
+            </div>
+            <a href="/admin/coupons/add">
+                <button class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    Create Coupon
+                </button>
+            </a>
+        </div>
 
         <div class="border border-1 rounded-4 p-4 mt-4 bg-white">
             <form action="/admin/coupons" method="GET" id="searchForm" class="d-flex align-items-center gap-2">

@@ -1,6 +1,8 @@
 import fs from "fs";
 import Category from "../models/category.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import { serverError, success } from "../service/status.service.js";
+import { updateCategory } from "../service/adminCategory.service.js";
 
 export const getCategories = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -15,7 +17,6 @@ export const getCategories = async (req, res) => {
     const categories = await Category.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
     const totalPages = Math.ceil(totalCategory / limit);
     return res.render("categories", {
-        // currentPage: "categories",
         categories: categories,
         currentPage: page,
         totalPages: totalPages,
@@ -39,21 +40,21 @@ export const getAddCategory = (req, res) => {
 
 export const listCategory = async (req, res) => {
     try {
-        await Category.findByIdAndUpdate(req.params.id, { isActive: true });
-        return res.status(200).json({ success: true, message: "category status updated successfully" });
+        await updateCategory(req.params.id, { isActive: true });
+        return res.status(success).json({ success: true, message: "category status updated successfully" });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, error: err });
+        return res.status(serverError).json({ success: false, error: err });
     }
 };
 
 export const unlistCategory = async (req, res) => {
     try {
-        await Category.findByIdAndUpdate(req.params.id, { isActive: false });
-        return res.status(200).json({ success: true, message: "category status updated successfully" });
+        await updateCategory(req.params.id, { isActive: false });
+        return res.status(success).json({ success: true, message: "category status updated successfully" });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, error: err });
+        return res.status(serverError).json({ success: false, error: err });
     }
 };
 
@@ -186,7 +187,7 @@ export const editCategoryDetails = async (req, res) => {
             await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
             updatedData.image = result.secure_url;
         }
-        await Category.findByIdAndUpdate(id, updatedData);
+        await updateCategory(id, updatedData);
         return res.redirect("/admin/categories");
     } catch (err) {
         console.error(err);
@@ -196,7 +197,7 @@ export const editCategoryDetails = async (req, res) => {
 
 export const deleteCategory = async (req, res) => {
     try {
-        await Category.findByIdAndUpdate(req.params.id, { isDeleted: true });
+        await updateCategory(req.params.id, { isDeleted: true });
         return res.redirect("/admin/categories");
     } catch (err) {
         console.error(err);

@@ -14,10 +14,6 @@ router.get("/dashboard", requireAdminAuth, (req, res) => {
     return res.render("dashboard", { currentPage: "dashboard" });
 });
 
-router.get("/coupons", requireAdminAuth, (req, res) => {
-    return res.render("coupons", { currentPage: "coupons" });
-});
-
 router.get("/sales-report", requireAdminAuth, (req, res) => {
     return res.render("sales-report", { currentPage: "sales-report" });
 });
