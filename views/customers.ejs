@@ -74,6 +74,7 @@
                         <th scope="col">Joined Date</th>
                         <th scope="col">Total Spend</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Orders</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -96,6 +97,10 @@
                             <% } else { %>
                                 <button class="btn btn-sm btn-dark rounded-2 badge-btn" data-item-id="<%= user._id %>">Active</button>
                             <% } %>
+                        </td>
+                        <td>
+                            <% const count = orders.filter((order) => order.userId === user._id) %>
+                            <%= count %>
                         </td>
                         <td>
                             <div class="btn-group ms-4">

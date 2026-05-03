@@ -1,5 +1,6 @@
 import Order from "../models/order.model.js";
 import { updateProduct } from "../service/product.service.js";
+import { success } from "../service/status.service.js";
 
 export const getOrdersPage = async (req, res) => {
     try {
@@ -81,7 +82,7 @@ export const orderReturn = async (req, res) => {
             item.adminNote = req.body["admin-note"] || "";
         }
         await order.save();
-        return res.status(200).json({ success: true, message: "money refunded", returnedItems: selectedIts });
+        return res.status(success).json({ success: true, message: "money refunded", returnedItems: selectedIts });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/orders");

@@ -1,13 +1,13 @@
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
 import Wishlist from "../models/wishlist.model.js";
+import { serverError, success } from "../service/status.service.js";
 
 export const getCategoryProducts = async (req, res) => {
     try {
         let userWishlist = [];
         const categories = await Category.find({ isActive: true, isDeleted: false });
         const products = await Product.find({ category: req.params.id, isListed: true, isDeleted: false });
-        // const colors = await Product.distinct("variants.color");
         const colors = await Product.find({ category: req.params.id, isListed: true, isDeleted: false }).distinct("variants.color");
         let wishlist = null;
         if (req.user) {
@@ -16,7 +16,6 @@ export const getCategoryProducts = async (req, res) => {
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }
-        // console.log("Products", JSON.stringify(products, null, 2));
         return res.render("categoryDetails", { categories, id: req.params.id, products, userWishlist, colors });
     } catch (err) {
         console.error("category error", err);
@@ -71,9 +70,9 @@ export const filterCategoryProducts = async (req, res) => {
             }
         }
 
-        return res.json({ success: true, products, userWishlist });
+        return res.status(success).json({ success: true, products, userWishlist });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        return res.status(serverError).json({ success: false, message: "Internal server error" });
     }
 };

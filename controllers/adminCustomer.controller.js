@@ -1,3 +1,4 @@
+import Order from "../models/order.model.js";
 import User from "../models/user.model.js";
 
 export const getAllCustomers = async (req, res) => {
@@ -48,7 +49,6 @@ export const blockCustomer = async (req, res) => {
             user.isBlocked = !user.isBlocked;
             await user.save();
         }
-
         return res.redirect("/admin/customers");
     } catch (err) {
         console.error("Error toggling block status:", err);

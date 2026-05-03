@@ -6,6 +6,7 @@ import { calcPricing, getCartItems } from "../service/cart.service.js";
 import { createOrder } from "../service/checkout.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { createAddress, findAddresses } from "../service/profile.service.js";
+import { badRequest, created, serverError, success } from "../service/status.service.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -21,10 +22,10 @@ export const getDefaultAddress = async (req, res, next) => {
 export const checkoutAddAddress = async (req, res) => {
     try {
         const address = await createAddress(req.body, req.user?._id);
-        return res.status(201).json({ success: true, address });
+        return res.status(created).json({ success: true, address });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: "Failed to save address" });
+        return res.status(serverError).json({ success: false, message: "Failed to save address" });
     }
 };
 
@@ -121,21 +122,21 @@ export const checkoutBuyNow = async (req, res) => {
 export const checkoutPlaceOrder = async (req, res) => {
     const { addressId, paymentMethod } = req.body;
     if (!addressId || !paymentMethod) {
-        return res.status(400).json({ success: false, message: "error processing request" });
+        return res.status(badRequest).json({ success: false, message: "error processing request" });
     }
 
     if (paymentMethod !== "cod") {
-        return res.status(400).json({ success: false, message: "Payment method not supported" });
+        return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
     }
 
     const checkout = req.session.checkout;
     if (!checkout) {
-        return res.status(400).json({ success: false, message: "Session expired" });
+        return res.status(badRequest).json({ success: false, message: "Session expired" });
     }
 
     const address = await Address.findById(addressId);
     if (!address) {
-        return res.status(400).json({ success: false, message: "Address not found" });
+        return res.status(badRequest).json({ success: false, message: "Address not found" });
     }
 
     const order = await createOrder(req, checkout, address, paymentMethod);
@@ -144,7 +145,7 @@ export const checkoutPlaceOrder = async (req, res) => {
         for (const item of checkout.items) {
             const result = await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
             if (result.modifiedCount === 0) {
-                return res.status(400).json({ success: false, message: "error" });
+                return res.status(badRequest).json({ success: false, message: "error" });
             }
         }
     }
@@ -169,7 +170,7 @@ export const checkoutPlaceOrder = async (req, res) => {
 
     delete req.session.checkout;
 
-    return res.status(200).json({ success: true, order: order._id });
+    return res.status(success).json({ success: true, order: order._id });
 };
 
 export const getCheckoutSuccessPage = async (req, res) => {
