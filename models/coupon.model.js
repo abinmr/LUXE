@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const couponModel = mongoose.Schema(
+const couponModel = new mongoose.Schema(
     {
         code: {
             type: String,
@@ -12,6 +12,10 @@ const couponModel = mongoose.Schema(
         discountType: {
             type: String,
             enum: ["percentage", "fixed"],
+            required: true,
+        },
+        discountValue: {
+            type: Number,
             required: true,
         },
         startDate: {
@@ -32,6 +36,10 @@ const couponModel = mongoose.Schema(
         isActive: {
             type: Boolean,
             default: true,
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true },

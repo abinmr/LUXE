@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,12 +18,12 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
                 </a>
                 <div>
-                    <h2>Create New Coupon</h2>
-                    <p class="mb-0 text-muted">Create a new discount coupon for your customers</p>
+                    <h2>Edit Coupon</h2>
+                    <p class="mb-0 text-muted">Edit coupon details</p>
                 </div>
             </div>
 
-            <form action="/admin/coupons/add" method="POST" id="coupon-form">
+            <form action="/admin/coupons/edit/<%= coupon._id %>" method="POST" id="coupon-form">
                 <div class="p-4 border rounded-4 bg-white">
                     <h5>Coupon Details</h5>
 
@@ -32,7 +33,7 @@
                     <div class="input-group gap-4">
                         <div class="col">
                             <label for="code" class="form-label">Coupon Code</label>
-                            <input type="text" class="form-control" placeholder="eg, WELCOME10" name="code" id="code">
+                            <input type="text" class="form-control" value="<%= coupon.code %>" placeholder="eg, WELCOME10" name="code" id="code">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="codeError"></p>
                             </div>
@@ -40,14 +41,14 @@
                         <div class="col">
                             <label for="discount-type" class="form-label">Discount Type</label>
                             <select name="discountType" id="discount-type" class="form-select">
-                                <option value="percentage">Percentage</option>
-                                <option value="fixed-amount">Fixed Amount</option>
+                                <option value="percentage" <%= coupon.discountType === "percentage" ? 'selected' : '' %>>Percentage</option>
+                                <option value="fixed-amount" <%= coupon.discountType === "fixed-amount" ? 'selected' : '' %> >Fixed Amount</option>
                             </select>
                         </div>
                     </div>
                     <div class="my-2">
                         <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" placeholder="description about the coupon" name="description" id="description">
+                        <input type="text" class="form-control" value="<%= coupon.description %>" placeholder="description about the coupon" name="description" id="description">
                         <div class="error-container text-danger">
                             <p class="mb-0 fw-semibold" id="descriptionError"></p>
                         </div>
@@ -55,14 +56,14 @@
                     <div class="input-group gap-4 mb-2">
                         <div class="col">
                             <label for="discount-value" class="form-label">Discount Value</label>
-                            <input type="number" class="form-control" min="0" placeholder="0" name="discountValue" id="discount-value">
+                            <input type="number" class="form-control" value="<%= coupon.discountValue %>" min="0" placeholder="0" name="discountValue" id="discount-value">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="discount-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="min-purchase-amount" class="form-label">Min Purchase Amout</label>
-                            <input type="number" class="form-control" name="minPurchaseAmount" placeholder="0" id="min-purchase-amount">
+                            <input type="number" class="form-control" value="<%= coupon.minPurchaseAmount %>" name="minPurchaseAmount" placeholder="0" id="min-purchase-amount">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="min-purchase-error"></p>
                             </div>
@@ -71,14 +72,14 @@
                     <div class="input-group gap-4 mb-2">
                         <div class="col">
                             <label for="max-discount" class="form-label">Max Discount</label>
-                            <input type="number" class="form-control" placeholder="0" name="maxDiscount" id="max-discount">
+                            <input type="number" class="form-control" value="<%= coupon.maxDiscountAmount %>" placeholder="0" name="maxDiscount" id="max-discount">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="max-discount-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="usage-limit" class="form-label">Usage Limit</label>
-                            <input type="number" class="form-control" placeholder="0" name="usageLimit" id="usage-limit">
+                            <input type="number" class="form-control" value="<%= coupon.usageLimit%>" placeholder="0" name="usageLimit" id="usage-limit">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="usage-limit-error"></p>
                             </div>
@@ -87,14 +88,16 @@
                     <div class="input-group gap-4 mb-2">
                         <div class="col">
                             <label for="start-date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" name="startDate" id="start-date">
+                            <% const startDate = coupon.startDate.toISOString().split("T")[0]; %>
+                            <input type="date" class="form-control" value="<%= startDate %>" name="startDate" id="start-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="end-date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" name="endDate" id="end-date">
+                            <% const endDate = coupon.expiryDate.toISOString().split("T")[0]; %>
+                            <input type="date" class="form-control" value="<%= endDate %>" name="endDate" id="end-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold"></p>
                             </div>
@@ -108,7 +111,7 @@
 
                 <div class="d-flex justify-content-end align-items-center gap-4 mt-4">
                     <a href="/admin/coupons" class="btn btn-light border rounded-2">Cancel</a>
-                    <button class="btn btn-primary rounded-2" id="coupon-btn">Create Coupon</button>
+                    <button class="btn btn-primary rounded-2" id="coupon-btn">Save Changes</button>
                 </div>
             </form>
         </div>
