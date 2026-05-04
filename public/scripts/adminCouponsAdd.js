@@ -5,6 +5,7 @@ const minPurchaseInput = document.getElementById("min-purchase-amount");
 const maxDiscountInput = document.getElementById("max-discount");
 const usageLimitInput = document.getElementById("usage-limit");
 
+const submitBtn = document.getElementById("coupon-btn");
 const form = document.getElementById("coupon-form");
 
 function validateCode() {
@@ -99,5 +100,9 @@ form.addEventListener("submit", (e) => {
     const isMinPurchaseValid = validateMinPurchase();
     const isMaxDiscountValid = validateMaxDiscount();
     const isUsageLimitValid = validateUsageLimit();
-    e.preventDefault();
+    if (!isCodeValid || !isDescValid || !isDiscountValid || !isMinPurchaseValid || !isMaxDiscountValid || !isUsageLimitValid) {
+        return e.preventDefault();
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating Coupon...";
 });
