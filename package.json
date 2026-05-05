@@ -29,6 +29,7 @@
         "passport": "^0.7.0",
         "passport-google-oauth2": "^0.2.0",
         "pdfkit": "^0.18.0",
+        "razorpay": "^2.9.6",
         "slugify": "^1.6.8"
     },
     "devDependencies": {
