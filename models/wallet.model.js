@@ -13,12 +13,15 @@ const walletModel = new mongoose.Schema(
             min: 0,
             default: 0,
         },
-        transationHistory: {
-            type: [mongoose.Schema.Types.ObjectId],
-        },
     },
-    { timestamps: true },
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );
+
+walletModel.virtual("transactions", {
+    ref: "WalletTransaction",
+    localField: "_id",
+    foreignField: "walletId",
+});
 
 const Wallet = mongoose.model("Wallet", walletModel);
 

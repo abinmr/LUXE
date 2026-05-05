@@ -68,6 +68,12 @@
                     <span>GST</span>
                     <span>₹<%= locals.order.GST %></span>
                 </div>
+                <% if (order.discount > 0) { %>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Discount</span>
+                        <span class="text-danger">-₹<%= locals.order.discount %></span>
+                    </div>
+                <% } %>
                 <div class="d-flex justify-content-between">
                     <span>Shipping</span>
                     <span>₹<%= locals.order.shipping %></span>

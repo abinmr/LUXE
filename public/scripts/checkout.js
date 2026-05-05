@@ -190,17 +190,20 @@ document.addEventListener("DOMContentLoaded", () => {
     placeOrderBtn.addEventListener("click", async () => {
         const addressId = document.getElementById("selectedAddressId").value;
         const paymentMethod = document.querySelector("input[name='paymentMethod']:checked").id;
-        console.log(addressId);
-        console.log(paymentMethod);
+        const couponCode = document.getElementById("couponInput").value.trim();
 
         try {
             const response = await fetch("/checkout/place-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ addressId, paymentMethod }),
+                body: JSON.stringify({ addressId, paymentMethod, couponCode }),
             });
 
+            console.log(response);
+
             const data = await response.json();
+            console.log(data);
+
             if (data.success) {
                 window.location.href = `/checkout/success?orderId=${data.order}`;
             } else {
@@ -208,15 +211,32 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (err) {
             showToast(err.message, "error");
+            // window.location.href = `/checkout/failure`;
             console.error(err);
-            window.location.href = `/checkout/failure`;
         }
     });
 
     const couponForm = document.getElementById("coupon-form");
-    couponForm.addEventListener("submit", (e) => {
+    couponForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const formData = new FormData(couponForm);
-        console.log(formData);
+        const code = document.getElementById("couponInput").value.trim();
+        const res = await fetch(`/checkout/apply-coupon`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+        });
+        const data = await res.json();
+        console.log(data);
+
+        const discountRow = document.getElementById("discount-row");
+        const discount = document.getElementById("discount");
+        if (data.success) {
+            discountRow.classList.replace("d-none", "d-flex");
+            discount.textContent = `-₹${data.discount}`;
+            document.getElementById("total").textContent = `₹${data.total}`;
+            showToast(data.message);
+        } else {
+            showToast(data.message);
+        }
     });
 });

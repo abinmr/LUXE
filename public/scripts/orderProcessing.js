@@ -45,12 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData(form);
         const id = form.dataset.id;
 
-        // Build body manually to handle multiple checkboxes with same name
-        const body = {};
-        body["admin-note"] = formData.get("admin-note") || "";
-        body["refund"] = formData.get("refund") || "";
-        // Get ALL selected product checkboxes (not just one)
-        body["product"] = formData.getAll("product");
+        const body = Object.fromEntries(formData.entries());
+        // body["admin-note"] = formData.get("admin-note") || "";
+        // body["refund"] = formData.get("refund") || "";
+        // body["product"] = formData.getAll("product");
 
         const response = await fetch(`/admin/orders/${id}/approve-return`, {
             method: "POST",
@@ -75,7 +73,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // Hide the Process Return button
+            // Re-evaluate overall order status
+            const allBadges = Array.from(document.querySelectorAll('.item-status-badge'));
+            const statuses = allBadges.map(b => b.textContent.trim().toLowerCase());
+            
+            let newOverallStatus = statuses[0] || 'returned';
+            let newBtnClass = 'btn-light border';
+
+            const activeStatus = statuses.find(s => ['pending', 'processing', 'shipped'].includes(s));
+            const hasReturnReq = statuses.includes('return-requested');
+            
+            if (activeStatus) {
+                newOverallStatus = activeStatus;
+            } else if (hasReturnReq) {
+                newOverallStatus = 'return-requested';
+                newBtnClass = 'btn-danger';
+            } else {
+                if (['cancelled', 'returned'].includes(newOverallStatus)) {
+                    newBtnClass = 'btn-danger';
+                } else if (newOverallStatus === 'delivered') {
+                    newBtnClass = 'btn-success';
+                }
+            }
+
+            if (orderStatusBtn) {
+                orderStatusBtn.textContent = newOverallStatus;
+                orderStatusBtn.className = `btn ${newBtnClass} rounded-3 text-capitalize`;
+            }
+
             if (returnModalBtn) {
                 returnModalBtn.remove();
             }

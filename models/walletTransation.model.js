@@ -17,6 +17,7 @@ const walletTransaction = new mongoose.Schema(
             ref: "Order",
         },
         transactionType: {
+            type: String,
             enum: ["credit", "debit"],
             required: true,
         },
@@ -37,6 +38,6 @@ const walletTransaction = new mongoose.Schema(
     { timestamps: true },
 );
 
-const WalletTransaction = mongoose.model("WalletTransation", walletTransaction);
+const WalletTransaction = mongoose.model("WalletTransaction", walletTransaction);
 
 export default WalletTransaction;

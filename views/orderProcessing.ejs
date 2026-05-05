@@ -41,7 +41,27 @@
                                 Process Return
                             </button>
                         <% } %>
-                        <button id="order-status-btn" class="btn <%= (order.items[0].orderStatus === "return-requested" || order.items[0].orderStatus === "cancelled") ? 'btn-danger' : 'btn-light border' %> rounded-3"> <%= order.items[0].orderStatus %> </button>
+                        <%
+                            let overallStatus = order.items[0].orderStatus;
+                            let btnClass = 'btn-light border';
+
+                            const btnActiveItem = order.items.find(item => ['pending', 'processing', 'shipped'].includes(item.orderStatus));
+                            const returnReqItem = order.items.find(item => item.orderStatus === 'return-requested');
+
+                            if (btnActiveItem) {
+                                overallStatus = btnActiveItem.orderStatus;
+                            } else if (returnReqItem) {
+                                overallStatus = 'return-requested';
+                                btnClass = 'btn-danger';
+                            } else {
+                                if (['cancelled', 'returned'].includes(overallStatus)) {
+                                    btnClass = 'btn-danger';
+                                } else if (overallStatus === 'delivered') {
+                                    btnClass = 'btn-success';
+                                }
+                            }
+                        %>
+                        <button id="order-status-btn" class="btn <%= btnClass %> rounded-3 text-capitalize"><%= overallStatus %></button>
                     </div>
                 </div>
                 <hr class="text-muted">
@@ -155,6 +175,12 @@
                                 <span>GST</span>
                                 <span class="fw-semibold">₹<%= order.GST %> </span>
                             </div>
+                            <% if (order.discount > 0) { %>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Discount</span>
+                                    <span class="fw-semibold text-danger"> -₹<%= order.discount %></span>
+                                </div>
+                            <% } %>
                             <hr class="text-muted">
                             <div class="d-flex justify-content-between">
                                 <span class="fw-bold">Total</span>
@@ -192,7 +218,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                         <input type="checkbox" name="product" value="<%= item._id %>" data-price="<%= item.price %>" id="product-<%= i %>" class="form-check-input mt-0">
                                         <div class="user-select-none"><%= item.productName %></div>
-                                        <img src="<%= item.productImage %>" class="rounded-1" height="40" width="40">
+                                        <img src="<%= item.productImage %>" class="rounded-2 object-fit-cover" height="60" width="50">
                                     </div>
                                     <span>₹<%= item.price %></span>
                                 </label>

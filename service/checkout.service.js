@@ -37,6 +37,7 @@ export const createOrder = async (req, checkout, address, paymentMethod) => {
             state: address.state,
         },
         paymentMethod: paymentMethod,
+        couponCode: checkout.appliedCoupon,
         estimatedDeliveryDate,
     });
 };
