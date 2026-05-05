@@ -1,4 +1,6 @@
 import Order from "../models/order.model.js";
+import Wallet from "../models/wallet.model.js";
+import WalletTransaction from "../models/walletTransation.model.js";
 import { updateProduct } from "../service/product.service.js";
 import { success } from "../service/status.service.js";
 
@@ -61,6 +63,10 @@ export const updateOrderDetails = async (req, res) => {
     }
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const orderReturn = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
@@ -73,6 +79,8 @@ export const orderReturn = async (req, res) => {
             selectedIts = [selectedIts];
         }
 
+        const refund = Number(req.body.refund);
+
         for (const itemId of selectedIts) {
             const item = order.items.id(itemId);
             if (!item) return;
@@ -82,6 +90,20 @@ export const orderReturn = async (req, res) => {
             item.adminNote = req.body["admin-note"] || "";
         }
         await order.save();
+        const userId = order.userId;
+        const wallet = await Wallet.findOne({ userId: userId });
+        const userWallet = wallet || (await Wallet.create({ userId: userId, balance: 0 }));
+        const transaction = await WalletTransaction.create({
+            walletId: userWallet._id,
+            userId: userId,
+            orderId: req.params.id,
+            transactionType: "debit",
+            amount: refund,
+            description: req.body["admin-note"] || "refund for returned order",
+            status: "completed",
+        });
+        userWallet.balance = userWallet.balance + refund;
+        await userWallet.save();
         return res.status(success).json({ success: true, message: "money refunded", returnedItems: selectedIts });
     } catch (err) {
         console.error(err);

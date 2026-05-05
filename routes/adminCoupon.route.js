@@ -1,7 +1,7 @@
 import express from "express";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
 import Coupon from "../models/coupon.model.js";
-import { success } from "../service/status.service.js";
+import { serverError, success } from "../service/status.service.js";
 
 const router = express.Router();
 
@@ -29,9 +29,9 @@ router.post("/add", requireAdminAuth, async (req, res) => {
         for (let key in req.body) {
             if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
         }
-        const { code, discountType, description, discountValue, minPurchaseAmount, maxDiscount, usageLimit, startDate, endDate } = req.body;
+        const { code, discountType, description, discountValue, minPurchaseAmount, maxDiscount, usageLimit, startDate, expiryDate } = req.body;
 
-        if (!code || !discountType || !description || !discountValue || !minPurchaseAmount || !maxDiscount || !usageLimit || !startDate || !endDate) {
+        if (!code || !discountType || !description || !discountValue || !minPurchaseAmount || !maxDiscount || !usageLimit || !startDate || !expiryDate) {
             return res.render("couponsAdd", { couponError: "Please provide all the fields" });
         }
 
@@ -46,7 +46,7 @@ router.post("/add", requireAdminAuth, async (req, res) => {
             maxDiscountAmount: maxDiscount,
             usageLimit: usageLimit,
             startDate: startDate,
-            expiryDate: endDate,
+            expiryDate: expiryDate,
             users: [],
             isActive: isActive,
         });
@@ -54,6 +54,26 @@ router.post("/add", requireAdminAuth, async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/coupons");
+    }
+});
+
+router.patch("/status/unlist/:id", requireAdminAuth, async (req, res) => {
+    try {
+        await Coupon.findByIdAndUpdate(req.params.id, { isActive: false });
+        return res.status(success).json({ success: true, message: "status updated" });
+    } catch (err) {
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: "error updating coupon" });
+    }
+});
+
+router.patch("/status/list/:id", requireAdminAuth, async (req, res) => {
+    try {
+        await Coupon.findByIdAndUpdate(req.params.id, { isActive: true });
+        return res.status(success).json({ success: true, message: "status updated" });
+    } catch (err) {
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: "error updating coupon" });
     }
 });
 
@@ -72,9 +92,9 @@ router.post("/edit/:id", requireAdminAuth, async (req, res) => {
             if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
         }
 
-        const { code, discountType, description, discountValue, minPurchaseAmount, maxDiscount, usageLimit, startDate, endDate } = req.body;
+        const { code, discountType, description, discountValue, minPurchaseAmount, maxDiscount, usageLimit, startDate, expiryDate } = req.body;
 
-        if (!code || !discountType || !description || !discountValue || !minPurchaseAmount || !maxDiscount || !usageLimit || !startDate || !endDate) {
+        if (!code || !discountType || !description || !discountValue || !minPurchaseAmount || !maxDiscount || !usageLimit || !startDate || !expiryDate) {
             return res.render("couponsEdit", { couponError: "Please provide all the fields" });
         }
 
@@ -89,7 +109,7 @@ router.post("/edit/:id", requireAdminAuth, async (req, res) => {
                 maxDiscountAmount: maxDiscount,
                 usageLimit,
                 startDate,
-                expiryDate: endDate,
+                expiryDate: expiryDate,
             },
         );
         return res.redirect("/admin/coupons");

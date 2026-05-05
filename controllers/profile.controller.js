@@ -9,6 +9,8 @@ import Order from "../models/order.model.js";
 import { createAddress, findAddresses, generateInvoice } from "../service/profile.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { notFound, serverError, success } from "../service/status.service.js";
+import Wallet from "../models/wallet.model.js";
+import WalletTransaction from "../models/walletTransation.model.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -23,6 +25,12 @@ export const getProfile = async (req, res) => {
         if (currentSection === "order-history") {
             orders = await Order.find({ userId: req.user?._id }).sort({ createdAt: -1 });
         }
+        const wallet = (await Wallet.findOne({ userId: req.user?._id })) || "00.00";
+        let walletHistory = [];
+        if (currentSection === "wallet") {
+            walletHistory = await WalletTransaction.find({ userId: req.user?._id }).populate("orderId").sort({ createdAt: -1 });
+        }
+        console.log(wallet);
         res.render("profile", {
             section: currentSection,
             addresses: addresses,
@@ -30,7 +38,10 @@ export const getProfile = async (req, res) => {
             phoneError: phoneError,
             user: req.user,
             orders: orders,
+            wallet,
+            walletHistory,
         });
+        console.log(walletHistory);
     } catch (err) {
         console.error("Error rendering profile.", err);
         return res.redirect("/profile?section=profile");

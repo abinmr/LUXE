@@ -1,12 +1,13 @@
 import Address from "../models/address.model.js";
 import Cart from "../models/cart.model.js";
+import Coupon from "../models/coupon.model.js";
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import { calcPricing, getCartItems } from "../service/cart.service.js";
 import { createOrder } from "../service/checkout.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { createAddress, findAddresses } from "../service/profile.service.js";
-import { badRequest, created, serverError, success } from "../service/status.service.js";
+import { badRequest, created, notFound, serverError, success } from "../service/status.service.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -43,12 +44,53 @@ export const getCheckoutPage = async (req, res) => {
             source: "cart",
             items: formattedProducts,
             subtotal: data.subtotal,
-            discount: 0,
             gst: data.gst,
             shipping: data.shipping,
             total: data.total,
         };
         return res.render("checkout", { address, data, products });
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns
+ */
+export const applyCoupon = async (req, res) => {
+    try {
+        const { code } = req.body;
+        const coupon = await Coupon.findOne({ code: code });
+        if (!coupon) {
+            return res.status(notFound).json({ success: false, message: "Not a valid coupon" });
+        }
+        const currentDate = new Date();
+        if (!coupon.isActive || currentDate < coupon.startDate || currentDate > coupon.expiryDate) {
+            return res.status(notFound).json({ success: false, message: "Coupon expired" });
+        }
+
+        const checkoutSessoin = req.session.checkout;
+        if (checkoutSessoin.subtotal < coupon.minPurchaseAmount) {
+            return res.status(badRequest).json({ success: false, message: `Minium purchase of ₹${coupon.minPurchaseAmount} required` });
+        }
+
+        let discountAmount = 0;
+        if (coupon.discountType === "percentage") {
+            discountAmount = (checkoutSessoin.subtotal * coupon.discountValue) / 100;
+            if (coupon.maxDiscountAmount) {
+                discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+            }
+        } else if (coupon.discountType === "fixed") {
+            discountAmount = coupon.discountValue;
+        }
+
+        checkoutSessoin.discount = discountAmount;
+        checkoutSessoin.total = checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount;
+        checkoutSessoin.appliedCoupon = code;
+
+        return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: "Coupon applied" });
     } catch (err) {
         console.error(err);
     }
@@ -108,7 +150,6 @@ export const checkoutBuyNow = async (req, res) => {
                 },
             ],
             subtotal: data.subtotal,
-            discount: 0,
             gst: data.gst,
             shipping: data.shipping,
             total: data.total,
@@ -120,57 +161,62 @@ export const checkoutBuyNow = async (req, res) => {
 };
 
 export const checkoutPlaceOrder = async (req, res) => {
-    const { addressId, paymentMethod } = req.body;
-    if (!addressId || !paymentMethod) {
-        return res.status(badRequest).json({ success: false, message: "error processing request" });
-    }
+    try {
+        const { addressId, paymentMethod } = req.body;
+        if (!addressId || !paymentMethod) {
+            return res.status(badRequest).json({ success: false, message: "error processing request" });
+        }
 
-    if (paymentMethod !== "cod") {
-        return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
-    }
+        if (paymentMethod !== "cod") {
+            return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
+        }
 
-    const checkout = req.session.checkout;
-    if (!checkout) {
-        return res.status(badRequest).json({ success: false, message: "Session expired" });
-    }
+        const checkout = req.session.checkout;
+        if (!checkout) {
+            return res.status(badRequest).json({ success: false, message: "Session expired" });
+        }
 
-    const address = await Address.findById(addressId);
-    if (!address) {
-        return res.status(badRequest).json({ success: false, message: "Address not found" });
-    }
+        const address = await Address.findById(addressId);
+        if (!address) {
+            return res.status(badRequest).json({ success: false, message: "Address not found" });
+        }
 
-    const order = await createOrder(req, checkout, address, paymentMethod);
+        const order = await createOrder(req, checkout, address, paymentMethod);
 
-    if (order) {
-        for (const item of checkout.items) {
-            const result = await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
-            if (result.modifiedCount === 0) {
-                return res.status(badRequest).json({ success: false, message: "error" });
+        if (order) {
+            for (const item of checkout.items) {
+                const result = await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
+                if (result.modifiedCount === 0) {
+                    return res.status(badRequest).json({ success: false, message: "error" });
+                }
             }
         }
-    }
 
-    if (checkout.source === "cart") {
-        const cart = await Cart.findOne({ userId: req.user._id });
-        const seletedIds = cart.items.map((item) => item.sizeId._id.toString());
-        await Cart.updateOne(
-            {
-                userId: req.user._id,
-            },
-            {
-                $pull: {
-                    items: {
-                        isSelected: true,
-                        sizeId: { $in: seletedIds },
+        if (checkout.source === "cart") {
+            const cart = await Cart.findOne({ userId: req.user._id });
+            const seletedIds = cart.items.map((item) => item.sizeId._id.toString());
+            await Cart.updateOne(
+                {
+                    userId: req.user._id,
+                },
+                {
+                    $pull: {
+                        items: {
+                            isSelected: true,
+                            sizeId: { $in: seletedIds },
+                        },
                     },
                 },
-            },
-        );
+            );
+        }
+
+        delete req.session.checkout;
+
+        return res.status(success).json({ success: true, order: order._id });
+    } catch (err) {
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: err });
     }
-
-    delete req.session.checkout;
-
-    return res.status(success).json({ success: true, order: order._id });
 };
 
 export const getCheckoutSuccessPage = async (req, res) => {
