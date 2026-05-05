@@ -87,7 +87,14 @@ passport.use(
                 const user = await User.findOne({ email: profile.email });
                 if (!user) {
                     console.log("Profile: ", profile);
-                    const newUser = await User.create({ fullname: profile.given_name, email: profile.email, googleId: profile.id, authMethod: "google", isVerified: true });
+                    const newUser = await User.create({
+                        fullname: profile.given_name,
+                        email: profile.email,
+                        googleId: profile.id,
+                        authMethod: "google",
+                        profile: profile.picture,
+                        isVerified: true,
+                    });
                     return cb(null, newUser);
                 } else {
                     if (user.isBlocked) {

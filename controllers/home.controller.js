@@ -12,11 +12,11 @@ export const loadCategories = async (req, res, next) => {
         });
         if (req.user) {
             const wishlist = await Wishlist.findOne({ userId: req.user._id });
-            const carts = await Cart.findOne({ userId: req.user._id });
+            const carts = await Cart.findOne({ userId: req.user?._id });
             if (wishlist) {
                 res.locals.totalWishlist = wishlist.products.length;
             }
-            if (carts.length !== 0) {
+            if (carts && carts.items) {
                 const total = carts.items.reduce((acc, curr) => acc + curr.quantity, 0);
                 res.locals.totalCart = total;
             }
