@@ -1,3 +1,4 @@
+import createRazorpayOrder from "../lib/razorpay.js";
 import Address from "../models/address.model.js";
 import Cart from "../models/cart.model.js";
 import Coupon from "../models/coupon.model.js";
@@ -160,20 +161,31 @@ export const checkoutBuyNow = async (req, res) => {
     }
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns
+ */
 export const checkoutPlaceOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod } = req.body;
         if (!addressId || !paymentMethod) {
             return res.status(badRequest).json({ success: false, message: "error processing request" });
         }
+        console.log(paymentMethod);
 
-        if (paymentMethod !== "cod") {
+        if (!["cod", "razorpay"].includes(paymentMethod)) {
             return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
         }
 
         const checkout = req.session.checkout;
         if (!checkout) {
             return res.status(badRequest).json({ success: false, message: "Session expired" });
+        }
+
+        if (paymentMethod === "razorpay") {
+            const razorpayOrder = await createRazorpayOrder(checkout.total);
+            return res.status(success).json({ success: true, razorpayOrder });
         }
 
         const address = await Address.findById(addressId);

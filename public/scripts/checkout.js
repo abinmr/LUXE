@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     placeOrderBtn.addEventListener("click", async () => {
         const addressId = document.getElementById("selectedAddressId").value;
-        const paymentMethod = document.querySelector("input[name='paymentMethod']:checked").id;
+        const paymentMethod = document.querySelector("input[name='paymentMethod']:checked").value;
         const couponCode = document.getElementById("couponInput").value.trim();
 
         try {
@@ -199,15 +199,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ addressId, paymentMethod, couponCode }),
             });
 
-            console.log(response);
+            console.log("response", response);
 
             const data = await response.json();
-            console.log(data);
+            console.log("data", data);
+            if (!data.success) {
+                return showToast(data.message, "error");
+            }
 
-            if (data.success) {
-                window.location.href = `/checkout/success?orderId=${data.order}`;
-            } else {
-                showToast(data.message, "error");
+            if (paymentMethod == "cod") {
+                return (window.location.href = `/checkout/success?orderId=${data.order}`);
+            }
+
+            console.log("order", data.razorpayOrder);
+
+            if (paymentMethod === "razorpay") {
+                openRazorpay(data.razorpayOrder);
             }
         } catch (err) {
             showToast(err.message, "error");
@@ -226,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify({ code }),
         });
         const data = await res.json();
-        console.log(data);
 
         const discountRow = document.getElementById("discount-row");
         const discount = document.getElementById("discount");
