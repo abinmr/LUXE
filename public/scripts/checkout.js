@@ -199,19 +199,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ addressId, paymentMethod, couponCode }),
             });
 
-            console.log(response);
-
             const data = await response.json();
-            console.log(data);
 
             if (data.success) {
-                window.location.href = `/checkout/success?orderId=${data.order}`;
+                if (data.razorpayOrderId) {
+                    openRazorpay(data.order, data.razorpayOrderId, data.amount);
+                } else {
+                    window.location.href = `/checkout/success?orderId=${data.order}`;
+                }
             } else {
                 showToast(data.message, "error");
             }
         } catch (err) {
-            showToast(err.message, "error");
-            // window.location.href = `/checkout/failure`;
+            showToast(err.message || "An error occurred", "error");
             console.error(err);
         }
     });
@@ -239,4 +239,50 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast(data.message);
         }
     });
+
+    function openRazorpay(orderId, razorpayOrderId, amount) {
+        const options = {
+            key: RAZORPAY_KEY,
+            amount: amount,
+            currency: "INR",
+            name: "LUXE",
+            description: "Order Payment",
+            order_id: razorpayOrderId,
+            prefill: {
+                name: "Test User",
+                email: "test@example.com",
+                contact: "9999999999",
+            },
+            handler: async function (response) {
+                try {
+                    const verifyRes = await fetch("/checkout/verify-payment", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            orderId: orderId,
+                        }),
+                    });
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.success) {
+                        window.location.href = `/checkout/success?orderId=${orderId}`;
+                    } else {
+                        showToast(verifyData.message, "error");
+                        window.location.href = `/checkout/failure`;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    window.location.href = `/checkout/failure`;
+                }
+            },
+            theme: { color: "#000000" },
+        };
+        const rzp1 = new Razorpay(options);
+        rzp1.on("payment.failed", function (response) {
+            showToast("Payment Failed", "error");
+        });
+        rzp1.open();
+    }
 });

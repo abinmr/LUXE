@@ -8,6 +8,8 @@ import { createOrder } from "../service/checkout.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { createAddress, findAddresses } from "../service/profile.service.js";
 import { badRequest, created, notFound, serverError, success } from "../service/status.service.js";
+import razorpay from "../lib/razorpay.js";
+import crypto from "crypto";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -48,7 +50,7 @@ export const getCheckoutPage = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
         };
-        return res.render("checkout", { address, data, products });
+        return res.render("checkout", { address, data, products, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
     }
@@ -154,7 +156,7 @@ export const checkoutBuyNow = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
         };
-        return res.render("checkout", { address, products, data });
+        return res.render("checkout", { address, products, data, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
     }
@@ -167,7 +169,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             return res.status(badRequest).json({ success: false, message: "error processing request" });
         }
 
-        if (paymentMethod !== "cod") {
+        if (!["cod", "upi", "credit"].includes(paymentMethod)) {
             return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
         }
 
@@ -212,6 +214,16 @@ export const checkoutPlaceOrder = async (req, res) => {
 
         delete req.session.checkout;
 
+        if (paymentMethod === "upi" || paymentMethod === "credit") {
+            const options = {
+                amount: Math.round(checkout.total * 100),
+                currency: "INR",
+                receipt: order.orderId,
+            };
+            const razorpayOrder = await razorpay.orders.create(options);
+            return res.status(success).json({ success: true, order: order._id, razorpayOrderId: razorpayOrder.id, amount: options.amount });
+        }
+
         return res.status(success).json({ success: true, order: order._id });
     } catch (err) {
         console.error(err);
@@ -227,4 +239,29 @@ export const getCheckoutSuccessPage = async (req, res) => {
 
 export const checkoutFailurePage = (req, res) => {
     return res.render("checkoutFail");
+};
+
+export const verifyPayment = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+        
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
+            .update(sign.toString())
+            .digest("hex");
+
+        if (razorpay_signature === expectedSign) {
+            await Order.updateOne(
+                { _id: orderId },
+                { $set: { "items.$[].paymentStatus": "paid" } }
+            );
+            return res.status(success).json({ success: true, message: "Payment verified successfully" });
+        } else {
+            return res.status(badRequest).json({ success: false, message: "Invalid signature" });
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: "Internal Server Error" });
+    }
 };

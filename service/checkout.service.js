@@ -8,7 +8,7 @@ export const createOrder = async (req, checkout, address, paymentMethod) => {
     const nanoid = customAlphabet("1234567890", 10);
     const orderId = `ORD-${nanoid()}`;
 
-    const itemPaymentStatus = paymentMethod === "cod" ? "pending" : "paid";
+    const itemPaymentStatus = "pending";
     const estimatedDeliveryDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
 
     const items = checkout.items.map((item) => ({
