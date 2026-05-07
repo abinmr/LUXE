@@ -10,6 +10,7 @@ import { createAddress, findAddresses } from "../service/profile.service.js";
 import { badRequest, created, notFound, serverError, success } from "../service/status.service.js";
 import razorpay from "../lib/razorpay.js";
 import crypto from "crypto";
+import Wallet from "../models/wallet.model.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -50,7 +51,8 @@ export const getCheckoutPage = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
         };
-        return res.render("checkout", { address, data, products, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
+        const wallet = await Wallet.findOne({ userId: req.user?._id });
+        return res.render("checkout", { address, data, products, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
     }
@@ -156,7 +158,11 @@ export const checkoutBuyNow = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
         };
-        return res.render("checkout", { address, products, data, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
+        let wallet = await Wallet.findOne({ userId: req.user?._id });
+        if (!wallet) {
+            wallet = "00.00";
+        }
+        return res.render("checkout", { address, products, data, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
     }
@@ -244,18 +250,12 @@ export const checkoutFailurePage = (req, res) => {
 export const verifyPayment = async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
-        
+
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
-        const expectedSign = crypto
-            .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
-            .update(sign.toString())
-            .digest("hex");
+        const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_API_SECRET).update(sign.toString()).digest("hex");
 
         if (razorpay_signature === expectedSign) {
-            await Order.updateOne(
-                { _id: orderId },
-                { $set: { "items.$[].paymentStatus": "paid" } }
-            );
+            await Order.updateOne({ _id: orderId }, { $set: { "items.$[].paymentStatus": "paid" } });
             return res.status(success).json({ success: true, message: "Payment verified successfully" });
         } else {
             return res.status(badRequest).json({ success: false, message: "Invalid signature" });
