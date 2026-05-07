@@ -9,6 +9,7 @@ import {
     getCheckoutPage,
     getCheckoutSuccessPage,
     getDefaultAddress,
+    verifyPayment,
 } from "../controllers/checkout.controller.js";
 
 const router = express.Router();
@@ -28,5 +29,7 @@ router.post("/place-order", protectedRoute, checkoutPlaceOrder);
 router.get("/success", protectedRoute, getCheckoutSuccessPage);
 
 router.get("/failure", protectedRoute, checkoutFailurePage);
+
+router.post("/verify-payment", protectedRoute, verifyPayment);
 
 export default router;
