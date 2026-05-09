@@ -117,7 +117,13 @@
                     </div>
                     <div class="pt-2">
                         <% if (orderDetails.paymentMethod === "cod") { %>
-                            <p class="fw-semibold">Cash on Delivery</p>
+                            <p class="fw-semibold h5">Cash on Delivery</p>
+                        <% } else if (orderDetails.paymentMethod === "wallet") { %>
+                            <p class="fw-semibold h5">Wallet</p>
+                        <% } else if (orderDetails.paymentMethod === "card") {%>
+                            <p class="fw-semibold h5">Card</p>
+                        <% } else if (orderDetails.paymentMethod === "upi") { %>
+                            <p class="fw-semibold h5">UPI</p>
                         <% } %>
                     </div>
                 </div>

@@ -275,6 +275,7 @@ export const getOrderInvoice = async (req, res) => {
     }
 };
 
+// FIX: refund money when cancel order if not COD
 export const cancelOrder = async (req, res) => {
     try {
         const id = req.params.id;
@@ -296,6 +297,21 @@ export const cancelOrder = async (req, res) => {
                 item.cancellationReason = reason;
                 await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
             }
+        }
+
+        if (order.paymentMethod !== "cod") {
+            const wallet = await Wallet.findOne({ userId: req.user?._id });
+            wallet.balance += order.total;
+            await wallet.save();
+            await WalletTransaction.create({
+                walletId: wallet._id,
+                userId: req.user?._id,
+                orderId: order.orderId,
+                transactionType: "credit",
+                amount: order.total,
+                description: "Money refunded for cancelled order",
+                status: "completed",
+            });
         }
 
         await order.save();

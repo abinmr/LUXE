@@ -4,6 +4,7 @@ import GoogleStrategy from "passport-google-oauth2";
 import { getRegisterOtp, getResetOtp, login, otpVerification, register, resendOtp, resetOtp, resetPasswordOtp, setCookies, updatePassword } from "../controllers/userAuth.controller.js";
 import { redirectIfAuth } from "../middlewares/user.auth.middleware.js";
 import User from "../models/user.model.js";
+import Wallet from "../models/wallet.model.js";
 
 const router = express.Router();
 
@@ -95,6 +96,7 @@ passport.use(
                         profile: profile.picture,
                         isVerified: true,
                     });
+                    await Wallet.create({ userId: newUser._id, balance: 0 });
                     return cb(null, newUser);
                 } else {
                     if (user.isBlocked) {

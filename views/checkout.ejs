@@ -74,9 +74,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <input type="checkbox" class="form-check-input" name="wallet" id="wallet">
+                    <div class="mt-3 user-select-none">
+                        <input type="checkbox" class="form-check-input" name="paymentMethod" id="wallet" <%= (locals.wallet && wallet.balance >= data.total) ? '' : 'disabled' %> >
                         <label for="wallet" class="form-label">Use wallet balance for this order</label>
+                        <% if (!locals.wallet || wallet.balance < data.total) { %>
+                            <span class="text-danger small user-select-none d-block fw-semibold">Insufficient balance for this order</span>
+                        <% } %>
                     </div>
                 </div>
 
@@ -103,7 +106,6 @@
             </div>
 
             <div class="w-50">
-
                 <div class="border rounded-4 px-4 pt-5 pb-4 bg-white mb-3">
                     <h5>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"

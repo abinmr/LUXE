@@ -11,6 +11,7 @@ import { badRequest, created, notFound, serverError, success } from "../service/
 import razorpay from "../lib/razorpay.js";
 import crypto from "crypto";
 import Wallet from "../models/wallet.model.js";
+import WalletTransaction from "../models/walletTransation.model.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -33,6 +34,10 @@ export const checkoutAddAddress = async (req, res) => {
     }
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const getCheckoutPage = async (req, res) => {
     try {
         const address = await findAddresses(req.user?._id);
@@ -61,7 +66,6 @@ export const getCheckoutPage = async (req, res) => {
 /**
  * @param {import('express').Request} req
  * @param {import('express').Response} res
- * @returns
  */
 export const applyCoupon = async (req, res) => {
     try {
@@ -100,6 +104,10 @@ export const applyCoupon = async (req, res) => {
     }
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const checkoutBuyNow = async (req, res) => {
     try {
         const { productId, variantId, sizeId, quantity } = req.body;
@@ -168,6 +176,10 @@ export const checkoutBuyNow = async (req, res) => {
     }
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const checkoutPlaceOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod } = req.body;
@@ -175,7 +187,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             return res.status(badRequest).json({ success: false, message: "error processing request" });
         }
 
-        if (!["cod", "upi", "credit"].includes(paymentMethod)) {
+        if (!["cod", "upi", "credit", "wallet"].includes(paymentMethod)) {
             return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
         }
 
@@ -218,7 +230,23 @@ export const checkoutPlaceOrder = async (req, res) => {
             );
         }
 
-        delete req.session.checkout;
+        if (paymentMethod === "wallet") {
+            const wallet = await Wallet.findOne({ userId: req.user?._id });
+            if (!wallet || wallet.balance < checkout.total) {
+                return res.status(badRequest).json({ success: false, message: "Insufficient wallet balance" });
+            }
+            wallet.balance -= checkout.total;
+            wallet.balance.toFixed(2);
+            await wallet.save();
+            const walletTransaction = await WalletTransaction.create({
+                walletId: wallet._id,
+                userId: req.user?._id,
+                transactionType: "debit",
+                amount: checkout.total,
+                description: "paid for order",
+                status: "completed",
+            });
+        }
 
         if (paymentMethod === "upi" || paymentMethod === "credit") {
             const options = {
@@ -230,6 +258,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             return res.status(success).json({ success: true, order: order._id, razorpayOrderId: razorpayOrder.id, amount: options.amount });
         }
 
+        delete req.session.checkout;
         return res.status(success).json({ success: true, order: order._id });
     } catch (err) {
         console.error(err);
@@ -237,6 +266,10 @@ export const checkoutPlaceOrder = async (req, res) => {
     }
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const getCheckoutSuccessPage = async (req, res) => {
     const id = req.query.orderId;
     const order = await Order.findOne({ _id: id });
@@ -247,6 +280,10 @@ export const checkoutFailurePage = (req, res) => {
     return res.render("checkoutFail");
 };
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const verifyPayment = async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;

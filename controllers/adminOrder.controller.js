@@ -63,6 +63,8 @@ export const updateOrderDetails = async (req, res) => {
     }
 };
 
+//FIX: fix the issue when user cancels order with upi or card refund their money
+
 /**
  * @param {import('express').Request} req
  * @param {import('express').Response} res
@@ -96,8 +98,8 @@ export const orderReturn = async (req, res) => {
         const transaction = await WalletTransaction.create({
             walletId: userWallet._id,
             userId: userId,
-            orderId: req.params.id,
-            transactionType: "debit",
+            orderId: order.orderId,
+            transactionType: "credit",
             amount: refund,
             description: req.body["admin-note"] || "refund for returned order",
             status: "completed",
