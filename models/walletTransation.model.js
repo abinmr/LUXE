@@ -13,8 +13,7 @@ const walletTransaction = new mongoose.Schema(
             required: true,
         },
         orderId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Order",
+            type: String,
         },
         transactionType: {
             type: String,

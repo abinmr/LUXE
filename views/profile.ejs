@@ -306,9 +306,9 @@
 
                             <% } %>
 
+                            <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
                             <% if (section === "order-history") { %>
                                 <h4 class="fw-bold">Order History</h4>
-                                <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
                                 <% orders.forEach(order => { %>
                                     <div class="p-4 border border-1 rounded-4 mt-4">
                                         <a href="/profile/orders/<%= order.orderId %>" class="d-flex justify-content-between align-items-center text-decoration-none">
@@ -352,15 +352,21 @@
                                 <div class="card rounded-4 shadow-sm">
                                     <div class="card-header border-0 fw-semibold h5">Transcation History</div>
                                     <div class="card-body mt-3">
-                                        <div class="d-flex align-items-center gap-4">
-                                            <div>
-                                                <p class="mb-1">Item refund: Slim Fit Denim Jeans</p>
-                                                <div class="small text-muted">May 1, 2026, 10:43 PM</div>
-                                                <div class="small text-muted">Order #19218560</div>
+                                        <% locals.walletHistory.forEach((wallet) => {  %>
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                                <div class="d-flex align-items-center gap-4">
+                                                    <div class="mb-2">
+                                                        <p class="mb-1"> <%= wallet.description %></p>
+                                                        <div class="small mb-1">Transaction type: <%= wallet.transactionType %></div>
+                                                        <div class="small text-muted"><%= wallet.orderId %></div>
+                                                        <div class="small text-muted"> <%= wallet.createdAt.toLocaleDateString('en-US', options) %></div>
+                                                    </div>
+                                                    <button class="btn <%= wallet.status === "completed" ? 'btn-success' : 'btn-danger' %> btn-sm rounded-2"><%= wallet.status %></button>
+                                                </div>
+                                                <span class="text-success fw-semibold"> ₹<%= wallet.amount %> </span>
                                             </div>
-                                            <button class="btn btn-danger btn-sm rounded-4">Credit</button>
-                                        </div>
-                                        <hr class="text-muted">
+                                            <hr class="text-muted">
+                                        <% }); %>
                                     </div>
                                 </div>
                             <% } %>

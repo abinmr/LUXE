@@ -172,6 +172,51 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const couponForm = document.getElementById("coupon-form");
+    couponForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const code = document.getElementById("couponInput").value.trim().toUpperCase();
+        console.log(code);
+
+        const res = await fetch(`/checkout/apply-coupon`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+        });
+        const data = await res.json();
+        console.log(data);
+
+        const discountRow = document.getElementById("discount-row");
+        const discount = document.getElementById("discount");
+        if (data.success) {
+            discountRow.classList.replace("d-none", "d-flex");
+            discount.textContent = `-₹${data.discount}`;
+            document.getElementById("total").textContent = `₹${data.total}`;
+            showToast(data.message);
+        } else {
+            showToast(data.message, "error");
+        }
+    });
+
+    const walletCheckbox = document.getElementById("wallet");
+    const otherPaymentMethods = [document.getElementById("credit"), document.getElementById("upi"), document.getElementById("cod")];
+
+    if (walletCheckbox) {
+        walletCheckbox.addEventListener("change", (e) => {
+            const isWalletSelected = e.target.checked;
+            otherPaymentMethods.forEach((radio) => {
+                if (radio) {
+                    radio.disabled = isWalletSelected;
+                    if (isWalletSelected) {
+                        radio.checked = false;
+                    }
+                }
+            });
+
+            togglePlaceOrder();
+        });
+    }
+
     const placeOrderBtn = document.getElementById("place-order-btn");
     const selectedAddressInput = document.getElementById("selectedAddressId");
     const paymentRadios = document.querySelectorAll("input[name='paymentMethod']");
@@ -217,31 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    const couponForm = document.getElementById("coupon-form");
-    couponForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const code = document.getElementById("couponInput").value.trim();
-        const res = await fetch(`/checkout/apply-coupon`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code }),
-        });
-        const data = await res.json();
-        console.log(data);
-
-        const discountRow = document.getElementById("discount-row");
-        const discount = document.getElementById("discount");
-        if (data.success) {
-            discountRow.classList.replace("d-none", "d-flex");
-            discount.textContent = `-₹${data.discount}`;
-            document.getElementById("total").textContent = `₹${data.total}`;
-            showToast(data.message);
-        } else {
-            showToast(data.message);
-        }
-    });
-
-    console.log(RAZORPAY_KEY);
     function openRazorpay(orderId, razorpayOrderId, amount) {
         const options = {
             key: RAZORPAY_KEY,

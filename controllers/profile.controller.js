@@ -30,7 +30,6 @@ export const getProfile = async (req, res) => {
         if (currentSection === "wallet") {
             walletHistory = await WalletTransaction.find({ userId: req.user?._id }).populate("orderId").sort({ createdAt: -1 });
         }
-        console.log(wallet);
         res.render("profile", {
             section: currentSection,
             addresses: addresses,
@@ -300,7 +299,10 @@ export const cancelOrder = async (req, res) => {
         }
 
         if (order.paymentMethod !== "cod") {
-            const wallet = await Wallet.findOne({ userId: req.user?._id });
+            let wallet = await Wallet.findOne({ userId: req.user?._id });
+            if (!wallet) {
+                wallet = await Wallet.create({ userId: req.user?._id, balance: 0 });
+            }
             wallet.balance += order.total;
             await wallet.save();
             await WalletTransaction.create({

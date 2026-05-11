@@ -1,0 +1,19 @@
+--- public/scripts/checkout.js
++++ public/scripts/checkout.js
+@@ -175,7 +175,7 @@
+     const couponForm = document.getElementById("coupon-form");
+     couponForm.addEventListener("submit", async (e) => {
+         e.preventDefault();
+-        const code = document.getElementById("couponInput").value.trim();
++        const code = document.getElementById("couponInput").value.trim().toUpperCase();
+         console.log(code);
+ 
+         const res = await fetch(`/checkout/apply-coupon`, {
+@@ -194,7 +194,7 @@
+             document.getElementById("total").textContent = `₹${data.total}`;
+             showToast(data.message);
+         } else {
+-            showToast(data.message);
++            showToast(data.message, "error");
+         }
+     });
