@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/styles/admin-nav.css">
+</head>
+<body>
+    <%- include('partials/admin-header.ejs', { activePage: 'offers' }) %>
+
+        <div class="my-4 mx-5">
+            <div class="d-flex mb-4">
+                <a href="/admin/offers/" class="btn btn-light border-0 me-3" style="align-self: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                </a>
+                <div>
+                    <h2>Create New Offer</h2>
+                    <p class="mb-0 text-muted">Configure a new promotional campaign</p>
+                </div>
+            </div>
+
+            <form action="" method="POST">
+                <div class="border p-4 rounded-4 bg-white mb-4">
+                    <h5>Basic Information</h5>
+                    <div class="error-container text-center text-danger">
+                        <p class="mb-0 fw-semibold" style="font-size: 18px;"><%= locals.offerError %></p>
+                    </div>
+                    <div class="mb-1">
+                        <label for="title" class="form-label">Offer Title</label>
+                        <input type="text" class="form-control bg-body-tertiary" name="title" id="title" placeholder="eg, Summer Sale 2026">
+                        <div class="error-container text-danger mt-1">
+                            <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.nameError %></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-1">
+                        <label for="description" class="form-label">Offer Title</label>
+                        <textarea class="form-control bg-body-tertiary rounded-3" name="description" id="description" placeholder="Describe the offer" rows="4" style="resize: none;"></textarea>
+                        <div class="error-container text-danger mt-1">
+                            <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.descriptionError %></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-1">
+                        <label for="image" class="form-label">Image</label>
+                        <input type="file" class="form-control bg-body-tertiary" name="image" id="image" placeholder="eg, Summer Sale 2026">
+                        <div class="error-container text-danger mt-1">
+                            <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.nameError %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border p-4 rounded-4 bg-white mb-4">
+                    <h5>Offer Configuration</h5>
+
+                    <div class="input-group gap-4">
+                        <div class="col">
+                            <label for="offer-type" class="form-label">Offer Type</label>
+                            <select name="offerType" id="offer-type" class="form-select">
+                                <option value="percentage">Percentage Discount</option>
+                                <option value="fixed">Flat Discount</option>
+                                <option value="free-shipping">Free Shipping</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="code" class="form-label">Discount Percentage (%)</label>
+                            <input type="text" class="form-control" placeholder="0" name="code" id="code">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group gap-4">
+                        <div class="col">
+                            <label for="start-date">Start Date</label>
+                            <input type="date" class="form-control" name="start-date" id="start-date">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label for="end-date">End Date</label>
+                            <input type="date" class="form-control" name="end-date" id="end-date">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group gap-4">
+                        <div class="col">
+                            <label for="min-purchase">Min Purchase Amount</label>
+                            <input type="number" class="form-control" name="min-purchase" placeholder="0" id="min-purchase">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label for="max-purchase">Max Purchase Amount</label>
+                            <input type="number" class="form-control" name="max-purchase" placeholder="0" id="max-purchase">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border p-4 rounded-4 bg-white mb-4">
+                    <h5>Applicability</h5>
+
+                    <select class="form-select" name="applicable" id="applicable">
+                        <option value="all">All Products</option>
+                        <option value="category">Specific Category</option>
+                        <option value="product">Specific Product</option>
+                    </select>
+                </div>
+
+                <div class="border p-4 rounded-4 bg-white mb-4">
+                    <h5>Settings</h5>
+
+                    <div class="form-check form-switch px-0">
+                        <div class="d-flex justify-content-between mb-3">
+                            <label for="status" class="user-select-none">
+                                <div>Active Status</div>
+                                <span class="small text-muted">Activate or deactivate this offer</span>
+                            </label>
+                            <input class="form-check-input" type="checkbox" role="switch" name="" id="status">
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <label for="feature" class="user-select-none">
+                                <div>Feature on Homepage</div>
+                                <span class="small text-muted">Show this offer in the main banner carousel</span>
+                            </label>
+                            <input class="form-check-input" type="checkbox" role="switch" name="" id="feature">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end align-items-center gap-4 mb-4">
+                    <a href="/admin/offers" class="btn btn-light border rounded-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-2">Create Offer</button>
+                </div>
+            </form>
+        </div>
+
+    <%- include('partials/admin-footer.ejs') %>
+</body>
+</html>

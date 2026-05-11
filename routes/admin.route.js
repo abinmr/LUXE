@@ -36,10 +36,6 @@ router.get("/dashboard", requireAdminAuth, async (req, res) => {
     });
 });
 
-router.get("/offers", requireAdminAuth, (req, res) => {
-    return res.render("offers", { currentPage: "offers" });
-});
-
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 

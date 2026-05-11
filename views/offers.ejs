@@ -11,9 +11,61 @@
 <body>
     
     <%- include('partials/admin-header.ejs', { activePage: 'offers' }) %>
-    <main>
-        <h1>offers</h1>
-    </main>
+        <div class="m-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Offers</h2>
+                    <p class="text-muted">Manage your promotional campaigns.</p>
+                </div>
+                <a href="/admin/offers/add">
+                    <button class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                        Create Offer
+                    </button>
+                </a>
+            </div>
+            <div class="border border-1 rounded-4 p-4 mt-4 bg-white">
+                <form action="/admin/offers" method="GET" class="d-flex align-items-center gap-4">
+                    <div class="input-group flex-grow-1 focus-ring-wrapper rounded-3">
+                        <span class="input-group-text border-0 text-muted" style="background-color: #f3f3f5;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </span>
+                        <input type="search" class="form-control border-0 shadow-none" name="search" id="search" value="<%= locals.search %>" placeholder="Search categories..." style="background-color: #f3f3f5">
+                    </div>
+                    <a href="/admin/categories/" class="btn btn-danger btn-sm rounded-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-2">Submit</button>
+                </form>
+            </div>
+
+            <div class="bg-white mt-4 px-3 py-4 border rounded-4" style="min-height: 500px; display: block; ">
+                <div>
+                    <h3 class="fs-5 ps-1">All Offers</h3>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Offers Details</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Validity</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Usage</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     <%- include('partials/admin-footer.ejs') %>
 </body>
 </html>
