@@ -116,7 +116,7 @@ export const checkoutBuyNow = async (req, res) => {
             return res.redirect(`/product/${productId}`);
         }
 
-        const product = await Product.findById(productId, { name: 1, isListed: 1, isDeleted: 1, variants: 1 });
+        const product = await Product.findById(productId, { name: 1, isListed: 1, isDeleted: 1, variants: 1, category: 1 });
         if (!product || !product.isListed) {
             req.flash("home", { type: "error", message: "product no longer available" });
             return res.redirect("/home");
@@ -151,6 +151,7 @@ export const checkoutBuyNow = async (req, res) => {
             items: [
                 {
                     productId,
+                    categoryId: product.category,
                     variantId,
                     sizeId,
                     productName: product.name,

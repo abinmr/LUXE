@@ -16,6 +16,7 @@ import adminProductRouter from "./routes/adminProduct.route.js";
 import adminCustomerRouter from "./routes/adminCustomer.route.js";
 import adminOrderRouter from "./routes/adminOrders.route.js";
 import adminCouponRouter from "./routes/adminCoupon.route.js";
+import adminSalesRouter from "./routes/adminSales.route.js";
 import checkoutRouter from "./routes/checkout.route.js";
 import { connectDB } from "./lib/db.js";
 
@@ -46,6 +47,7 @@ app.use("/admin/products", adminProductRouter);
 app.use("/admin/customers", adminCustomerRouter);
 app.use("/admin/orders", adminOrderRouter);
 app.use("/admin/coupons", adminCouponRouter);
+app.use("/admin/sales-report", adminSalesRouter);
 app.use("/auth", userAuthRouter);
 app.use("/", homeRouter);
 app.use("/profile", profileRouter);

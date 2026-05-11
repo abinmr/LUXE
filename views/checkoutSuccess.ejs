@@ -47,15 +47,17 @@
                 </div>
                 <div>
                     <p class="fw-bold">Items</p>
-                    <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex flex-column gap-4 mb-3">
                         <% locals.order.items.forEach((item) => { %>
-                            <div class="d-flex flex-column gap-1">
-                                <span class="fw-semibold h5 mb-0"> <%= item.productName %> </span>
-                                <div>
-                                    <span class="small">Quantity: <span class="fw-bold"> <%= item.quantity %> </span></span>
+                            <div class="d-flex justify-content-between">
+                                <div class="d-flex flex-column gap-1">
+                                    <span class="fw-semibold h5 mb-0"> <%= item.productName %> </span>
+                                    <div>
+                                        <span class="small">Quantity: <span class="fw-bold"> <%= item.quantity %> </span></span>
+                                    </div>
                                 </div>
+                                <span class="fw-semibold">₹<%= item.price %></span>
                             </div>
-                            <span class="fw-semibold">₹<%= item.price %></span>
                         <% }) %>
                     </div>
                 </div>

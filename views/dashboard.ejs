@@ -22,7 +22,7 @@
                     <div class="card flex-row align-items-center rounded-4">
                         <div class="card-body m-3">
                             <h5 class="card-title fs-6">Total Revenue</h5>
-                            <p class="card-text fs-3 fw-bold">₹45,231.89</p>
+                            <p class="card-text fs-3 fw-bold">₹<%= totalRevenue %></p>
                         </div>
                         <div class="card-img-container rounded-3 me-4" style="background-color: #dcfce7;">
                             <img src="/images/rupee.svg" class="" alt="rupee logo" style="width: 24px; height: 24px;">
@@ -31,7 +31,7 @@
                     <div class="card flex-row align-items-center rounded-4">
                         <div class="card-body m-3">
                             <h5 class="card-title fs-6">Total Orders</h5>
-                            <p class="card-text fs-3 fw-bold">523</p>
+                            <p class="card-text fs-3 fw-bold"><%= totalOrders %></p>
                         </div>
                         <div class="card-img-container me-4 rounded-3" style="background-color: #dbeafe;">
                             <img src="/images/cart.svg" class="card-img-top rounded-2" alt="rupee logo" style="width: 24px; height: 24px;">
@@ -40,7 +40,7 @@
                     <div class="card flex-row align-items-center rounded-4">
                         <div class="card-body m-3">
                             <h5 class="card-title fs-6">Total Products</h5>
-                            <p class="card-text fs-3 fw-bold">₹45,231.89</p>
+                            <p class="card-text fs-3 fw-bold"><%= totalProducts %></p>
                         </div>
                         <div class="card-img-container me-4 rounded-3" style="background-color: #f3e8ff;">
                             <img src="/images/package.svg" class="card-img-top rounded-2" alt="rupee logo" style="width: 24px; height: 24px;">
@@ -49,7 +49,7 @@
                     <div class="card flex-row align-items-center rounded-4">
                         <div class="card-body m-3">
                             <h5 class="card-title fs-6">Total Customers</h5>
-                            <p class="card-text fs-3 fw-bold">1,203</p>
+                            <p class="card-text fs-3 fw-bold"><%= totalCustomers %></p>
                         </div>
                         <div class="card-img-container me-4 rounded-3" style="background-color: #ffedd4;">
                             <img src="/images/user.svg" class="card-img-top rounded-2" alt="rupee logo" style="width: 24px; height: 24px;">
@@ -64,12 +64,53 @@
                         <div id="orders" class="bg-white border p-3 rounded-4"></div>
                     </div>
                 </div>
+
+                <div class="d-flex gap-4 mt-4">
+                    <div class="border rounded-4 p-4 w-100 bg-white">
+                        <h2 class="h5 text-muted mb-4">Top selling products</h2>
+                        <% bestSellingProducts.forEach((product, index) => { %>
+                            <div>
+                                <div class="d-flex align-items-center gap-3 mb-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="badge bg-body-tertiary text-black fs-6"> <%= index + 1 %> </div>
+                                        <img src="<%= product.productImage %>" class="rounded-2" alt="<%= product.productName %>" height="48" width="48">
+                                    </div>
+                                    <div>
+                                        <div><%= product.productName %></div>
+                                        <div class="text-muted"><%= product.totalSold %> sales</div>
+                                    </div>
+                                </div>
+                                <hr class="text-muted">
+                            </div>
+                        <% }); %>
+                    </div>
+                    <div class="border rounded-4 p-4 w-100 bg-white">
+                        <h2 class="h5 text-muted mb-4">Top selling categories</h2>
+                        <% bestSellingCategories.forEach((category, index) => { %>
+                            <div>
+                                <div class="d-flex align-items-center gap-3 mb-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="badge bg-body-tertiary text-black fs-6"><%= index + 1 %></div>
+                                        <img src="<%= category.categoryImage %>" class="rounded-2" height="48" width="48">
+                                    </div>
+                                    <div>
+                                        <div><%= category.categoryName %></div>
+                                        <div><%= category.totalSold %></div>
+                                    </div>
+                                </div>
+                                <hr class="text-muted">
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
             </div>
 
 
         <%- include('partials/admin-footer.ejs') %>
 
         <script>
+            const monthelyRevenue = <%= revenueArray %>;
+            const monthelyOrders = <%= ordersArray %>;
             const dateOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
             document.getElementById("currentDate").textContent = new Date().toLocaleDateString("en-US", dateOptions);
             const revenueChart = document.getElementById("revenue");
@@ -87,14 +128,14 @@
                     align: "left",
                     style: { fontSize: "20px", fontWeight: "600", color: "#1a1a1a" },
                 },
-                series: [{ name: "Revenue", data: [3200, 1400, 5200, 4900, 6100, 5800, 7200, 6800, 7100, 8000, 9100, 8900] }],
+                series: [{ name: "Revenue", data: monthelyRevenue }],
                 xaxis: {
                     categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                     axisBorder: { show: false },
                     axisTicks: { show: false },
                 },
                 yaxis: {
-                    labels: { formatter: (val) => `$${val.toLocaleString()}` },
+                    labels: { formatter: (val) => `₹${val.toLocaleString()}` },
                 },
                 stroke: { curve: "smooth", width: 3, colors: ["#3a81f6"] },
                 grid: {
@@ -120,7 +161,7 @@
                     align: "left",
                     style: { fontSize: "20px", fontWeight: "600", color: "#1a1a1a" },
                 },
-                series: [{ name: "Orders", data: [45, 52, 48, 68, 61, 78, 73, 89, 75, 90, 80, 95] }],
+                series: [{ name: "Orders", data: monthelyOrders }],
                 xaxis: {
                     categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                     axisBorder: { show: false },

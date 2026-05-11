@@ -1,0 +1,28 @@
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.card-img-container {
+    height: 48px;
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+/* .chart {
+    margin-top: 2rem;
+    padding: 14px;
+    background-color: white;
+    width: 760px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+} */

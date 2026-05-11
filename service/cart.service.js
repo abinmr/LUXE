@@ -32,6 +32,7 @@ export const getCartItems = async (userId) => {
                 productName: "$product.name",
                 description: "$product.description",
                 isListed: "$product.isListed",
+                categoryId: { $arrayElemAt: ["$category._id", 0] },
                 categoryActive: { $arrayElemAt: ["$category.isActive", 0] },
                 variant: {
                     $arrayElemAt: [
@@ -73,6 +74,7 @@ export const getCartItems = async (userId) => {
                 quantity: 1,
                 isSelected: 1,
                 isListed: 1,
+                categoryId: 1,
                 categoryActive: 1,
                 variantId: "$variant._id",
                 sizeId: "$size._id",

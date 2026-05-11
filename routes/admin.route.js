@@ -3,6 +3,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Admin from "../models/admin.model.js";
 import { preventLoggedInAdmin, requireAdminAuth, noCache } from "../middlewares/admin-auth.middleware.js";
+import Product from "../models/product.model.js";
+import Order from "../models/order.model.js";
+import User from "../models/user.model.js";
+import { getBestSellingCategories, getBestSellingProducts, getTotalRevenue, monthelyOrders, monthelyRevenue } from "../service/order.service.js";
 
 const router = express.Router();
 
@@ -10,12 +14,26 @@ router.get("/login", noCache, preventLoggedInAdmin, (req, res) => {
     return res.render("admin-login");
 });
 
-router.get("/dashboard", requireAdminAuth, (req, res) => {
-    return res.render("dashboard", { currentPage: "dashboard" });
-});
-
-router.get("/sales-report", requireAdminAuth, (req, res) => {
-    return res.render("sales-report", { currentPage: "sales-report" });
+router.get("/dashboard", requireAdminAuth, async (req, res) => {
+    const totalProducts = await Product.countDocuments();
+    const totalOrders = await Order.countDocuments();
+    const totalCustomers = await User.countDocuments();
+    const totalRevenue = await getTotalRevenue();
+    const bestSellingProducts = await getBestSellingProducts();
+    const bestSellingCategories = await getBestSellingCategories();
+    const revenue = await monthelyRevenue();
+    const orders = await monthelyOrders();
+    return res.render("dashboard", {
+        currentPage: "dashboard",
+        totalProducts,
+        totalOrders,
+        totalCustomers,
+        totalRevenue,
+        bestSellingProducts,
+        bestSellingCategories,
+        revenueArray: revenue,
+        ordersArray: orders,
+    });
 });
 
 router.get("/offers", requireAdminAuth, (req, res) => {

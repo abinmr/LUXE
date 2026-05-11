@@ -23,6 +23,10 @@ const orderModel = new mongoose.Schema(
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
                 },
+                categoryId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                },
                 variantId: {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
