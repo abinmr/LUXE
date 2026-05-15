@@ -13,31 +13,22 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
     const refundBtn = document.getElementById("refund-btn");
-    const refundInput = document.getElementById("refund");
-    const calculateBtn = document.getElementById("calculate-btn");
     const returnModalBtn = document.getElementById("process-return-btn");
     const orderStatusBtn = document.getElementById("order-status-btn");
     const form = document.getElementById("admin-return-form");
 
-    function calculateTotal() {
-        const inputs = form.querySelectorAll('input[name="product"]:checked');
-        const result = [];
-        inputs.forEach((input) => {
-            const price = input.dataset.price;
-            result.push(Number(price));
-        });
-        const total = result.reduce((acc, curr) => acc + curr, 0);
-        refundInput.value = total;
+    // Enable/disable refund button based on checkbox selection
+    const productCheckboxes = form ? form.querySelectorAll('input[name="product"]') : [];
+    
+    function toggleRefundButton() {
+        const anyChecked = Array.from(productCheckboxes).some(cb => cb.checked);
+        if (refundBtn) {
+            refundBtn.disabled = !anyChecked;
+        }
     }
 
-    calculateBtn.addEventListener("click", () => {
-        calculateTotal();
-        const value = refundInput.value.trim();
-        if (value.length > 0 && Number(value) > 0) {
-            refundBtn.disabled = false;
-        } else {
-            refundBtn.disabled = true;
-        }
+    productCheckboxes.forEach(cb => {
+        cb.addEventListener("change", toggleRefundButton);
     });
 
     form.addEventListener("submit", async (e) => {

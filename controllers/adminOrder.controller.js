@@ -81,16 +81,34 @@ export const orderReturn = async (req, res) => {
             selectedIts = [selectedIts];
         }
 
-        const refund = Number(req.body.refund);
+        let validItems = 0;
+        let calculatedRefund = 0;
 
         for (const itemId of selectedIts) {
             const item = order.items.id(itemId);
-            if (!item) return;
+            if (!item || item.orderStatus === "returned") continue;
+
+            const itemTotalValue = item.price * item.quantity;
+            const itemProportion = itemTotalValue / order.subtotal;
+
+            const proportionalGST = itemProportion * order.GST;
+            const proportionalDiscount = itemProportion * (order.discount || 0);
+
+            calculatedRefund += itemTotalValue + proportionalGST - proportionalDiscount;
+
             await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
             item.orderStatus = "returned";
             item.paymentStatus = "refunded";
             item.adminNote = req.body["admin-note"] || "";
+            validItems++;
         }
+
+        if (validItems === 0) {
+            return res.status(400).json({ success: false, message: "No items processed for return" });
+        }
+
+        const refund = Math.round(calculatedRefund * 100) / 100;
+
         await order.save();
         const userId = order.userId;
         const wallet = await Wallet.findOne({ userId: userId });
@@ -104,9 +122,9 @@ export const orderReturn = async (req, res) => {
             description: req.body["admin-note"] || "refund for returned order",
             status: "completed",
         });
-        userWallet.balance = userWallet.balance + refund;
+        userWallet.balance = Math.round((userWallet.balance + refund) * 100) / 100;
         await userWallet.save();
-        return res.status(success).json({ success: true, message: "money refunded", returnedItems: selectedIts });
+        return res.status(success).json({ success: true, message: `Item returned. ₹${refund} refunded`, returnedItems: selectedIts });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/orders");

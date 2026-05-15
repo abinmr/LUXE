@@ -211,6 +211,7 @@
                 </div>
                 <form action="/admin/orders/<%= order._id %>/approve-return" method="POST" id="admin-return-form" data-id="<%= order._id %>">
                     <div class="modal-body">
+                        <%= console.log(order._id) %>
                         <% const returnItems = order.items.filter(item => item.orderStatus === "return-requested"); %>
                         <% returnItems.forEach((item, i) => { %>
                             <div class="border rounded-2 p-3 mb-3">
@@ -232,13 +233,6 @@
                         <div class="pt-2">
                             <label for="admin-note" class="form-label">Internal Admin Note(Optional)</label>
                             <input type="text" name="admin-note" id="admin-note" class="form-control" placeholder="Eg: Item was inspected">
-                        </div>
-                        <div class="pt-2 mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label for="refund" class="form-label">Refund Amount</label>
-                                <span class="text-decoration-underline user-select-none" style="font-size: 12px;" id="calculate-btn" role="button">Calculate from selected</span>
-                            </div>
-                            <input type="text" name="refund" id="refund" class="form-control" placeholder="Enter the amount to refund">
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">

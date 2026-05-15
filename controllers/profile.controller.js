@@ -278,39 +278,55 @@ export const getOrderInvoice = async (req, res) => {
 export const cancelOrder = async (req, res) => {
     try {
         const id = req.params.id;
-        const reason = req.body.reason;
-        const itemId = req.body.itemId;
+        const { reason, itemId } = req.body;
+        console.log(req.body);
         const order = await Order.findById(id);
+
+        let refundAmount = 0;
+        let itemsCancelled = 0;
 
         if (itemId) {
             const item = order.items.id(itemId);
-            if (!item) {
-                return res.status(404).json({ success: false, message: "Item not found" });
-            }
+            if (!item) return res.status(404).json({ success: false, message: "Item not found" });
+            if (item.orderStatus === "cancelled") return res.status(400).json({ success: false, message: "Item already cancelled" });
+
             item.orderStatus = "cancelled";
             item.cancellationReason = reason;
             await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+            refundAmount = item.price * item.quantity;
+            itemsCancelled++;
         } else {
             for (const item of order.items) {
-                item.orderStatus = "cancelled";
-                item.cancellationReason = reason;
-                await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+                if (item.orderStatus !== "cancelled") {
+                    item.orderStatus = "cancelled";
+                    item.cancellationReason = reason;
+                    await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+                    refundAmount += item.price * item.quantity;
+                    itemsCancelled++;
+                }
+            }
+            if (itemsCancelled === order.items.length) {
+                refundAmount = order.total;
             }
         }
 
-        if (order.paymentMethod !== "cod") {
+        if (itemsCancelled === 0) {
+            return res.status(400).json({ success: false, message: "No items to cancel" });
+        }
+
+        if (order.paymentMethod !== "cod" && refundAmount > 0) {
             let wallet = await Wallet.findOne({ userId: req.user?._id });
             if (!wallet) {
                 wallet = await Wallet.create({ userId: req.user?._id, balance: 0 });
             }
-            wallet.balance += order.total;
+            wallet.balance = Math.round((wallet.balance + refundAmount) * 100) / 100;
             await wallet.save();
             await WalletTransaction.create({
                 walletId: wallet._id,
                 userId: req.user?._id,
                 orderId: order.orderId,
                 transactionType: "credit",
-                amount: order.total,
+                amount: refundAmount,
                 description: "Money refunded for cancelled order",
                 status: "completed",
             });
@@ -332,18 +348,29 @@ export const returnOrder = async (req, res) => {
         const itemId = req.body.itemId;
         const order = await Order.findById(id);
 
+        let itemsReturned = 0;
+
         if (itemId) {
             const item = order.items.id(itemId);
-            if (!item) {
-                return res.status(notFound).json({ success: false, message: "Item not found" });
+            if (!item) return res.status(notFound).json({ success: false, message: "Item not found" });
+            if (["return-requested", "returned", "cancelled"].includes(item.orderStatus)) {
+                return res.status(400).json({ success: false, message: "Item cannot be returned" });
             }
             item.orderStatus = "return-requested";
             item.returnReason = reason;
+            itemsReturned++;
         } else {
             for (const item of order.items) {
-                item.orderStatus = "return-requested";
-                item.returnReason = reason;
+                if (!["return-requested", "returned", "cancelled"].includes(item.orderStatus)) {
+                    item.orderStatus = "return-requested";
+                    item.returnReason = reason;
+                    itemsReturned++;
+                }
             }
+        }
+
+        if (itemsReturned === 0) {
+            return res.status(400).json({ success: false, message: "No items to return" });
         }
 
         await order.save();

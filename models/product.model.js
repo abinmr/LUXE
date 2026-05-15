@@ -34,7 +34,7 @@ const productModel = new mongoose.Schema(
                         size: { type: String, uppercase: true, trim: true, required: true },
                         price: { type: Number, required: true },
                         compareAtPrice: { type: Number },
-                        stock: { type: Number, required: true },
+                        stock: { type: Number, required: true, min: 0 },
                     },
                 ],
             },

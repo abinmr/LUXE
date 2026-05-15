@@ -1,12 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-IN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LUXE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.js"></script>
     <link rel="stylesheet" href="/styles/admin-nav.css">
+    <link rel="stylesheet" href="/styles/adminCategory.css">
+    <style>
+        .error-container p {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <%- include('partials/admin-header.ejs', { activePage: 'offers' }) %>
@@ -22,7 +30,7 @@
                 </div>
             </div>
 
-            <form action="" method="POST">
+            <form action="" method="POST" enctype="multipart/form-data" id="offerForm">
                 <div class="border p-4 rounded-4 bg-white mb-4">
                     <h5>Basic Information</h5>
                     <div class="error-container text-center text-danger">
@@ -30,25 +38,33 @@
                     </div>
                     <div class="mb-1">
                         <label for="title" class="form-label">Offer Title</label>
-                        <input type="text" class="form-control bg-body-tertiary" name="title" id="title" placeholder="eg, Summer Sale 2026">
+                        <input type="text" class="form-control bg-body-tertiary" name="title" id="title" value="<%= oldData.title || '' %>" placeholder="eg, Summer Sale 2026">
                         <div class="error-container text-danger mt-1">
-                            <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.nameError %></p>
+                            <p class="mb-0 small fw-semibold" id="title-error"><%= errors.title || '' %></p>
                         </div>
                     </div>
 
                     <div class="mb-1">
-                        <label for="description" class="form-label">Offer Title</label>
-                        <textarea class="form-control bg-body-tertiary rounded-3" name="description" id="description" placeholder="Describe the offer" rows="4" style="resize: none;"></textarea>
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control bg-body-tertiary rounded-3" name="description" id="description" placeholder="Describe the offer" rows="4" style="resize: none;"><%= oldData.description || '' %></textarea>
                         <div class="error-container text-danger mt-1">
-                            <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.descriptionError %></p>
+                            <p class="mb-0 small fw-semibold" id="description-error"><%= errors.description || '' %></p>
                         </div>
                     </div>
 
                     <div class="mb-1">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" class="form-control bg-body-tertiary" name="image" id="image" placeholder="eg, Summer Sale 2026">
-                        <div class="error-container text-danger mt-1">
-                            <p class="mb-0 small fw-semibold" id="categoryNameError"><%= locals.nameError %></p>
+                        <label class="form-label">Image</label>
+                        <div class="image-picker-area" id="imagePickerArea">
+                            <div id="previewContainer"></div>
+                            <button type="button" class="btn btn-light border btn-sm d-flex align-items-center gap-1" id="addImageBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                Choose Image
+                            </button>
+                            <div id="hiddenInputContainer"></div>
+                            <input type="file" id="triggerInput" class="d-none" accept=".png,.jpg,.webp">
+                        </div>
+                        <div class="error-container mt-1">
+                            <p class="text-danger mb-0 small fw-semibold" id="image-error"><%= errors.image || '' %></p>
                         </div>
                     </div>
                 </div>
@@ -56,71 +72,115 @@
                 <div class="border p-4 rounded-4 bg-white mb-4">
                     <h5>Offer Configuration</h5>
 
-                    <div class="input-group gap-4">
-                        <div class="col">
+                    <div class="input-group gap-4 mb-3">
+                        <div class="col" style="max-width: 732px;">
                             <label for="offer-type" class="form-label">Offer Type</label>
                             <select name="offerType" id="offer-type" class="form-select">
-                                <option value="percentage">Percentage Discount</option>
-                                <option value="fixed">Flat Discount</option>
-                                <option value="free-shipping">Free Shipping</option>
+                                <option value="percentage" <%= oldData.offerType === "percentage" ? 'selected' : '' %> >Percentage Discount</option>
+                                <option value="flat" <%= oldData.offerType === "flat" ? 'selected' : '' %> >Flat Discount</option>
+                                <option value="free-shipping" <%= oldData.offerType === "free-shipping" ? 'selected' : '' %> >Free Shipping</option>
                             </select>
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="offerType-error"><%= errors.offerType %></p>
+                            </div>
+                        </div>
+                        <div class="col" id="discount-percentage-container">
+                            <label for="discountPercentage" class="form-label">Discount Percentage (%)</label>
+                            <input type="number" class="form-control" placeholder="0" value="<%= oldData.discountPercentage || '' %>" name="discountPercentage" id="discountPercentage">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="discount-percentage-error"> <%= errors.discountPercentage %> </p>
+                            </div>
+                        </div>
+                        <div class="col d-none" id="discount-amount-container">
+                            <label for="discountAmount" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" placeholder="0" value="<%= oldData.discountAmount || '' %>" name="discountAmount" id="discountAmount">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="discount-amount-error"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group gap-4 mb-3">
+                        <div class="col">
+                            <label for="start-date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" value="<%= oldData.startDate || '' %>" name="startDate" id="start-date">
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="start-date-error"></p>
+                            </div>
                         </div>
                         <div class="col">
-                            <label for="code" class="form-label">Discount Percentage (%)</label>
-                            <input type="text" class="form-control" placeholder="0" name="code" id="code">
+                            <label for="end-date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" value="<%= oldData.endDate || '' %>" name="endDate" id="end-date">
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                                <p class="mb-0 fw-semibold" id="end-date-error"></p>
                             </div>
                         </div>
                     </div>
 
                     <div class="input-group gap-4">
                         <div class="col">
-                            <label for="start-date">Start Date</label>
-                            <input type="date" class="form-control" name="start-date" id="start-date">
+                            <label for="min-purchase" class="form-label">Min Purchase Amount</label>
+                            <input type="number" class="form-control" value="<%= oldData.minPurchaseAmount %>" name="minPurchaseAmount" placeholder="0" id="min-purchase" style="max-width: 732px;">
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                                <p class="mb-0 fw-semibold" id="min-purchase-error"></p>
                             </div>
                         </div>
-                        <div class="col">
-                            <label for="end-date">End Date</label>
-                            <input type="date" class="form-control" name="end-date" id="end-date">
+                        <div class="col" id="max-discount-container">
+                            <label for="max-discount" class="form-label">Max Discount Amount</label>
+                            <input type="number" class="form-control" value="<%= oldData.maxDiscountAmount %>" name="maxDiscountAmount" placeholder="0" id="max-discount">
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="codeError"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="input-group gap-4">
-                        <div class="col">
-                            <label for="min-purchase">Min Purchase Amount</label>
-                            <input type="number" class="form-control" name="min-purchase" placeholder="0" id="min-purchase">
-                            <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="codeError"></p>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <label for="max-purchase">Max Purchase Amount</label>
-                            <input type="number" class="form-control" name="max-purchase" placeholder="0" id="max-purchase">
-                            <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="codeError"></p>
+                                <p class="mb-0 fw-semibold" id="max-discount-error"></p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="border p-4 rounded-4 bg-white mb-4">
-                    <h5>Applicability</h5>
+                    <h5 class="mb-3">Applicability</h5>
 
-                    <select class="form-select" name="applicable" id="applicable">
-                        <option value="all">All Products</option>
-                        <option value="category">Specific Category</option>
-                        <option value="product">Specific Product</option>
+                    <select class="form-select" name="applicableTo" id="applicable">
+                        <option value="all" <%= oldData.applicableTo === "all" ? 'selected' : '' %> >All Products</option>
+                        <option value="category" <%= oldData.applicableTo === "category" ? 'selected' : '' %> >Specific Category</option>
+                        <option value="products" <%= oldData.applicableTo === "products" ? 'selected' : '' %> >Specific Product</option>
                     </select>
+                    <div id="category-list-container" class="d-none mt-3">
+                        <label class="form-label mb-1">Select Categories</label>
+                        <div class="border rounded-3 p-3 bg-body-tertiary" style="max-height: 200px; overflow-y: auto;">
+                            <% if (locals.categories && categories.length > 0) { %>
+                                <% categories.forEach(category => { %>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="applicableCategories" value="<%= category._id %>" id="cat-<%= category._id %>">
+                                        <label class="form-check-label user-select-none" for="cat-<%= category._id %>">
+                                            <%= category.name %> 
+                                        </label>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <p class="text-muted small mb-0">No categories found.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div id="product-list-container" class="d-none mt-3">
+                        <label class="form-label mb-1">Select Products</label>
+                        <div class="border rounded-3 p-3 bg-body-tertiary" style="max-height: 200px; overflow-y: auto;">
+                            <% if (locals.products && products.length > 0) { %>
+                                <% products.forEach(product => { %>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="applicableProducts" value="<%= product._id %>" id="prod-<%= product._id %>">
+                                        <label class="form-check-label user-select-none" for="prod-<%= product._id %>">
+                                            <%= product.name %>
+                                        </label>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <p class="text-muted small mb-0">No products found.</p>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="border p-4 rounded-4 bg-white mb-4">
-                    <h5>Settings</h5>
+                    <h5 class="mb-3">Settings</h5>
 
                     <div class="form-check form-switch px-0">
                         <div class="d-flex justify-content-between mb-3">
@@ -128,14 +188,14 @@
                                 <div>Active Status</div>
                                 <span class="small text-muted">Activate or deactivate this offer</span>
                             </label>
-                            <input class="form-check-input" type="checkbox" role="switch" name="" id="status">
+                            <input class="form-check-input" type="checkbox" role="switch" name="isActive" id="status" <%= oldData.isActive ? 'checked' : '' %> >
                         </div>
                         <div class="d-flex justify-content-between">
                             <label for="feature" class="user-select-none">
                                 <div>Feature on Homepage</div>
                                 <span class="small text-muted">Show this offer in the main banner carousel</span>
                             </label>
-                            <input class="form-check-input" type="checkbox" role="switch" name="" id="feature">
+                            <input class="form-check-input" type="checkbox" role="switch" name="featureHomepage" id="feature" <%= oldData.featureHomepage ? 'checked' : '' %> >
                         </div>
                     </div>
                 </div>
@@ -148,5 +208,43 @@
         </div>
 
     <%- include('partials/admin-footer.ejs') %>
+
+    <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Crop Image</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="cropImg" src="" alt="">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" id="cropCancelBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="cropConfirmBtn">Crop →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Cropped Result</h6>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <img id="resultImg" src="" alt="Cropped">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" id="resultRetryBtn">← Re-crop</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="resultUseBtn">Use Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/offerAdd.js"></script>
 </body>
 </html>

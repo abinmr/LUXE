@@ -72,7 +72,6 @@
                         <th scope="col">Customer</th>
                         <th scope="col">Phone</th>
                         <th scope="col">Joined Date</th>
-                        <th scope="col">Total Spend</th>
                         <th scope="col">Status</th>
                         <th scope="col">Actions</th>
                     </tr>
@@ -89,7 +88,6 @@
                         <td> <%= user.phone || "Not available" %> </td>
                         <% const dateOption = { month: 'short', day: 'numeric', year: 'numeric' } %>
                         <td> <%= user.createdAt.toLocaleDateString('en-US', dateOption) %> </td>
-                        <td> ₹<%= user.totalSpend || 0 %> </td>
                         <td style="width: 150px;" class="">
                             <% if (user.isBlocked) { %>
                                 <button class="btn btn-sm btn-danger rounded-2 badge-btn" data-item-id="<%= user._id %>">Blocked</button>

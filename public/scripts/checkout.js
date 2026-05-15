@@ -146,6 +146,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("display-phone").textContent = address.phone;
         document.getElementById("display-address").textContent = `${address.house}, ${address.street}`;
         document.getElementById("display-region").textContent = `${address.state}, ${address.pincode}`;
+
+        const placeholder = document.getElementById("no-address-placeholder");
+        if (placeholder) placeholder.classList.add("d-none");
+        const addressDisplay = document.getElementById("address-display");
+        if (addressDisplay) addressDisplay.classList.remove("d-none");
+
         togglePlaceOrder();
         const modal = bootstrap.Modal.getInstance(document.getElementById("addressModal"));
         modal.hide();
@@ -167,16 +173,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.getElementById("selectedAddressId").value = selected.value;
 
+            const placeholder = document.getElementById("no-address-placeholder");
+            if (placeholder) placeholder.classList.add("d-none");
+            const addressDisplay = document.getElementById("address-display");
+            if (addressDisplay) addressDisplay.classList.remove("d-none");
+
+            togglePlaceOrder();
+
             const modal = bootstrap.Modal.getInstance(document.getElementById("changeAddress"));
             modal.hide();
         });
     }
 
     const couponForm = document.getElementById("coupon-form");
+    const couponApplyBtn = document.getElementById("applyBtn");
+    const couponCancelBtn = document.getElementById("cancelBtn");
+    const input = document.getElementById("couponInput");
     couponForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const code = document.getElementById("couponInput").value.trim().toUpperCase();
-        console.log(code);
 
         const res = await fetch(`/checkout/apply-coupon`, {
             method: "POST",
@@ -184,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify({ code }),
         });
         const data = await res.json();
-        console.log(data);
 
         const discountRow = document.getElementById("discount-row");
         const discount = document.getElementById("discount");
@@ -192,10 +206,19 @@ document.addEventListener("DOMContentLoaded", () => {
             discountRow.classList.replace("d-none", "d-flex");
             discount.textContent = `-₹${data.discount}`;
             document.getElementById("total").textContent = `₹${data.total}`;
+            input.disabled = true;
+            couponApplyBtn.classList.add("d-none");
+            couponCancelBtn.classList.remove("d-none");
             showToast(data.message);
         } else {
             showToast(data.message, "error");
         }
+    });
+
+    couponCancelBtn.addEventListener("click", () => {
+        input.disabled = false;
+        couponApplyBtn.classList.remove("d-none");
+        couponCancelBtn.classList.add("d-none");
     });
 
     const walletCheckbox = document.getElementById("wallet");

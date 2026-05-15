@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const couponList = document.getElementById("coupon-list");
-    const couponStatus = document.querySelectorAll(".coupon-status");
+    const couponList = document.querySelectorAll(".coupon-list");
 
     const toastEl = document.getElementById("actionToast");
     const toastBodyEl = document.getElementById("actionToastBody");
@@ -16,11 +15,13 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
 
-    couponStatus.forEach((button) => {
-        couponList.addEventListener("click", async function () {
-            const text = button.textContent.trim().toLowerCase();
-            const id = button.dataset.id;
-            const statusBtn = document.querySelector(`.table[data-item-id="${id}"] .btn-badge`);
+    couponList.forEach((button) => {
+        button.addEventListener("click", async function () {
+            const span = this.querySelector(".coupon-status");
+            const text = span.textContent.trim().toLowerCase();
+            const id = span.dataset.id;
+            const statusBtn = document.querySelector(`.btn-badge[data-id="${id}"]`);
+
             if (text === "unlist") {
                 const res = await fetch(`/admin/coupons/status/unlist/${id}`, { method: "PATCH" });
                 const data = await res.json();

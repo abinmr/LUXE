@@ -126,8 +126,8 @@
                                     <div class="mb-1">
                                         <label for="currentPassword" class="form-label">Current Password</label>
                                         <div class="input-group border border-1 rounded-2">
-                                            <input type="password" class="form-control border-0" name="currentPassword" id="currentPassword">
-                                            <button class="btn border-0" type="button" id="toggle-current-password">
+                                            <input type="password" class="form-control border-0" name="currentPassword" id="currentPassword" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >
+                                            <button class="btn border-0" type="button" id="toggle-current-password" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >
                                                 <i class="bi bi-eye-slash" id="current-eye-icon"></i>
                                             </button>
                                         </div>
@@ -138,8 +138,8 @@
                                     <div class="mb-1">
                                         <label for="newPassword" class="form-label">New Password</label>
                                         <div class="input-group border border-1 rounded-2">
-                                            <input type="password" class="form-control border-0" name="newPassword" id="newPassword">
-                                            <button class="btn border-0" type="button" id="toggle-new-password">
+                                            <input type="password" class="form-control border-0" name="newPassword" id="newPassword" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >
+                                            <button class="btn border-0" type="button" id="toggle-new-password" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >
                                                 <i class="bi bi-eye-slash" id="new-eye-icon"></i>
                                             </button>
                                         </div>
@@ -150,8 +150,8 @@
                                     <div class="mb-1">
                                         <label for="confirmNewPassword">Confirm New Password</label>
                                         <div class="input-group border border-1 rounded-2">
-                                            <input type="password" class="form-control border-0" name="confirmPassword" id="confirmPassword">
-                                            <button class="btn border-0" type="button" id="toggle-confirm-password">
+                                            <input type="password" class="form-control border-0" name="confirmPassword" id="confirmPassword" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >
+                                            <button class="btn border-0" type="button" id="toggle-confirm-password" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >
                                                 <i class="bi bi-eye-slash" id="confirm-eye-icon"></i>
                                             </button>
                                         </div>
@@ -309,6 +309,7 @@
                             <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
                             <% if (section === "order-history") { %>
                                 <h4 class="fw-bold">Order History</h4>
+                                <% if (orders && orders.length > 0) { %>
                                 <% orders.forEach(order => { %>
                                     <div class="p-4 border border-1 rounded-4 mt-4">
                                         <a href="/profile/orders/<%= order.orderId %>" class="d-flex justify-content-between align-items-center text-decoration-none">
@@ -335,6 +336,11 @@
                                         </a>
                                     </div>
                                 <% }); %>
+                                <% } else { %>
+                                    <div class="text-center mt-4">
+                                        <p class="text-muted">All of your previous order history will appear here</p>
+                                    </div>
+                                <% } %>
                             <% } %>
 
                             <% if (section === "wallet") { %>
@@ -349,6 +355,7 @@
                                     </div>
                                 </div>
 
+                                <% if (walletHistory && walletHistory.length > 0) { %>
                                 <div class="card rounded-4 shadow-sm">
                                     <div class="card-header border-0 fw-semibold h5">Transcation History</div>
                                     <div class="card-body mt-3">
@@ -369,6 +376,7 @@
                                         <% }); %>
                                     </div>
                                 </div>
+                                <% } %>
                             <% } %>
                         </div>
                     </div>

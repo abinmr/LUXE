@@ -9,6 +9,8 @@ router.get("/", requireAdminAuth, async (req, res) => {
     try {
         const search = req.query.search;
         const couponStatus = req.query.couponStatus;
+        console.log(couponStatus);
+
         let dbQuery = {};
         if (search) {
             dbQuery.$or = [{ code: { $regex: search, $options: "i" } }, { description: { $regex: description, $options: "i" } }];

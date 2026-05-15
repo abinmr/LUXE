@@ -56,7 +56,11 @@ export const getCheckoutPage = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
         };
-        const wallet = await Wallet.findOne({ userId: req.user?._id });
+
+        let wallet = await Wallet.findOne({ userId: req.user?._id });
+        if (!wallet) {
+            wallet = await Wallet.create({ userId: req.user?._id, balance: 0 });
+        }
         return res.render("checkout", { address, data, products, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
@@ -202,14 +206,21 @@ export const checkoutPlaceOrder = async (req, res) => {
             return res.status(badRequest).json({ success: false, message: "Address not found" });
         }
 
+        for (const item of checkout.items) {
+            const product = await Product.findById(item.productId);
+            if (!product) return res.status(badRequest).json({ success: false, message: "Product not found" });
+            const variant = product.variants.id(item.variantId);
+            const size = variant.sizes.id(item.sizeId);
+            if (!size || size.stock < item.quantity) {
+                return res.status(badRequest).json({ success: false, message: `Insufficient stock for ${item.productName}` });
+            }
+        }
+
         const order = await createOrder(req, checkout, address, paymentMethod);
 
         if (order) {
             for (const item of checkout.items) {
-                const result = await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
-                if (result.modifiedCount === 0) {
-                    return res.status(badRequest).json({ success: false, message: "error" });
-                }
+                await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
             }
         }
 
@@ -236,8 +247,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             if (!wallet || wallet.balance < checkout.total) {
                 return res.status(badRequest).json({ success: false, message: "Insufficient wallet balance" });
             }
-            wallet.balance -= checkout.total;
-            wallet.balance.toFixed(2);
+            wallet.balance = Math.round((wallet.balance - checkout.total) * 100) / 100;
             await wallet.save();
             const walletTransaction = await WalletTransaction.create({
                 walletId: wallet._id,

@@ -40,24 +40,21 @@
                                 </button>
                             </div>
                         </div>
-                        <% if (locals.defaultAddress) { %>
-                        <input type="hidden" id="selectedAddressId" value="<%= defaultAddress._id %>">
-                        <div class="border border-1 rounded-4 p-4 bg-white" id="address-display">
+                        <input type="hidden" id="selectedAddressId" value="<%= locals.defaultAddress ? defaultAddress._id : '' %>">
+                        <div class="border border-1 rounded-4 p-4 bg-white <%= locals.defaultAddress ? '' : 'd-none' %>" id="address-display">
                             <div>
-                                <p class="fw-semibold mb-2 h5" id="display-name"><%= defaultAddress.fullName %></p>
-                                <p class="mb-1" id="display-phone"><%= defaultAddress.phone %></p>
-                                <p class="mb-1" id="display-address"><%= defaultAddress.houseNumber %>, <%= defaultAddress.street %></p>
-                                <p class="mb-0" id="display-region"><%= defaultAddress.state %>, <%= defaultAddress.pincode %></p>
+                                <p class="fw-semibold mb-2 h5" id="display-name"><%= locals.defaultAddress ? defaultAddress.fullName : '' %></p>
+                                <p class="mb-1" id="display-phone"><%= locals.defaultAddress ? defaultAddress.phone : '' %></p>
+                                <p class="mb-1" id="display-address"><%= locals.defaultAddress ? defaultAddress.houseNumber + ', ' + defaultAddress.street : '' %></p>
+                                <p class="mb-0" id="display-region"><%= locals.defaultAddress ? defaultAddress.state + ', ' + defaultAddress.pincode : '' %></p>
                             </div>
                         </div>
-                        <% } else { %>
-                            <div class="text-center pt-2">
-                                <div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mx-auto h-12 w-12 mb-3 opacity-50" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                    <p class="text-muted">No saved Address available</p>
-                                </div>
+                        <div class="text-center pt-2 <%= locals.defaultAddress ? 'd-none' : '' %>" id="no-address-placeholder">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mx-auto h-12 w-12 mb-3 opacity-50" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <p class="text-muted">No saved Address available</p>
                             </div>
-                        <% } %>
+                        </div>
                     </div>
                 </div>
 
@@ -116,9 +113,10 @@
                         </svg>
                         Coupon Code
                     </h5>
-                    <form class="d-flex gap-3 mt-2" id="coupon-form">
+                    <form class="d-flex align-items-center gap-3 mt-2" id="coupon-form">
                         <input type="text" class="form-control" name="coupon" id="couponInput" placeholder="Enter code" />
-                        <button type="submit" class="btn btn-danger">Apply</button>
+                        <button type="submit" class="btn btn-danger" id="applyBtn">Apply</button>
+                        <button type="button" class="btn btn-light border d-none" id="cancelBtn">Cancel</button>
                     </form>
                 </div>
 

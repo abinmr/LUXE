@@ -53,14 +53,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
+                    <% const options = { year: 'numeric', month: 'numeric', day: 'numeric' }; %>
+                        <% offers.forEach((offer) => { %>
+                            <tr>
+                                <td>
+                                    <div><%= offer.title %></div>
+                                    <div class="text-muted small"><%= offer.description %></div>
+                                </td>
+                                <td>
+                                    <% if (offer.offerType === "percentage") { %>
+                                        <div class="w-50">
+                                            <button class="btn btn-light btn-sm border rounded-4">Percentage Discount</button>
+                                            <span class="text-muted"><%= offer.discountPercentage %>%</span>
+                                        </div>
+                                    <% } %>
+                                </td>
+                                <td class="small">
+                                    <div class="text-muted"><%= offer.startDate.toLocaleDateString('en-IN', options) %></div>
+                                    <div class="text-body-tertiary">to</div>
+                                    <div class="text-muted"><%= offer.endDate.toLocaleDateString('en-IN', options) %></div>
+                                </td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>1</td>
                         </tr>
+                        <% }) %>
                     </tbody>
                 </table>
             </div>

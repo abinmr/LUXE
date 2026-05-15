@@ -4,7 +4,7 @@ import Order from "../models/order.model.js";
 /**
  *@param {import('express').Request} req
  */
-export const createOrder = async (req, checkout, address, paymentMethod) => {
+export async function createOrder(req, checkout, address, paymentMethod) {
     const nanoid = customAlphabet("1234567890", 10);
     const orderId = `ORD-${nanoid()}`;
 
@@ -40,4 +40,4 @@ export const createOrder = async (req, checkout, address, paymentMethod) => {
         couponCode: checkout.appliedCoupon,
         estimatedDeliveryDate,
     });
-};
+}

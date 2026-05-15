@@ -1,7 +1,7 @@
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
 
-export const getCartItems = async (userId) => {
+export async function getCartItems(userId) {
     return Cart.aggregate([
         { $match: { userId } },
         { $unwind: "$items" },
@@ -87,18 +87,18 @@ export const getCartItems = async (userId) => {
             },
         },
     ]);
-};
+}
 
-export const calcPricing = (cartItems) => {
+export function calcPricing(cartItems) {
     const selectedItems = cartItems.filter((item) => item.isSelected && item.isListed);
     const subtotal = Math.floor(selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0));
     const gst = Math.round(subtotal * 0.05);
     const shipping = subtotal > 0 ? 40 : 0;
     const total = subtotal + gst + shipping;
     return { subtotal, gst, shipping, total };
-};
+}
 
-export const addToCartService = async (userId, { productId, variantId, sizeId, quantity }) => {
+export async function addToCartService(userId, { productId, variantId, sizeId, quantity }) {
     if (!productId || !variantId || !sizeId || !quantity) {
         throw new Error("Invalid product details");
     }
@@ -138,20 +138,20 @@ export const addToCartService = async (userId, { productId, variantId, sizeId, q
 
     await cart.save();
     return { totalCart: total };
-};
+}
 
-export const changeQuantity = async (userId, itemId, amount) => {
+export async function changeQuantity(userId, itemId, amount) {
     const cart = await Cart.findOneAndUpdate({ userId: userId, "items._id": itemId }, { $inc: { "items.$.quantity": amount } }, { returnDocument: "after" });
     const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);
     return total;
-};
+}
 
-export const toggleSelection = async (userId, itemId, isSelected) => {
+export async function toggleSelection(userId, itemId, isSelected) {
     return await Cart.updateOne({ userId: userId, "items._id": itemId }, { $set: { "items.$.isSelected": isSelected } });
-};
+}
 
-export const removeCartItem = async (userId, itemId) => {
+export async function removeCartItem(userId, itemId) {
     const cart = await Cart.findOneAndUpdate({ userId: userId }, { $pull: { items: { _id: itemId } } }, { returnDocument: "after" });
     const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);
     return { totalCart: total };
-};
+}

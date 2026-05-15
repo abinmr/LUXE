@@ -9,13 +9,13 @@ import Wishlist from "../models/wishlist.model.js";
  * @returns {Promise<object>}
  */
 
-export const getWishlistProducts = async (userId) => {
+export async function getWishlistProducts(userId) {
     if (!userId) return [];
     const wishlist = await Wishlist.findOne({ userId });
     return wishlist ? wishlist.products.map((item) => item.productId.toString()) : [];
-};
+}
 
-export const getPaginatedProducts = async (page = 1, limit = 8) => {
+export async function getPaginatedProducts(page = 1, limit = 8) {
     const skip = (page - 1) * limit;
     return await Product.aggregate([
         {
@@ -43,34 +43,34 @@ export const getPaginatedProducts = async (page = 1, limit = 8) => {
         { $skip: skip },
         { $limit: limit },
     ]);
-};
+}
 
 /**
  * @param {ObjectId} id
  */
-export const getProductById = async (id) => {
+export async function getProductById(id) {
     return Product.findOne({ _id: id, isListed: true, isDeleted: false }).populate("category");
-};
+}
 
 /**
  * @param {ObjectId} excludeId
  * @param {number} limit
  */
-export const getRelatedProducts = async (excludeId, limit = 4) => {
+export async function getRelatedProducts(excludeId, limit = 4) {
     return Product.find({ _id: { $ne: excludeId } }).limit(limit);
-};
+}
 
 /**
  * @param {string} search
  */
-export const getSearchProductsByName = async (search) => {
+export async function getSearchProductsByName(search) {
     const regex = { $regex: search, $options: "i" };
     const [products, colors] = await Promise.all([
         Product.find({ name: regex, isListed: true, isDeleted: false }),
         Product.find({ name: regex, isListed: true, isDeleted: false }).distinct("variants.color"),
     ]);
     return { products, colors };
-};
+}
 
 /**
  * @param {Object} options
@@ -80,7 +80,7 @@ export const getSearchProductsByName = async (search) => {
  * @param {string[]} options.colors
  * @param {string} options.sort
  */
-export const getFilterAndSortProducts = async ({ search, priceRange, sizes, colors, sort }) => {
+export async function getFilterAndSortProducts({ search, priceRange, sizes, colors, sort }) {
     const query = {
         name: { $regex: search || "", $options: "i" },
         isListed: true,
@@ -107,4 +107,4 @@ export const getFilterAndSortProducts = async ({ search, priceRange, sizes, colo
     };
 
     return Product.find(query).sort(sortMap[sort] ?? { createdAt: 1 });
-};
+}

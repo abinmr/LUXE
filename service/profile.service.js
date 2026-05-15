@@ -19,7 +19,7 @@ import Address from "../models/address.model.js";
  * @param {string} userId
  * @returns
  */
-export const createAddress = async (details, userId) => {
+export async function createAddress(details, userId) {
     if (!userId || !Types.ObjectId.isValid(userId)) {
         throw new Error("Invalid or missing userId");
     }
@@ -38,19 +38,19 @@ export const createAddress = async (details, userId) => {
         state: details.state,
         isDefault: details.isDefault === "on" ? true : false,
     });
-};
+}
 
 /**
  *@param {string} userId
  */
-export const findAddresses = async (userId) => {
+export async function findAddresses(userId) {
     if (!userId) {
         throw new Error("Invalid or missing userId");
     }
     return await Address.find({ user: userId }).sort({ createdAt: -1 });
-};
+}
 
-export const generateInvoice = (order, res) => {
+export async function generateInvoice(order, res) {
     const doc = new PDFDocument({ margin: 50, size: "A4" });
 
     res.setHeader("Content-Type", "application/pdf");
@@ -178,4 +178,4 @@ export const generateInvoice = (order, res) => {
     totalRow("TOTAL", order.total, true);
 
     doc.end();
-};
+}

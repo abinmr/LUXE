@@ -87,6 +87,9 @@ const orderModel = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        offerDiscount: {
+            type: Number,
+        },
         GST: {
             type: Number,
             required: true,

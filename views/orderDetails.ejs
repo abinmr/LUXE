@@ -46,7 +46,7 @@
                         <span>₹<%= orderDetails.total %></span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <!-- <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %> -->
+                        <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }; %>
                         <span>Expected Arrival</span>
                         <span> <%= orderDetails.estimatedDeliveryDate ? orderDetails.estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
                     </div>
@@ -208,27 +208,27 @@
                 <form id="return-form" data-id="<%= orderDetails._id %>">
                     <div class="modal-body">
                         <label for="return-reason1" class="form-check-label p-3 border rounded-4 w-100 mb-2">
-                            <input type="radio" name="reason" value="Changed my mind" id="return-reason1" class="form-check-input ms-1">
+                            <input type="radio" name="reason" value="Item arrived damaged" id="return-reason1" class="form-check-input ms-1">
                             Item arrived damaged
                         </label>
                         <label for="return-reason2" class="form-check-label p-3 border rounded-4 w-100 mb-2">
-                            <input type="radio" name="reason" value="Changed my mind" id="return-reason2" class="form-check-input ms-1">
+                            <input type="radio" name="reason" value="Improper fit" id="return-reason2" class="form-check-input ms-1">
                             Improper fit
                         </label>
                         <label for="return-reason3" class="form-check-label p-3 border rounded-4 w-100 mb-2">
-                            <input type="radio" name="reason" value="Changed my mind" id="return-reason3" class="form-check-input ms-1">
+                            <input type="radio" name="reason" value="Product not matching the description" id="return-reason3" class="form-check-input ms-1">
                             Product not matching the description
                         </label>
                         <label for="return-reason4" class="form-check-label p-3 border rounded-4 w-100 mb-2">
-                            <input type="radio" name="reason" value="Changed my mind" id="return-reason4" class="form-check-input ms-1">
+                            <input type="radio" name="reason" value="Size to small / too large" id="return-reason4" class="form-check-input ms-1">
                             Size to small / too large
                         </label>
                         <label for="return-reason5" class="form-check-label p-3 border rounded-4 w-100 mb-2">
-                            <input type="radio" name="reason" value="Changed my mind" id="return-reason5" class="form-check-input ms-1">
+                            <input type="radio" name="reason" value="Color different from what was shown" id="return-reason5" class="form-check-input ms-1">
                             Color different from what was shown
                         </label>
                         <label for="return-reason6" class="form-check-label p-3 border rounded-4 w-100 mb-2">
-                            <input type="radio" name="reason" id="return-reason6" class="form-check-input ms-1">
+                            <input type="radio" name="reason" value="Other" id="return-reason6" class="form-check-input ms-1">
                             Other
                         </label>
                     </div>
