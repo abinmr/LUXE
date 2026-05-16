@@ -119,12 +119,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const variant = product.variants[0];
             const size = variant.sizes[0];
-            const price = size.price;
+            const originalPrice = size.price;
             const comparePrice = size.compareAtPrice;
+            const effectivePrice = size.effectivePrice ?? null;
+            const displayPrice = effectivePrice ?? originalPrice;
 
             let discount = 0;
-            if (comparePrice > price) {
-                discount = Math.round(((comparePrice - price) / comparePrice) * 100);
+            if (effectivePrice && effectivePrice < originalPrice) {
+                discount = Math.round(((originalPrice - effectivePrice) / originalPrice) * 100);
+            } else if (comparePrice > originalPrice) {
+                discount = Math.round(((comparePrice - originalPrice) / comparePrice) * 100);
             }
 
             const isInWishlist = userWishlist && userWishlist.includes(product._id.toString());
@@ -133,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const discountBadge = discount > 0 ? `<span class="position-absolute top-0 start-0 badge bg-danger m-3 py-1 px-2 rounded-1 fw-medium">-${discount}%</span>` : "";
 
-            const compareHtml = comparePrice > price ? `<span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">₹${comparePrice}</span>` : "";
+            const compareHtml = displayPrice < originalPrice ? `<span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">₹${originalPrice}</span>` : "";
 
             productGrid.innerHTML += `
                         <div class="col-12 col-sm-6 col-md-6 col-xl-4 mb-4">
@@ -155,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <h6 class="card-title fw-semibold text-truncate mb-1" title="${product.name}">${product.name}</h6>
                                     
                                     <div class="mb-3 d-flex align-items-center gap-2">
-                                        <span class="fw-bold fs-5 mb-0 text-dark">₹${price}</span>
+                                        <span class="fw-bold fs-5 mb-0 text-dark">₹${displayPrice}</span>
                                         ${compareHtml}
                                     </div>
 

@@ -3,6 +3,7 @@ import Wishlist from "../models/wishlist.model.js";
 import Cart from "../models/cart.model.js";
 import { getFilterAndSortProducts, getPaginatedProducts, getProductById, getRelatedProducts, getSearchProductsByName, getWishlistProducts } from "../service/home.service.js";
 import { success } from "../service/status.service.js";
+import Offer from "../models/offer.model.js";
 
 export const loadCategories = async (req, res, next) => {
     try {
@@ -33,12 +34,13 @@ export const getHomePage = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
 
         const [products, userWishlist] = await Promise.all([getPaginatedProducts(page), getWishlistProducts(req.user?._id)]);
+        const offer = await Offer.findOne({ isActive: true, isDeleted: false, featureHomepage: true });
 
         if (req.xhr || req.headers.accept.includes("json")) {
             return res.json({ products, wishlist: userWishlist });
         }
         const toast = req.flash("home")[0];
-        res.render("home", { products, userWishlist, toast });
+        res.render("home", { products, userWishlist, offer, toast });
     } catch (err) {
         console.error(err);
         return res.render("home");

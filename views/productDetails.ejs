@@ -54,11 +54,18 @@
 
             <div class="flex-grow-1">
                 <h3><%= product.name %></h3>
-                <p class="fw-bold fs-5">
-                    ₹<span id="displayPrice"><%= product.variants[0].sizes[0].price %></span>
-                    <span id="displayCompareAtPrice" class="text-muted text-decoration-line-through fs-6">
-                        <% if (product.variants[0].sizes[0].compareAtPrice) { %>
-                            ₹<%= product.variants[0].sizes[0].compareAtPrice %>
+                <% 
+                   const mainSize = product.variants[0].sizes[0];
+                   const mainOriginalPrice = mainSize.price;
+                   const mainComparePrice = mainSize.compareAtPrice;
+                   const mainEffectivePrice = mainSize.effectivePrice ?? null;
+                   const mainDisplayPrice = mainEffectivePrice ?? mainOriginalPrice;
+                %>
+                <p class="fw-bold fs-5 mb-0">
+                    ₹<span id="displayPrice"><%= mainDisplayPrice %></span>
+                    <span id="displayCompareAtPrice" class="text-muted text-decoration-line-through fs-6 ms-2">
+                        <% if (mainDisplayPrice < mainOriginalPrice) { %>
+                            ₹<%= mainOriginalPrice %>
                         <% } %>
                     </span>
                 </p>
@@ -128,11 +135,15 @@
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 gap-0">
                 <% otherProducts.forEach((product) => { %>
                     <% 
-                       const price = product.variants[0].sizes[0].price;
+                       const originalPrice = product.variants[0].sizes[0].price;
                        const comparePrice = product.variants[0].sizes[0].compareAtPrice;
+                       const effectivePrice = product.variants[0].sizes[0].effectivePrice ?? null;
+                       const displayPrice = effectivePrice ?? originalPrice;
                        let discount = 0;
-                       if (comparePrice > price) {
-                           discount = Math.round(((comparePrice - price) / comparePrice) * 100);
+                       if (effectivePrice && effectivePrice < originalPrice) {
+                           discount = Math.round(((originalPrice - effectivePrice) / originalPrice) * 100);
+                       } else if (comparePrice > originalPrice) {
+                           discount = Math.round(((comparePrice - originalPrice) / comparePrice) * 100);
                        }
                     %>
                     <div class="col mb-4">
@@ -170,10 +181,10 @@
                                 </h6>
                                 
                                 <div class="mb-3 d-flex align-items-center gap-2">
-                                    <span class="fw-bold fs-5 mb-0 text-dark">₹<%= price %></span>
-                                    <% if (comparePrice > price) { %>
+                                    <span class="fw-bold fs-5 mb-0 text-dark">₹<%= displayPrice %></span>
+                                    <% if (displayPrice < originalPrice) { %>
                                         <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">
-                                            ₹<%= comparePrice %>
+                                            ₹<%= originalPrice %>
                                         </span>
                                     <% } %>
                                 </div>

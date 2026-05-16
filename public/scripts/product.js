@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await result.json();
                 if (data.success) {
                     document.querySelector(`.table[data-item-id="${itemId}"]`).remove();
+                    showToast(data.message);
                 }
             } catch (err) {
                 console.error(err);

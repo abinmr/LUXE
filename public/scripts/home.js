@@ -64,16 +64,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function appendProducts(products, wishlist) {
+        console.log(products);
         const container = document.getElementById("product-container");
         products.forEach((product) => {
             if (!product.variants || product.variants.length === 0) return;
 
-            const price = product.variants[0].sizes[0].price;
-            const comparePrice = product.variants[0].sizes[0].compareAtPrice;
+            const size = product.variants[0].sizes[0];
+            const originalPrice = size.price;
+            const comparePrice = size.compareAtPrice;
+            const effectivePrice = size.effectivePrice ?? null;
 
+            // Use offer effectivePrice if available, otherwise fall back to original price
+            const displayPrice = effectivePrice ?? originalPrice;
+
+            // Prefer offer-based discount %, then compareAtPrice-based
             let discount = 0;
-            if (comparePrice > price) {
-                discount = Math.round(((comparePrice - price) / comparePrice) * 100);
+            if (effectivePrice && effectivePrice < originalPrice) {
+                discount = Math.round(((originalPrice - effectivePrice) / originalPrice) * 100);
+            } else if (comparePrice > originalPrice) {
+                discount = Math.round(((comparePrice - originalPrice) / comparePrice) * 100);
             }
 
             const isInWishlist = wishlist.includes(product._id.toString());
@@ -115,11 +124,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="card-body d-flex flex-column p-3">
                             <h6 class="card-title fw-semibold text-truncate mb-1" title="${product.name}">${product.name}</h6>
                             <div class="mb-3 d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5 mb-0 text-dark">₹${price}</span>
+                                <span class="fw-bold fs-5 mb-0 text-dark">₹${displayPrice}</span>
                                 ${
-                                    comparePrice > price
+                                    displayPrice < originalPrice
                                         ? `
-                                    <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem">₹${comparePrice}</span>
+                                    <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem">₹${originalPrice}</span>
                                 `
                                         : ""
                                 }

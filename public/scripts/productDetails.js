@@ -132,9 +132,19 @@ function selectColor(buttonElement, variantId) {
 function selectSize(sizeId) {
     selectedSize = selectedVariant.sizes.find((s) => s._id === sizeId);
 
+    const originalPrice = selectedSize.price;
+    const effectivePrice = selectedSize.effectivePrice ?? null;
+    const displayPrice = effectivePrice ?? originalPrice;
+
     document.getElementById("inputSizeId").value = selectedSize._id;
-    document.getElementById("displayPrice").innerText = selectedSize.price;
-    document.getElementById("displayCompareAtPrice").innerText = selectedSize.compareAtPrice ? "₹" + selectedSize.compareAtPrice : "";
+    document.getElementById("displayPrice").innerText = displayPrice;
+    
+    const compareEl = document.getElementById("displayCompareAtPrice");
+    if (displayPrice < originalPrice) {
+        compareEl.innerText = "₹" + originalPrice;
+    } else {
+        compareEl.innerText = "";
+    }
 
     renderSizes();
     renderQuantity();
@@ -154,8 +164,19 @@ function renderSizes() {
         container.appendChild(btn);
     });
 
-    document.getElementById("displayPrice").innerText = selectedSize.price;
-    document.getElementById("displayCompareAtPrice").innerText = selectedSize.compareAtPrice ? "₹" + selectedSize.compareAtPrice : "";
+    const originalPrice = selectedSize.price;
+    const effectivePrice = selectedSize.effectivePrice ?? null;
+    const displayPrice = effectivePrice ?? originalPrice;
+
+    document.getElementById("displayPrice").innerText = displayPrice;
+    
+    const compareEl = document.getElementById("displayCompareAtPrice");
+    if (displayPrice < originalPrice) {
+        compareEl.innerText = "₹" + originalPrice;
+    } else {
+        compareEl.innerText = "";
+    }
+    
     document.getElementById("inputSizeId").value = selectedSize._id;
 }
 

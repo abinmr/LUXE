@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en-IN">
 <head>
@@ -25,12 +26,12 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
                 </a>
                 <div>
-                    <h2>Create New Offer</h2>
-                    <p class="mb-0 text-muted">Configure a new promotional campaign</p>
+                    <h2>Edit Offer</h2>
+                    <p class="mb-0 text-muted">Update offers details</p>
                 </div>
             </div>
 
-            <form action="/admin/offers/add" method="POST" enctype="multipart/form-data" id="offerForm">
+            <form action="/admin/offers/edit" method="POST" enctype="multipart/form-data" id="offerForm">
                 <div class="border p-4 rounded-4 bg-white mb-4">
                     <h5>Basic Information</h5>
                     <div class="error-container text-center text-danger">
@@ -38,7 +39,7 @@
                     </div>
                     <div class="mb-1">
                         <label for="title" class="form-label">Offer Title</label>
-                        <input type="text" class="form-control bg-body-tertiary" name="title" id="title" value="<%= oldData.title || '' %>" placeholder="eg, Summer Sale 2026">
+                        <input type="text" class="form-control bg-body-tertiary" name="title" id="title" value="<%= offers.title || '' %>" placeholder="eg, Summer Sale 2026">
                         <div class="error-container text-danger mt-1">
                             <p class="mb-0 small fw-semibold" id="title-error"><%= errors.title || '' %></p>
                         </div>
@@ -46,7 +47,7 @@
 
                     <div class="mb-1">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control bg-body-tertiary rounded-3" name="description" id="description" placeholder="Describe the offer" rows="4" style="resize: none;"><%= oldData.description || '' %></textarea>
+                        <textarea class="form-control bg-body-tertiary rounded-3" name="description" id="description" placeholder="Describe the offer" rows="4" style="resize: none;"><%= offers.description || '' %></textarea>
                         <div class="error-container text-danger mt-1">
                             <p class="mb-0 small fw-semibold" id="description-error"><%= errors.description || '' %></p>
                         </div>
@@ -76,9 +77,9 @@
                         <div class="col" style="max-width: 732px;">
                             <label for="offer-type" class="form-label">Offer Type</label>
                             <select name="offerType" id="offer-type" class="form-select">
-                                <option value="percentage" <%= oldData.offerType === "percentage" ? 'selected' : '' %> >Percentage Discount</option>
-                                <option value="flat" <%= oldData.offerType === "flat" ? 'selected' : '' %> >Flat Discount</option>
-                                <option value="free-shipping" <%= oldData.offerType === "free-shipping" ? 'selected' : '' %> >Free Shipping</option>
+                                <option value="percentage" <%= offers.offerType === "percentage" ? 'selected' : '' %> >Percentage Discount</option>
+                                <option value="flat" <%= offers.offerType === "flat" ? 'selected' : '' %> >Flat Discount</option>
+                                <option value="free-shipping" <%= offers.offerType === "free-shipping" ? 'selected' : '' %> >Free Shipping</option>
                             </select>
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="offerType-error"><%= errors.offerType %></p>
@@ -86,31 +87,32 @@
                         </div>
                         <div class="col" id="discount-percentage-container">
                             <label for="discountPercentage" class="form-label">Discount Percentage (%)</label>
-                            <input type="number" class="form-control" placeholder="0" value="<%= oldData.discountPercentage || '' %>" name="discountPercentage" id="discountPercentage">
+                            <input type="number" class="form-control" placeholder="0" value="<%= offers.discountPercentage || '' %>" name="discountPercentage" id="discountPercentage">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="discount-percentage-error"> <%= errors.discountPercentage %> </p>
                             </div>
                         </div>
                         <div class="col d-none" id="discount-amount-container">
                             <label for="discountAmount" class="form-label">Discount Amount</label>
-                            <input type="number" class="form-control" placeholder="0" value="<%= oldData.discountAmount || '' %>" name="discountAmount" id="discountAmount">
+                            <input type="number" class="form-control" placeholder="0" value="<%= offers.discountAmount || '' %>" name="discountAmount" id="discountAmount">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="discount-amount-error"></p>
                             </div>
                         </div>
                     </div>
 
+                    <% const options = { year: 'numeric', month: 'numeric', day: 'numeric' }; %>
                     <div class="input-group gap-4 mb-3">
                         <div class="col">
                             <label for="start-date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" value="<%= oldData.startDate || '' %>" name="startDate" id="start-date">
+                            <input type="date" class="form-control" value="<%= offers.startDate.toLocaleDateString('en-US', options) || '' %>" name="startDate" id="start-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="start-date-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="end-date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" value="<%= oldData.endDate || '' %>" name="endDate" id="end-date">
+                            <input type="date" class="form-control" value="<%= offers.endDate || '' %>" name="endDate" id="end-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="end-date-error"></p>
                             </div>
@@ -120,14 +122,14 @@
                     <div class="input-group gap-4">
                         <div class="col">
                             <label for="min-purchase" class="form-label">Min Purchase Amount</label>
-                            <input type="number" class="form-control" value="<%= oldData.minPurchaseAmount %>" name="minPurchaseAmount" placeholder="0" id="min-purchase" style="max-width: 732px;">
+                            <input type="number" class="form-control" value="<%= offers.minPurchaseAmount %>" name="minPurchaseAmount" placeholder="0" id="min-purchase" style="max-width: 732px;">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="min-purchase-error"></p>
                             </div>
                         </div>
                         <div class="col" id="max-discount-container">
                             <label for="max-discount" class="form-label">Max Discount Amount</label>
-                            <input type="number" class="form-control" value="<%= oldData.maxDiscountAmount %>" name="maxDiscountAmount" placeholder="0" id="max-discount">
+                            <input type="number" class="form-control" value="<%= offers.maxDiscountAmount %>" name="maxDiscountAmount" placeholder="0" id="max-discount">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="max-discount-error"></p>
                             </div>
@@ -139,17 +141,18 @@
                     <h5 class="mb-3">Applicability</h5>
 
                     <select class="form-select" name="applicableTo" id="applicable">
-                        <option value="all" <%= oldData.applicableTo === "all" ? 'selected' : '' %> >All Products</option>
-                        <option value="category" <%= oldData.applicableTo === "category" ? 'selected' : '' %> >Specific Category</option>
-                        <option value="products" <%= oldData.applicableTo === "products" ? 'selected' : '' %> >Specific Product</option>
+                        <option value="all" <%= offers.applicableTo === "all" ? 'selected' : '' %> >All Products</option>
+                        <option value="category" <%= offers.applicableTo === "category" ? 'selected' : '' %> >Specific Category</option>
+                        <option value="products" <%= offers.applicableTo === "products" ? 'selected' : '' %> >Specific Product</option>
                     </select>
+                    
                     <div id="category-list-container" class="d-none mt-3">
                         <label class="form-label mb-1">Select Categories</label>
                         <div class="border rounded-3 p-3 bg-body-tertiary" style="max-height: 200px; overflow-y: auto;">
                             <% if (locals.categories && categories.length > 0) { %>
                                 <% categories.forEach(category => { %>
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="applicableCategories" value="<%= category._id %>" id="cat-<%= category._id %>">
+                                        <input class="form-check-input" type="checkbox" name="applicableCategories" value="<%= category._id %>" id="cat-<%= category._id %>" <%= offers.applicableCategories.includes(category._id) ? 'checked' : '' %> >
                                         <label class="form-check-label user-select-none" for="cat-<%= category._id %>">
                                             <%= category.name %> 
                                         </label>
@@ -188,21 +191,21 @@
                                 <div>Active Status</div>
                                 <span class="small text-muted">Activate or deactivate this offer</span>
                             </label>
-                            <input class="form-check-input" type="checkbox" role="switch" name="isActive" id="status" <%= oldData.isActive ? 'checked' : '' %> >
+                            <input class="form-check-input" type="checkbox" role="switch" name="isActive" id="status" <%= offers.isActive ? 'checked' : '' %> >
                         </div>
                         <div class="d-flex justify-content-between">
                             <label for="feature" class="user-select-none">
                                 <div>Feature on Homepage</div>
                                 <span class="small text-muted">Show this offer in the main banner carousel</span>
                             </label>
-                            <input class="form-check-input" type="checkbox" role="switch" name="featureHomepage" id="feature" <%= oldData.featureHomepage ? 'checked' : '' %> >
+                            <input class="form-check-input" type="checkbox" role="switch" name="featureHomepage" id="feature" <%= offers.featureHomepage ? 'checked' : '' %> >
                         </div>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end align-items-center gap-4 mb-4">
                     <a href="/admin/offers" class="btn btn-light border rounded-2">Cancel</a>
-                    <button type="submit" class="btn btn-primary rounded-2">Create Offer</button>
+                    <button type="submit" class="btn btn-primary rounded-2">Save Changes</button>
                 </div>
             </form>
         </div>

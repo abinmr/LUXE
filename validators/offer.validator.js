@@ -20,11 +20,15 @@ export const offerSchema = z
         applicableTo: z.enum(["all", "category", "products"]),
         applicableCategories: z.array(z.string()).optional(),
         applicableProducts: z.array(z.string()).optional(),
-        isActive: z.string().transform((val) => val === "on"),
+        isActive: z
+            .string()
+            .transform((val) => val === "on")
+            .default(false),
         featureHomepage: z
             .string()
             .optional()
-            .transform((val) => val === "on"),
+            .transform((val) => val === "on")
+            .default(false),
     })
     .superRefine((data, ctx) => {
         if (data.offerType === "percentage") {

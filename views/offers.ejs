@@ -48,21 +48,26 @@
                             <th scope="col">Type</th>
                             <th scope="col">Validity</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Usage</th>
+                            <th scope="col">Applicable</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                     <% const options = { year: 'numeric', month: 'numeric', day: 'numeric' }; %>
                         <% offers.forEach((offer) => { %>
-                            <tr>
+                            <tr class="offers" data-item-id="<%= offer._id %>">
                                 <td>
-                                    <div><%= offer.title %></div>
-                                    <div class="text-muted small"><%= offer.description %></div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="<%= offer.image %>" alt="<%= offer.name %>" class="rounded-2" height="48" width="48">
+                                        <div>
+                                            <div><%= offer.title %></div>
+                                            <div class="text-muted small text-truncate" style="width: 12rem;"><%= offer.description %></div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <% if (offer.offerType === "percentage") { %>
-                                        <div class="w-50">
+                                        <div class="">
                                             <button class="btn btn-light btn-sm border rounded-4">Percentage Discount</button>
                                             <span class="text-muted"><%= offer.discountPercentage %>%</span>
                                         </div>
@@ -73,10 +78,46 @@
                                     <div class="text-body-tertiary">to</div>
                                     <div class="text-muted"><%= offer.endDate.toLocaleDateString('en-IN', options) %></div>
                                 </td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td>1</td>
-                        </tr>
+                                <td style="width: 280px;">
+                                    <% if (offer.isActive) { %>
+                                        <button class="btn btn-dark btn-sm rounded-3">Active</button>
+                                    <% } else { %>
+                                        <button class="btn btn-light btn-sm border rounded-3">InActive</button>
+                                    <% } %>
+                                    <% if (offer.featureHomepage) { %>
+                                        <button class="btn btn-warning btn-sm rounded-3">Featured</button>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (offer.applicableTo === "all") { %>
+                                        <span class="small">All Products</span>
+                                    <% } else if (offer.applicableTo === "category") { %>
+                                        <span class="small text-secondary-emphasis">Specific Categories</span>
+                                    <% } else if (offer.applicableTo === "products") { %>
+                                        <span>Specific Products</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-light rounded-2" data-bs-toggle="dropdown" aria-haspopup="true" data-bs-offset="70,5" aria-expanded="false">⋮</button>
+                                        <ul class="dropdown-menu">
+                                            <li class="dropdown-item">
+                                                <a href="/admin/offers/edit/<%= offer._id %>" class="dropdown-item-text text-decoration-none small">
+                                                    <img src="/images/edit.svg" alt="edit icon" class="me-2">
+                                                    Edit
+                                                </a>
+                                            </li>
+                                            <li class="dropdown-divider"></li>
+                                            <li class="dropdown-item delete-btn" data-id="<%= offer._id %>">
+                                                <span class="dropdown-item-text small text-danger">
+                                                    <img src="/images/delete.svg" alt="trash icon" class="me-2">
+                                                    Delete
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
                         <% }) %>
                     </tbody>
                 </table>
@@ -84,6 +125,21 @@
         </div>
 
     <%- include('partials/admin-footer.ejs') %>
+
+    <div class="toast-container position-fixed top-0 end-0 px-3 mt-5">
+        <div id="actionToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex gap-2 align-items-center fw-bold">
+                    <svg id="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" height="20" width="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"></path></svg>
+
+                    <div id="actionToastBody">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/offers.js"></script>
 </body>
 </html>
 

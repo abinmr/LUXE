@@ -83,6 +83,7 @@ export async function getCartItems(userId) {
                 size: { $ifNull: ["$size.size", ""] },
                 stock: { $ifNull: ["$size.stock", 0] },
                 price: { $ifNull: ["$size.price", 0] },
+                effectivePrice: { $ifNull: ["$size.effectivePrice", null] },
                 compareAtPrice: { $ifNull: ["$size.compareAtPrice", 0] },
             },
         },
@@ -91,7 +92,7 @@ export async function getCartItems(userId) {
 
 export function calcPricing(cartItems) {
     const selectedItems = cartItems.filter((item) => item.isSelected && item.isListed);
-    const subtotal = Math.floor(selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0));
+    const subtotal = Math.floor(selectedItems.reduce((acc, curr) => acc + (curr.effectivePrice ?? curr.price) * curr.quantity, 0));
     const gst = Math.round(subtotal * 0.05);
     const shipping = subtotal > 0 ? 40 : 0;
     const total = subtotal + gst + shipping;
@@ -140,6 +141,11 @@ export async function addToCartService(userId, { productId, variantId, sizeId, q
     return { totalCart: total };
 }
 
+/**
+ * @param {string} userId -
+ * @param {string} itemId -
+ * @param {number} amount -
+ */
 export async function changeQuantity(userId, itemId, amount) {
     const cart = await Cart.findOneAndUpdate({ userId: userId, "items._id": itemId }, { $inc: { "items.$.quantity": amount } }, { returnDocument: "after" });
     const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);

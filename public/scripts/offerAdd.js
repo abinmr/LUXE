@@ -47,6 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (input === discountAmountInput) {
                 return offerTypeSelect.value === "flat";
             }
+            if (input === discountPercentageInput) {
+                return (offerTypeSelect.value = "percentage");
+            }
+
             return true;
         });
         const results = activeFields.map(({ input, errorId, message }) => validate(input, errorId, message));

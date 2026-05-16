@@ -25,20 +25,17 @@
     </head>
     <body>
         <%- include('partials/navbar.ejs') %>
-        <section class="position-relative overflow-hidden" style="height: 600px">
-            <img src="/images/hero-banner.png" alt="hero section image" class="w-100 object-fit-cover" />
+        <section class="position-relative overflow-hidden mb-5" style="height: 600px">
+            <img src="<%= offer.image %>" alt="hero section image" class="w-100 object-fit-cover" />
             <div class="position-absolute d-flex align-items-center text-white" style="inset: 0px; background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)">
                 <div class="container">
                     <div class="text-white" style="max-width: 36rem">
-                        <h3 class="display-5 fw-bold" style="font-family: serif">New Collection 2026</h3>
-                        <p class="fw-medium" style="font-size: 18px">Discover the latest trends in fashion. Premium quality, timeless style.</p>
+                        <h3 class="display-5 fw-bold" style="font-family: serif"> <%= offer.title %> </h3>
+                        <p class="fw-medium" style="font-size: 18px"> <%= offer.description %> </p>
                         <button class="btn btn-danger mt-3 px-4">Shop Now</button>
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="bg-danger py-2 mb-5 text-center">
-            <p class="text-white mb-0 fw-semibold">🎉 Flat 40% Off on All Items | Free Shipping on Orders Over ₹100</p>
         </section>
 
         <section class="mb-5">

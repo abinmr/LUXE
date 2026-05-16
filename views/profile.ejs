@@ -364,13 +364,13 @@
                                                 <div class="d-flex align-items-center gap-4">
                                                     <div class="mb-2">
                                                         <p class="mb-1"> <%= wallet.description %></p>
-                                                        <div class="small mb-1">Transaction type: <%= wallet.transactionType %></div>
+                                                        <div class="small mb-1">Transaction type: <span class="fw-bold"><%= wallet.transactionType %></span></div>
                                                         <div class="small text-muted"><%= wallet.orderId %></div>
                                                         <div class="small text-muted"> <%= wallet.createdAt.toLocaleDateString('en-US', options) %></div>
                                                     </div>
                                                     <button class="btn <%= wallet.status === "completed" ? 'btn-success' : 'btn-danger' %> btn-sm rounded-2"><%= wallet.status %></button>
                                                 </div>
-                                                <span class="text-success fw-semibold"> ₹<%= wallet.amount %> </span>
+                                                <span class="fw-bold fs-5"> ₹<%= wallet.amount %> </span>
                                             </div>
                                             <hr class="text-muted">
                                         <% }); %>

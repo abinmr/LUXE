@@ -55,6 +55,10 @@ const offerModel = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const Offer = mongoose.model("Offers", offerModel);

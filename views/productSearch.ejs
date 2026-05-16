@@ -144,12 +144,15 @@
                     <% products.forEach((product) => { %>
                     <% if (product.variants && product.variants.length > 0) { %>
                         <% 
-                           // Calculate discount percentage for the badge
-                           const price = product.variants[0].sizes[0].price;
+                           const originalPrice = product.variants[0].sizes[0].price;
                            const comparePrice = product.variants[0].sizes[0].compareAtPrice;
+                           const effectivePrice = product.variants[0].sizes[0].effectivePrice ?? null;
+                           const displayPrice = effectivePrice ?? originalPrice;
                            let discount = 0;
-                           if (comparePrice > price) {
-                               discount = Math.round(((comparePrice - price) / comparePrice) * 100);
+                           if (effectivePrice && effectivePrice < originalPrice) {
+                               discount = Math.round(((originalPrice - effectivePrice) / originalPrice) * 100);
+                           } else if (comparePrice > originalPrice) {
+                               discount = Math.round(((comparePrice - originalPrice) / comparePrice) * 100);
                            }
                         %>
 
@@ -188,10 +191,10 @@
                                     </h6>
                                     
                                     <div class="mb-3 d-flex align-items-center gap-2">
-                                        <span class="fw-bold fs-5 mb-0 text-dark">₹<%= price %></span>
-                                        <% if (comparePrice > price) { %>
+                                        <span class="fw-bold fs-5 mb-0 text-dark">₹<%= displayPrice %></span>
+                                        <% if (displayPrice < originalPrice) { %>
                                             <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem;">
-                                                ₹<%= comparePrice %>
+                                                ₹<%= originalPrice %>
                                             </span>
                                         <% } %>
                                     </div>

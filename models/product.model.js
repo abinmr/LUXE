@@ -34,6 +34,8 @@ const productModel = new mongoose.Schema(
                         size: { type: String, uppercase: true, trim: true, required: true },
                         price: { type: Number, required: true },
                         compareAtPrice: { type: Number },
+                        effectivePrice: { type: Number },
+                        appliedOfferId: { type: mongoose.Schema.Types.ObjectId, ref: "Offers" },
                         stock: { type: Number, required: true, min: 0 },
                     },
                 ],
