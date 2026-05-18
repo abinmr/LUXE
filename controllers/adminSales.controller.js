@@ -11,6 +11,7 @@ export const getSalesReportPage = async (req, res) => {
     let query = {};
     if (date) {
         const { startDate, endDate } = await getDates(date);
+        console.log(startDate, endDate);
 
         if (["today", "week", "month", "year"].includes(date)) {
             query.createdAt = {
@@ -20,13 +21,15 @@ export const getSalesReportPage = async (req, res) => {
         }
     }
 
-    const transactions = await Order.find(query).sort({ createdAt: -1 }).limit(10);
-    const totalOrders = transactions.length;
-    const totalRevenue = transactions.reduce((sum, order) => sum + (order.total || 0), 0);
-    const totalProducts = transactions.reduce((sum, order) => {
+    const allOrders = await Order.find(query).sort({ createdAt: -1 });
+    const totalOrders = allOrders.length;
+    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalProducts = allOrders.reduce((sum, order) => {
         return sum + (order.total ? order.items.length : 0);
     }, 0);
     const revenue = await monthelyRevenue();
+    const transactions = allOrders.slice(0, 10);
+    console.log(totalOrders, totalRevenue);
 
     return res.render("sales-report", {
         currentPage: "sales-report",

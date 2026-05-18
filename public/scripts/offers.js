@@ -29,4 +29,43 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    const statusBtns = document.querySelectorAll(".update-status");
+    statusBtns.forEach((btn) => {
+        btn.addEventListener("click", async function () {
+            const text = btn.textContent.trim().toLowerCase();
+            const id = this.dataset.id;
+            const statusBtn = document.querySelector(`.statusBtn[data-id="${id}"]`);
+
+            if (text === "list") {
+                try {
+                    const res = await fetch(`/admin/offers/list/${id}`, {
+                        method: "PATCH",
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.textContent = "Unlist";
+                        statusBtn.textContent = "Active";
+                        showToast(data.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            } else if (text === "unlist") {
+                try {
+                    const res = await fetch(`/admin/offers/unlist/${id}`, {
+                        method: "PATCH",
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.textContent = "List";
+                        statusBtn.textContent = "Inactive";
+                        showToast(data.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        });
+    });
 });

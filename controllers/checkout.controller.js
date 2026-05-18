@@ -7,7 +7,7 @@ import { calcPricing, getCartItems } from "../service/cart.service.js";
 import { createOrder } from "../service/checkout.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { createAddress, findAddresses } from "../service/profile.service.js";
-import { badRequest, created, notFound, serverError, success } from "../service/status.service.js";
+import { badRequest, conflict, created, notFound, serverError, success } from "../service/status.service.js";
 import razorpay from "../lib/razorpay.js";
 import crypto from "crypto";
 import Wallet from "../models/wallet.model.js";
@@ -78,6 +78,13 @@ export const applyCoupon = async (req, res) => {
         if (!coupon) {
             return res.status(notFound).json({ success: false, message: "Not a valid coupon" });
         }
+
+        console.log("coupon", coupon);
+        const couponUsed = coupon.users.includes(req.user?._id);
+        console.log(couponUsed);
+        if (couponUsed) {
+            return res.status(conflict).json({ success: false, message: "coupon already used before" });
+        }
         const currentDate = new Date();
         if (!coupon.isActive || currentDate < coupon.startDate || currentDate > coupon.expiryDate) {
             return res.status(notFound).json({ success: false, message: "Coupon expired" });
@@ -101,6 +108,8 @@ export const applyCoupon = async (req, res) => {
         checkoutSessoin.discount = discountAmount;
         checkoutSessoin.total = checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount;
         checkoutSessoin.appliedCoupon = code;
+        coupon.users.push(req.user?._id);
+        await coupon.save();
 
         return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: "Coupon applied" });
     } catch (err) {

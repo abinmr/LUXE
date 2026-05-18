@@ -20,6 +20,7 @@ import adminSalesRouter from "./routes/adminSales.route.js";
 import adminOfferRouter from "./routes/adminOffers.route.js";
 import checkoutRouter from "./routes/checkout.route.js";
 import { connectDB } from "./lib/db.js";
+import Product from "./models/product.model.js";
 
 dotevn.config({ quiet: true });
 
