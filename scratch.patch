@@ -4,7 +4,6 @@
      const couponForm = document.getElementById("coupon-form");
      couponForm.addEventListener("submit", async (e) => {
          e.preventDefault();
--        const code = document.getElementById("couponInput").value.trim();
 +        const code = document.getElementById("couponInput").value.trim().toUpperCase();
          console.log(code);
  
@@ -13,7 +12,6 @@
              document.getElementById("total").textContent = `₹${data.total}`;
              showToast(data.message);
          } else {
--            showToast(data.message);
 +            showToast(data.message, "error");
          }
      });
