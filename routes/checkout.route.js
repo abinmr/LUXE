@@ -1,16 +1,6 @@
 import express from "express";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
-import {
-    applyCoupon,
-    checkoutAddAddress,
-    checkoutBuyNow,
-    checkoutFailurePage,
-    checkoutPlaceOrder,
-    getCheckoutPage,
-    getCheckoutSuccessPage,
-    getDefaultAddress,
-    verifyPayment,
-} from "../controllers/checkout.controller.js";
+import { applyCoupon, checkoutAddAddress, checkoutBuyNow, checkoutFailurePage, checkoutPlaceOrder, getCheckoutPage, getCheckoutSuccessPage, getDefaultAddress, removeCoupon, verifyPayment } from "../controllers/checkout.controller.js";
 
 const router = express.Router();
 
@@ -23,6 +13,8 @@ router.post("/", protectedRoute, getCheckoutPage);
 router.post("/buy-now", protectedRoute, checkoutBuyNow);
 
 router.post("/apply-coupon", protectedRoute, applyCoupon);
+
+router.patch("/remove-coupon", protectedRoute, removeCoupon);
 
 router.post("/place-order", protectedRoute, checkoutPlaceOrder);
 

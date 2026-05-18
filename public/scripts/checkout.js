@@ -189,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const couponApplyBtn = document.getElementById("applyBtn");
     const couponCancelBtn = document.getElementById("cancelBtn");
     const input = document.getElementById("couponInput");
+    const discountRow = document.getElementById("discount-row");
     couponForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const code = document.getElementById("couponInput").value.trim().toUpperCase();
@@ -200,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await res.json();
 
-        const discountRow = document.getElementById("discount-row");
         const discount = document.getElementById("discount");
         if (data.success) {
             discountRow.classList.replace("d-none", "d-flex");
@@ -215,10 +215,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    couponCancelBtn.addEventListener("click", () => {
-        input.disabled = false;
-        couponApplyBtn.classList.remove("d-none");
-        couponCancelBtn.classList.add("d-none");
+    couponCancelBtn.addEventListener("click", async () => {
+        try {
+            const res = await fetch("/checkout/remove-coupon", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const discountRow = document.getElementById("discount-row");
+                discountRow.classList.replace("d-flex", "d-none");
+                document.getElementById("total").textContent = `₹${data.total}`;
+                input.value = "";
+                input.disabled = false;
+                couponApplyBtn.classList.remove("d-none");
+                couponCancelBtn.classList.add("d-none");
+                showToast(data.message);
+            } else {
+                showToast(data.message, "error");
+            }
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     const walletCheckbox = document.getElementById("wallet");

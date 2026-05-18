@@ -112,6 +112,28 @@ export const applyCoupon = async (req, res) => {
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */
+export const removeCoupon = async (req, res) => {
+    try {
+        const checkoutSession = req.session.checkout;
+        if (!checkoutSession) {
+            return res.status(badRequest).json({ success: false, message: "No active session available" });
+        }
+
+        checkoutSession.discount = 0;
+        checkoutSession.total = checkoutSession.subtotal + checkoutSession.gst + checkoutSession.shipping;
+        checkoutSession.appliedCoupon = null;
+
+        return res.status(success).json({ success: true, message: "Coupon removed", total: checkoutSession.total });
+    } catch (err) {
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: "something went wrong" });
+    }
+};
+
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 export const checkoutBuyNow = async (req, res) => {
     try {
         const { productId, variantId, sizeId, quantity } = req.body;
