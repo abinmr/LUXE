@@ -33,13 +33,12 @@
                     </span>
                     <input type="search" value="<%= locals.search || '' %>" id="searchCustomer" name="search" class="form-control border-0 shadow-none" placeholder="search orders..." style="background-color: #f3f3f5;" autofocus>
                 </div>
-                <a href="/admin/orders" class="btn btn-danger btn-sm rounded-2">Cancel</a>
+                <a href="/admin/coupons" class="btn btn-danger btn-sm rounded-2">Cancel</a>
                 <button class="btn btn-primary btn-sm fw-semibold rounded-2">Submit</button>
                 <select name="couponStatus" id="couponStatus" class="form-select form-select-sm w-auto shadow-none text-dark rounded-2" style="min-width: 200px; font-size: 15px; border-color: #f2f2f2;">
                     <option value="all-status">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="expired">Expired</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="active" <%= locals.couponStatus === "active" ? 'selected' : '' %> >Active</option>
+                    <option value="inactive" <%= locals.couponStatus === "inactive" ? 'selected' : '' %> >Inactive</option>
                 </select>
             </form>
         </div>

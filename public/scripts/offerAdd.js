@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
         { input: discountPercentageInput, errorId: "discount-percentage-error", message: "discount percentage is required", event: "blur" },
         { input: discountAmountInput, errorId: "discount-amount-error", message: "discount amount is required", event: "blur" },
         { input: minPurchaseInput, errorId: "min-purchase-error", message: "minimum purchase amount is required", event: "blur" },
-        { input: startDateInput, errorId: "start-date-error", message: "start date is required", event: "click" },
-        { input: endDateInput, errorId: "end-date-error", message: "end date is required", event: "click" },
+        { input: startDateInput, errorId: "start-date-error", message: "start date is required", event: "blur" },
+        { input: endDateInput, errorId: "end-date-error", message: "end date is required", event: "blur" },
     ];
 
     fields.forEach(({ input, errorId, message, event }) => {

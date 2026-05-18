@@ -5,14 +5,18 @@ export const getCouponPage = async (req, res) => {
     try {
         const search = req.query.search;
         const couponStatus = req.query.couponStatus;
-        console.log(couponStatus);
-
         let dbQuery = {};
         if (search) {
             dbQuery.$or = [{ code: { $regex: search, $options: "i" } }, { description: { $regex: description, $options: "i" } }];
         }
+
+        if (couponStatus === "active") {
+            dbQuery.isActive = true;
+        } else if (couponStatus === "inactive") {
+            dbQuery.isActive = false;
+        }
         const coupons = await Coupon.find(dbQuery);
-        return res.render("coupons", { currentPage: "coupons", coupons });
+        return res.render("coupons", { currentPage: "coupons", coupons, couponStatus });
     } catch (err) {
         console.error(err);
     }

@@ -7,9 +7,24 @@ import cloudinary from "../lib/cloudinary.js";
 import { success } from "zod";
 import { applyOffersToProducts, removeOfferFromProducts } from "../service/offer.service.js";
 
+/**
+ * @param {import('express').Request} req -
+ * @param {import('express').Response} res -
+ */
 export const getOffersPage = async (req, res) => {
-    const offers = await Offer.find({ isDeleted: false });
-    return res.render("offers", { currentPage: "offers", offers });
+    try {
+        const search = req.query.search || "";
+        let dbQuery = { isDeleted: false };
+        if (search) {
+            dbQuery = {
+                $or: [{ title: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }],
+            };
+        }
+        const offers = await Offer.find(dbQuery);
+        return res.render("offers", { currentPage: "offers", offers, search });
+    } catch (err) {
+        console.error(err);
+    }
 };
 
 export const getOfferAddPage = async (req, res) => {
