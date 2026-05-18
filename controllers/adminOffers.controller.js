@@ -5,7 +5,7 @@ import { offerSchema } from "../validators/offer.validator.js";
 import { getAllProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
 import { success } from "zod";
-import { applyOffersToProducts } from "../service/offer.service.js";
+import { applyOffersToProducts, removeOfferFromProducts } from "../service/offer.service.js";
 
 export const getOffersPage = async (req, res) => {
     const offers = await Offer.find({ isDeleted: false });
@@ -90,7 +90,6 @@ export const getOffersEditPage = async (req, res) => {
         const categories = await getAllCategories();
         const products = await getAllProducts();
         const errors = {};
-        console.log("edit offers", offers);
         return res.render("offersEdit", { offers, categories, products, errors });
     } catch (err) {
         console.error(err);
@@ -133,7 +132,13 @@ export const updateOffersDetails = async (req, res) => {
             await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
             data.image = uploadResult.secure_url;
         }
-        await Offer.findByIdAndUpdate(id, { ...data });
+        const result = await Offer.findByIdAndUpdate(id, { ...data }, { new: true });
+        await removeOfferFromProducts(result._id);
+
+        if (result.isActive) {
+            await applyOffersToProducts(result);
+        }
+        return res.redirect("/admin/offers");
     } catch (err) {
         console.error(err);
         const offers = await Offer.findById(id);
@@ -153,7 +158,8 @@ export const updateOffersDetails = async (req, res) => {
 export const deleteOffer = async (req, res) => {
     try {
         const id = req.params.id;
-        await Offer.findByIdAndUpdate(id, { isDeleted: true });
+        const result = await Offer.findByIdAndUpdate(id, { isDeleted: true });
+        await removeOfferFromProducts(result._id);
         return res.status(success).json({ success: true, message: "offer deleted" });
     } catch (err) {
         console.error(err);

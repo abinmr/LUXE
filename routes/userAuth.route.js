@@ -1,18 +1,20 @@
 import express from "express";
+import { nanoid } from "nanoid";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { getRegisterOtp, getResetOtp, login, otpVerification, register, resendOtp, resetOtp, resetPasswordOtp, setCookies, updatePassword } from "../controllers/userAuth.controller.js";
 import { redirectIfAuth } from "../middlewares/user.auth.middleware.js";
 import User from "../models/user.model.js";
 import Wallet from "../models/wallet.model.js";
+import { noCache } from "../middlewares/admin-auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/register", redirectIfAuth, (req, res) => {
+router.get("/register", redirectIfAuth, noCache, (req, res) => {
     return res.render("register");
 });
 
-router.get("/register/otp", getRegisterOtp);
+router.get("/register/otp", noCache, getRegisterOtp);
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
@@ -37,7 +39,7 @@ router.get(
     },
 );
 
-router.get("/login", redirectIfAuth, (req, res) => {
+router.get("/login", redirectIfAuth, noCache, (req, res) => {
     const passportError = req.flash("error")[0];
     const loginError = req.flash("loginError")[0];
     const error = passportError || loginError;
@@ -51,12 +53,12 @@ router.get("/login/reset-password", (req, res) => {
     return res.render("resetPassword", { error: resetError });
 });
 
-router.get("/login/reset-otp", (req, res) => {
+router.get("/login/reset-otp", noCache, (req, res) => {
     const resetOtpError = req.flash("resetOtpError")[0];
     return res.render("reset", { error: resetOtpError });
 });
 
-router.get("/login/update-password", (req, res) => {
+router.get("/login/update-password", noCache, (req, res) => {
     const error = req.flash("newPasswordError")[0];
     return res.render("newPassword", { error: error });
 });
@@ -87,7 +89,6 @@ passport.use(
             try {
                 const user = await User.findOne({ email: profile.email });
                 if (!user) {
-                    console.log("Profile: ", profile);
                     const newUser = await User.create({
                         fullname: profile.given_name,
                         email: profile.email,
@@ -95,6 +96,7 @@ passport.use(
                         authMethod: "google",
                         profile: profile.picture,
                         isVerified: true,
+                        referralCode: nanoid(8),
                     });
                     await Wallet.create({ userId: newUser._id, balance: 0 });
                     return cb(null, newUser);

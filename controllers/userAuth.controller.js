@@ -5,6 +5,7 @@ import nodeMailer from "nodemailer";
 import Otp from "../models/otp.model.js";
 import User from "../models/user.model.js";
 import dotenv from "dotenv";
+import { nanoid } from "nanoid";
 
 dotenv.config({ quiet: true });
 
@@ -111,6 +112,10 @@ export const login = async (req, res) => {
     }
 
     const match = await bcrypt.compare(password, user.password);
+    if (!user.referralCode) {
+        user.referralCode = nanoid(8);
+        user.save();
+    }
 
     if (!match) {
         return res.render("login", { error: "Wrong email or password." });
@@ -178,6 +183,14 @@ export const register = async (req, res) => {
         return res.render("register", { error: "User alredy exist. Please login" });
     }
 
+    let referrer = null;
+    if (referralCode) {
+        referrer = await User.findOne({ referralCode: referralCode });
+        if (!referrer) {
+            return res.render("register", { error: "Invalid referral code. Please check and try again" });
+        }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     let user;
@@ -186,10 +199,11 @@ export const register = async (req, res) => {
             fullname: fullName,
             email: email,
             password: hashedPassword,
+            referralCode: nanoid(8),
+            referredBy: referrer ? referrer._id : undefined,
         });
-
-        await user.save();
         req.session.userId = user._id;
+        await user.save();
         console.log(user._id);
     } catch (err) {
         console.error(err);

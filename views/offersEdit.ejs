@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <form action="/admin/offers/edit" method="POST" enctype="multipart/form-data" id="offerForm">
+            <form action="/admin/offers/edit/<%= offers._id %>" method="POST" enctype="multipart/form-data" id="offerForm">
                 <div class="border p-4 rounded-4 bg-white mb-4">
                     <h5>Basic Information</h5>
                     <div class="error-container text-center text-danger">
@@ -105,14 +105,15 @@
                     <div class="input-group gap-4 mb-3">
                         <div class="col">
                             <label for="start-date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" value="<%= offers.startDate.toLocaleDateString('en-US', options) || '' %>" name="startDate" id="start-date">
+                            <input type="date" class="form-control" value="<%= offers.startDate ? offers.startDate.toISOString().split('T')[0] : '' %>" name="startDate" id="start-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="start-date-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="end-date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" value="<%= offers.endDate || '' %>" name="endDate" id="end-date">
+                            <%= offers.endDate.toLocaleDateString('en-IN', options) %>
+                            <input type="date" class="form-control" value="<%= offers.endDate ? offers.endDate.toISOString().split('T')[0] : '' %>" name="endDate" id="end-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="end-date-error"></p>
                             </div>

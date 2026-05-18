@@ -12,8 +12,13 @@ const walletTransaction = new mongoose.Schema(
             ref: "User",
             required: true,
         },
-        orderId: {
+        referenceModel: {
             type: String,
+            enum: ["Order", "User"],
+        },
+        referenceId: {
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: "referenceModel"
         },
         transactionType: {
             type: String,

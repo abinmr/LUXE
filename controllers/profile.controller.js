@@ -25,10 +25,24 @@ export const getProfile = async (req, res) => {
         if (currentSection === "order-history") {
             orders = await Order.find({ userId: req.user?._id }).sort({ createdAt: -1 });
         }
-        const wallet = (await Wallet.findOne({ userId: req.user?._id })) || "00.00";
+        let wallet = "00:00";
+        if (currentSection === "wallet") {
+            const walletData = await Wallet.findOne({ userId: req.user?._id });
+            if (walletData) {
+                wallet = walletData;
+            }
+        }
+        let totalReferrals = 0;
+        let totalReferralEarning = 0;
+        if (currentSection === "referrals") {
+            let referrals = await WalletTransaction.find({ referenceModel: "User" });
+            totalReferrals = referrals.length;
+            totalReferralEarning = referrals.reduce((acc, curr) => acc + curr.amount, 0);
+        }
+
         let walletHistory = [];
         if (currentSection === "wallet") {
-            walletHistory = await WalletTransaction.find({ userId: req.user?._id }).populate("orderId").sort({ createdAt: -1 });
+            walletHistory = await WalletTransaction.find({ userId: req.user?._id }).populate("referenceId").sort({ createdAt: -1 });
         }
         res.render("profile", {
             section: currentSection,
@@ -39,8 +53,9 @@ export const getProfile = async (req, res) => {
             orders: orders,
             wallet,
             walletHistory,
+            totalReferrals,
+            totalReferralEarning,
         });
-        console.log(walletHistory);
     } catch (err) {
         console.error("Error rendering profile.", err);
         return res.redirect("/profile?section=profile");

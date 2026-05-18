@@ -1,5 +1,7 @@
+import { ObjectId } from "mongoose";
+
 interface BaseOffer {
-    _id: string;
+    _id: ObjectId;
     title: string;
     description: string;
     image: string;
@@ -15,4 +17,13 @@ type OfferDetails = { offerType: "percentage"; discountPercentage: number; maxDi
 
 type ApplicabilityDetails = { applicableTo: "all" } | { applicableTo: "category"; applicableCategories: string[] } | { applicableTo: "products"; applicableProducts: string[] };
 
-type Offer = BaseOffer & OfferDetails & ApplicabilityDetails;
+export type Offer = BaseOffer & OfferDetails & ApplicabilityDetails;
+
+interface ReportData {
+    startDate: Date;
+    endDate: Date;
+    totalRevenue: number;
+    totalDiscount: number;
+    netSale: number;
+    orders: number;
+}

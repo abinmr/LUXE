@@ -1,4 +1,5 @@
 import Order from "../models/order.model.js";
+import User from "../models/user.model.js";
 import Wallet from "../models/wallet.model.js";
 import WalletTransaction from "../models/walletTransation.model.js";
 import { updateProduct } from "../service/product.service.js";
@@ -42,6 +43,10 @@ export const orderDetailsById = async (req, res) => {
     return res.render("orderProcessing", { order });
 };
 
+/**
+ * @param {import('express').Request} req -
+ * @param {import('express').Response} res -
+ */
 export const updateOrderDetails = async (req, res) => {
     try {
         const status = req.query.status;
@@ -54,6 +59,28 @@ export const updateOrderDetails = async (req, res) => {
         }
         if (status === "delivered") {
             order.estimatedDeliveryDate = new Date(Date.now());
+            const user = await User.findById(order.userId);
+            if (user && user.referredBy && !user.referralBonusGranted) {
+                const bonusAmount = 100;
+                let referrerWallet = await Wallet.findOne({ userId: user.referredBy });
+                if (!referrerWallet) {
+                    referrerWallet = await Wallet.create({ userId: user.referredBy, balance: 0 });
+                }
+                referrerWallet.balance = Math.round((referrerWallet.balance + bonusAmount) * 100) / 100;
+                await referrerWallet.save();
+                WalletTransaction.create({
+                    walletId: referrerWallet._id,
+                    userId: user.referredBy,
+                    referenceModel: "User",
+                    referenceId: user._id,
+                    transactionType: "credit",
+                    amount: bonusAmount,
+                    description: `Referral bonus for inviting ${user.fullname || `a new user`}!`,
+                    status: "completed",
+                });
+                user.referralBonusGranted = true;
+                await user.save();
+            }
         }
         await order.save();
         return res.redirect("/admin/orders");

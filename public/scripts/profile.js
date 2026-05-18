@@ -277,8 +277,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         formEl.addEventListener("submit", (e) => {
             if (!validateAddressForm(formEl)) {
-                e.preventDefault();
+                return e.preventDefault();
             }
         });
+    });
+
+    const code = document.getElementById("referral-code");
+    const copyBtn = document.getElementById("copy-btn");
+    copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(code.textContent);
+        showToast("Referral code copied");
     });
 });
