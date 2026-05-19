@@ -88,7 +88,10 @@
                                 <% if (returnWindowOpen) { %>
                                     <button class="btn btn-danger btn-sm return-btn rounded-2" data-bs-toggle="modal" data-bs-target="#returnModal" data-item-id="<%= item._id %>">Return</button>
                                 <% } else if (!isDelivered) { %>
-                                    <button class="btn btn-outline-danger btn-sm cancel-btn rounded-2" data-bs-toggle="modal" data-bs-target="#cancelModal" data-item-id="<%= item._id %>">Cancel</button>
+                                    <% const canCancel = orderDetails.paymentMethod === "cod" || orderDetails.paymentMethod === "wallet" || orderDetails.paymentStatus === "paid"; %>
+                                    <% if (canCancel) { %>
+                                        <button class="btn btn-outline-danger btn-sm cancel-btn rounded-2" data-bs-toggle="modal" data-bs-target="#cancelModal" data-item-id="<%= item._id %>">Cancel</button>
+                                    <% } %>
                                 <% } %>
                             <% } %>
                         </div>
@@ -124,6 +127,8 @@
                             <p class="fw-semibold h5">Card</p>
                         <% } else if (orderDetails.paymentMethod === "upi") { %>
                             <p class="fw-semibold h5">UPI</p>
+                        <% } else { %>
+                            <p class="fw-semibold h5"><%= orderDetails.paymentMethod %></p>
                         <% } %>
                     </div>
                 </div>

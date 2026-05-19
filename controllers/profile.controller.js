@@ -300,6 +300,9 @@ export const cancelOrder = async (req, res) => {
         let refundAmount = 0;
         let itemsCancelled = 0;
 
+        const isStockDeducted = order.paymentMethod !== "online" || order.paymentStatus === "paid";
+        const isPaid = order.paymentMethod === "wallet" || (order.paymentMethod === "online" && order.paymentStatus === "paid");
+
         if (itemId) {
             const item = order.items.id(itemId);
             if (!item) return res.status(404).json({ success: false, message: "Item not found" });
@@ -307,8 +310,13 @@ export const cancelOrder = async (req, res) => {
 
             item.orderStatus = "cancelled";
             item.cancellationReason = reason;
-            await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
-            refundAmount = item.price * item.quantity;
+
+            if (isStockDeducted) {
+                await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
+            }
+            if (isPaid) {
+                refundAmount = item.price * item.quantity;
+            }
             itemsCancelled++;
         } else {
             for (const item of order.items) {
@@ -320,7 +328,7 @@ export const cancelOrder = async (req, res) => {
                     itemsCancelled++;
                 }
             }
-            if (itemsCancelled === order.items.length) {
+            if (isPaid && itemsCancelled === order.items.length) {
                 refundAmount = order.total;
             }
         }

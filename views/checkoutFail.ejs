@@ -40,51 +40,44 @@
                         <span>Status</span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>1776516694466</span>
-                        <span class="text-danger">Failure</span>
+                        <span> <%= order.orderId %> </span>
+                        <span class="text-danger"> <%= order.paymentStatus %></span>
                     </div>
                     <br class="text-muted">
                 </div>
                 <div>
                     <p class="fw-semibold">Items</p>
-                    <div class="d-flex justify-content-between mb-3">
-                        <div class="d-flex flex-column gap-1">
-                            <span class="fw-semibold">Classic Cotton T-Shirt</span>
-                            <div>
-                                <span>Price: <span class="fw-bold">₹29.99</span></span>
-                                <span>Quantity: <span class="fw-bold">2</span></span>
+                    <div class="d-flex flex-column gap-4 mb-3">
+                        <% locals.order.items.forEach((item) => { %>
+                            <div class="d-flex justify-content-between">
+                                <div class="d-flex flex-column gap-1">
+                                    <span class="fw-semibold h5 mb-0"> <%= item.productName %> </span>
+                                    <div>
+                                        <span class="small">Quantity: <span class="fw-bold"> <%= item.quantity %> </span></span>
+                                    </div>
+                                </div>
+                                <span class="fw-semibold">₹<%= item.price %></span>
                             </div>
-                        </div>
-                        <span class="fw-semibold">₹29.99</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex flex-column gap-2">
-                            <span class="fw-semibold">Slim Fit Denim Jeans</span>
-                            <div>
-                                <span>Price: <span class="fw-bold">₹79.99</span></span>
-                                <span>Quantity: <span class="fw-bold">1</span></span>
-                            </div>
-                        </div>
-                        <span class="fw-semibold">₹79.99</span>
+                        <% }) %>
                     </div>
                 </div>
                 <hr class="text-muted">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal</span>
-                    <span>₹139.97</span>
+                    <span>₹<%= order.subtotal %> </span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span>GST</span>
-                    <span>₹25.19</span>
+                    <span>₹<%= order.gst %> </span>
                 </div>
                 <div class="d-flex justify-content-between">
                     <span>Shipping</span>
-                    <span>₹50.00</span>
+                    <span>₹<%= order.shipping %> </span>
                 </div>
                 <hr class="text-muted">
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold h5">Grand Total</span>
-                    <span class="fw-bold h5">₹215.16</span>
+                    <span class="fw-bold h5">₹<%= order.total %> </span>
                 </div>
             </div>
 
@@ -94,10 +87,10 @@
                     <p class="fw-bold mb-0">Shipping Address</p>
                 </div>
                 <div class="d-flex flex-column mt-3">
-                    <span class="fw-semibold">john doe</span>
-                    <span class="text-muted">31B, ojhpowuehfp</span>
-                    <span class="text-muted">hiopuhp, upuhpuhp 989787</span>
-                    <span class="text-muted">Phone: 084019742</span>
+                    <span class="fw-semibold"> <%= locals.order.shippingAddress.fullName %> </span>
+                    <span class="text-muted"> <%= locals.order.shippingAddress.houseNumber %>, <%= locals.order.shippingAddress.street %> </span>
+                    <span class="text-muted"> <%= locals.order.shippingAddress.state %>, <%= locals.order.shippingAddress.pincode %> </span>
+                    <span class="text-muted">Phone: <%= locals.order.shippingAddress.phone %> </span>
                 </div>
             </div>
 
@@ -109,12 +102,29 @@
                 <p class="fw-semibold lead">Cash on Delivery</p>
             </div>
 
-            <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center gap-4">
+                <button class="btn btn-light border" id="retry-btn" data-id="<%= order._id %>">Try again</button>
                 <a href="/" class="btn btn-danger">Continue Shopping</a>
             </div>
         </div>
     </div>
 
     <%- include('partials/footer.ejs') %>
+
+    <div class="toast-container position-fixed top-0 end-0 px-3 pt-5 mt-5">
+        <div id="actionToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex gap-2 align-items-center fw-bold">
+                    <svg id="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" height="20" width="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"></path></svg>
+
+                    <div id="actionToastBody">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="/scripts/checkoutFail.js"></script>
 </body>
 </html>

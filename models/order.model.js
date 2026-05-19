@@ -61,12 +61,6 @@ const orderModel = new mongoose.Schema(
                     type: Number,
                     required: true,
                 },
-                paymentStatus: {
-                    type: String,
-                    enum: ["pending", "paid", "failed", "refunded"],
-                    default: "pending",
-                    required: true,
-                },
                 orderStatus: {
                     type: String,
                     enum: ["pending", "processing", "shipped", "delivered", "cancelled", "return-requested", "returned"],
@@ -98,11 +92,7 @@ const orderModel = new mongoose.Schema(
             type: Number,
             required: true,
         },
-        total: {
-            type: Number,
-            required: true,
-            min: 1,
-        },
+        total: { type: Number, required: true, min: 1 },
         couponId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "coupon",
@@ -137,7 +127,13 @@ const orderModel = new mongoose.Schema(
         },
         paymentMethod: {
             type: String,
-            enum: ["cod", "card", "upi", "wallet"],
+            enum: ["cod", "card", "upi", "wallet", "online", "netbanking", "emi"],
+            required: true,
+        },
+        paymentStatus: {
+            type: String,
+            enum: ["pending", "paid", "failed", "refunded"],
+            default: "pending",
             required: true,
         },
         estimatedDeliveryDate: Date,

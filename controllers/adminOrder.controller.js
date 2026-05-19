@@ -79,6 +79,7 @@ export const updateOrderDetails = async (req, res) => {
                     status: "completed",
                 });
                 user.referralBonusGranted = true;
+                order.paymentStatus = "paid";
                 await user.save();
             }
         }
@@ -135,8 +136,9 @@ export const orderReturn = async (req, res) => {
         }
 
         const refund = Math.round(calculatedRefund * 100) / 100;
-
+        order.paymentStatus = "refunded";
         await order.save();
+
         const userId = order.userId;
         const wallet = await Wallet.findOne({ userId: userId });
         const userWallet = wallet || (await Wallet.create({ userId: userId, balance: 0 }));

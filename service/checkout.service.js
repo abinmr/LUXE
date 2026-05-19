@@ -13,7 +13,6 @@ export async function createOrder(req, checkout, address, paymentMethod) {
 
     const items = checkout.items.map((item) => ({
         ...item,
-        paymentStatus: itemPaymentStatus,
         orderStatus: "pending",
     }));
 
@@ -37,6 +36,7 @@ export async function createOrder(req, checkout, address, paymentMethod) {
             state: address.state,
         },
         paymentMethod: paymentMethod,
+        paymentStatus: itemPaymentStatus,
         couponCode: checkout.appliedCoupon,
         estimatedDeliveryDate,
     });

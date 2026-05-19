@@ -1,6 +1,6 @@
 import express from "express";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
-import { applyCoupon, checkoutAddAddress, checkoutBuyNow, checkoutFailurePage, checkoutPlaceOrder, getCheckoutPage, getCheckoutSuccessPage, getDefaultAddress, removeCoupon, verifyPayment } from "../controllers/checkout.controller.js";
+import { applyCoupon, checkoutAddAddress, checkoutBuyNow, checkoutFailurePage, checkoutPlaceOrder, getCheckoutPage, getCheckoutSuccessPage, getDefaultAddress, removeCoupon, retryPayment, verifyPayment } from "../controllers/checkout.controller.js";
 
 const router = express.Router();
 
@@ -23,5 +23,7 @@ router.get("/success", protectedRoute, getCheckoutSuccessPage);
 router.get("/failure", protectedRoute, checkoutFailurePage);
 
 router.post("/verify-payment", protectedRoute, verifyPayment);
+
+router.get("/retry-payment/:id", protectedRoute, retryPayment);
 
 export default router;

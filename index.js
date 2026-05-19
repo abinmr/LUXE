@@ -1,9 +1,9 @@
+import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import flash from "connect-flash";
-import dotevn from "dotenv";
 import adminRouter from "./routes/admin.route.js";
 import userAuthRouter from "./routes/userAuth.route.js";
 import homeRouter from "./routes/home.route.js";
@@ -20,9 +20,6 @@ import adminSalesRouter from "./routes/adminSales.route.js";
 import adminOfferRouter from "./routes/adminOffers.route.js";
 import checkoutRouter from "./routes/checkout.route.js";
 import { connectDB } from "./lib/db.js";
-import Product from "./models/product.model.js";
-
-dotevn.config({ quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -72,3 +69,6 @@ app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
     connectDB();
 });
+
+// 6527 6589 0000 1005
+// 12/28

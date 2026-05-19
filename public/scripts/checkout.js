@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const walletCheckbox = document.getElementById("wallet");
-    const otherPaymentMethods = [document.getElementById("credit"), document.getElementById("upi"), document.getElementById("cod")];
+    const otherPaymentMethods = [document.getElementById("online"), document.getElementById("cod")];
 
     if (walletCheckbox) {
         walletCheckbox.addEventListener("change", (e) => {
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const addressId = document.getElementById("selectedAddressId").value;
         const paymentMethod = document.querySelector("input[name='paymentMethod']:checked").id;
         const couponCode = document.getElementById("couponInput").value.trim();
-
+        placeOrderBtn.disabled = true;
         try {
             const response = await fetch("/checkout/place-order", {
                 method: "POST",
@@ -334,11 +334,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         window.location.href = `/checkout/success?orderId=${orderId}`;
                     } else {
                         showToast(verifyData.message, "error");
-                        window.location.href = `/checkout/failure`;
+                        window.location.href = `/checkout/failure?orderId=${orderId}`;
                     }
                 } catch (err) {
                     console.error(err);
-                    window.location.href = `/checkout/failure`;
+                    window.location.href = `/checkout/failure?orderId=${orderId}`;
                 }
             },
             theme: { color: "#000000" },

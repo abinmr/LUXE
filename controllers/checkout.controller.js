@@ -223,7 +223,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             return res.status(badRequest).json({ success: false, message: "error processing request" });
         }
 
-        if (!["cod", "upi", "credit", "wallet"].includes(paymentMethod)) {
+        if (!["cod", "online", "wallet"].includes(paymentMethod)) {
             return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
         }
 
@@ -249,28 +249,30 @@ export const checkoutPlaceOrder = async (req, res) => {
 
         const order = await createOrder(req, checkout, address, paymentMethod);
 
-        if (order) {
-            for (const item of checkout.items) {
-                await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
+        if (paymentMethod !== "online") {
+            if (order) {
+                for (const item of checkout.items) {
+                    await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
+                }
             }
-        }
 
-        if (checkout.source === "cart") {
-            const cart = await Cart.findOne({ userId: req.user._id });
-            const seletedIds = cart.items.map((item) => item.sizeId._id.toString());
-            await Cart.updateOne(
-                {
-                    userId: req.user._id,
-                },
-                {
-                    $pull: {
-                        items: {
-                            isSelected: true,
-                            sizeId: { $in: seletedIds },
+            if (checkout.source === "cart") {
+                const cart = await Cart.findOne({ userId: req.user._id });
+                const seletedIds = cart.items.map((item) => item.sizeId._id.toString());
+                await Cart.updateOne(
+                    {
+                        userId: req.user._id,
+                    },
+                    {
+                        $pull: {
+                            items: {
+                                isSelected: true,
+                                sizeId: { $in: seletedIds },
+                            },
                         },
                     },
-                },
-            );
+                );
+            }
         }
 
         if (paymentMethod === "wallet") {
@@ -290,7 +292,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             });
         }
 
-        if (paymentMethod === "upi" || paymentMethod === "credit") {
+        if (paymentMethod === "online") {
             const options = {
                 amount: Math.round(checkout.total * 100),
                 currency: "INR",
@@ -313,13 +315,27 @@ export const checkoutPlaceOrder = async (req, res) => {
  * @param {import('express').Response} res
  */
 export const getCheckoutSuccessPage = async (req, res) => {
-    const id = req.query.orderId;
-    const order = await Order.findOne({ _id: id });
-    return res.render("checkoutSuccess", { order });
+    try {
+        const id = req.query.orderId;
+        const order = await Order.findOne({ _id: id });
+        return res.render("checkoutSuccess", { order });
+    } catch (err) {
+        console.error(err);
+    }
 };
 
-export const checkoutFailurePage = (req, res) => {
-    return res.render("checkoutFail");
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+export const checkoutFailurePage = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const order = await Order.findById(id);
+        return res.render("checkoutFail", { order });
+    } catch (err) {
+        console.error(err);
+    }
 };
 
 /**
@@ -334,7 +350,23 @@ export const verifyPayment = async (req, res) => {
         const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_API_SECRET).update(sign.toString()).digest("hex");
 
         if (razorpay_signature === expectedSign) {
-            await Order.updateOne({ _id: orderId }, { $set: { "items.$[].paymentStatus": "paid" } });
+            const paymentDetails = await razorpay.payments.fetch(razorpay_payment_id);
+            const exactMethod = paymentDetails.method;
+            
+            const order = await Order.findById(orderId);
+            if (order && order.paymentStatus !== "paid") {
+                for (const item of order.items) {
+                    await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
+                }
+                
+                const seletedIds = order.items.map((item) => item.sizeId.toString());
+                await Cart.updateOne(
+                    { userId: order.userId },
+                    { $pull: { items: { sizeId: { $in: seletedIds } } } }
+                );
+            }
+
+            await Order.updateOne({ _id: orderId }, { $set: { paymentStatus: "paid", paymentMethod: exactMethod } });
             return res.status(success).json({ success: true, message: "Payment verified successfully" });
         } else {
             return res.status(badRequest).json({ success: false, message: "Invalid signature" });
@@ -342,5 +374,29 @@ export const verifyPayment = async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+/**
+ * @param {import('express').Request} req -
+ * @param {import('express').Response} res -
+ */
+export const retryPayment = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const order = await Order.findById(id);
+        if (!order || order.paymentStatus !== "pending") {
+            return res.status(badRequest).json({ success: false, message: "Order cannot be retried" });
+        }
+
+        const options = {
+            amount: Math.round(order.total * 100),
+            currency: "INR",
+            receipt: order.orderId,
+        };
+        const razorpayOrder = await razorpay.orders.create(options);
+        return res.status(success).json({ success: true, order: order._id, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID, razorpayOrderId: razorpayOrder.id, amount: razorpayOrder.amount });
+    } catch (err) {
+        console.error(err);
     }
 };
