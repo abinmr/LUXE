@@ -99,3 +99,9 @@ input {
     border: none;
     color: #c94c4c;
 }
+
+@media scren and (max-width: 750px) {
+    .google-btn {
+        font-size: 12px;
+    }
+}

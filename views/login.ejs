@@ -25,8 +25,8 @@
         <script defer src="/scripts/login.js"></script>
     </head>
     <body>
-        <div class="container d-flex justify-content-center align-items-center min-vh-100">
-            <div class="border shadow-sm w-50 rounded-4 form-container">
+        <div class="container-xl d-flex justify-content-center align-items-center min-vh-100">
+            <div class="border shadow-sm rounded-4 form-container col-12 col-md-8 col-lg-6">
                 <div class="text-center mt-4">
                     <h2 class="fs-1 py-3 fw-bold" style="font-family: serif">LUXE</h2>
                     <h4 class="fs-4">Welcome Back</h4>
@@ -34,14 +34,14 @@
                 </div>
                 <p class="text-center mb-0 mt-1 text-danger" style="visibility: <%= locals.error ? 'visible' : 'hidden' %>;"><%= locals.error || 'Placeholder' %></p>
                 <form action="/auth/login" method="POST" class="d-flex flex-column align-items-center pt-2" id="form">
-                    <div class="mb-1 w-75">
+                    <div class="mb-1 col-10 col-sm-9">
                         <label for="email" class="form-label">Email</label>
                         <input class="form-control" type="email" name="email" placeholder="you@email.com" id="email" />
                         <div class="mt-1 error-container">
                             <p class="text-danger small mb-0" id="emailError" style="visibility: <%= locals.emailError ? 'visible' : 'hidden' %>;"><%= locals.emailError || 'Placeholder' %></p>
                         </div>
                     </div>
-                    <div class="mb-1 w-75">
+                    <div class="mb-1 col-10 col-sm-9">
                         <label for="password" class="form-label">Password</label>
                         <div class="d-flex input-group border border-1 rounded-2">
                             <input class="form-control border-0" type="password" name="password" placeholder="password" id="password" />
@@ -55,7 +55,7 @@
                             </p>
                         </div>
                     </div>
-                    <button type="submit" class="btn text-light mt-1 w-75 btn-main">Login</button>
+                    <button type="submit" class="btn text-light mt-1 col-6 col-sm-9 btn-main">Login</button>
                     <a href="/auth/login/reset-password" class="mt-3 text-muted text-decoration-none forget-pass">Forgot password?</a>
                 </form>
                 <div class="col-9 mx-auto">
@@ -65,7 +65,7 @@
                         <div class="flex-grow-1 border-bottom"></div>
                     </div>
                     <a href="/auth/google" class="text-decoration-none link-dark">
-                        <button class="google-btn btn mb-3 w-75 mx-auto d-flex justify-content-center align-items-center gap-2">
+                        <button class="google-btn btn mb-3 col-12 col-sm-9 mx-auto d-flex justify-content-center align-items-center gap-2">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
                                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
