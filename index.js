@@ -28,11 +28,11 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  }),
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+    }),
 );
 app.use(cookieParser());
 app.use(express.static("public"));
@@ -57,17 +57,19 @@ app.use("/wishlist", wishlistRouter);
 app.use("/checkout", checkoutRouter);
 
 app.get("/", (req, res) => {
-  return res.redirect("/home");
+    return res.redirect("/home");
 });
 
 app.use((req, res, next) => {
-  res.locals.currentPage = req.path.split("/")[1];
-  next();
+    res.locals.currentPage = req.path.split("/")[1];
+    next();
 });
 
+console.log("demo change");
+
 app.listen(PORT, () => {
-  console.log(`Server running at port ${PORT}`);
-  connectDB();
+    console.log(`Server running at port ${PORT}`);
+    connectDB();
 });
 
 // 6527 6589 0000 1005
