@@ -15,7 +15,7 @@ router.get("/edit/:id", requireAdminAuth, getOffersEditPage);
 
 router.post("/edit/:id", requireAdminAuth, upload.single("image"), updateOffersDetails);
 
-router.patch("/deleted/:id", requireAdminAuth, deleteOffer);
+router.patch("/delete/:id", requireAdminAuth, deleteOffer);
 
 router.patch("/list/:id", requireAdminAuth, listOffer);
 

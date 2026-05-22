@@ -4,8 +4,8 @@ import { getAllCategories } from "../service/adminCategory.service.js";
 import { offerSchema } from "../validators/offer.validator.js";
 import { getAllProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
-import { success } from "zod";
 import { applyOffersToProducts, removeOfferFromProducts } from "../service/offer.service.js";
+import { success, serverError } from "../service/status.service.js";
 
 /**
  * @param {import('express').Request} req -
@@ -218,7 +218,7 @@ export const listOffer = async (req, res) => {
 export const unlistOffer = async (req, res) => {
     try {
         const data = await Offer.findByIdAndUpdate(req.params.id, { isActive: false });
-        return res.status(200).json({ success: true, message: "offer unlisted" });
+        return res.status(success).json({ success: true, message: "offer unlisted" });
     } catch (err) {
         console.error(err);
     }
@@ -236,5 +236,6 @@ export const deleteOffer = async (req, res) => {
         return res.status(success).json({ success: true, message: "offer deleted" });
     } catch (err) {
         console.error(err);
+        return res.status(serverError).json({ success: false, message: "Something went wrong" });
     }
 };

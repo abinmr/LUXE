@@ -17,9 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteBtn.forEach((button) => {
         button.addEventListener("click", async function () {
             const id = this.dataset.id;
+            console.log(id);
             try {
-                const result = await fetch(`/admin/offers/delete/${id}`, { method: "patch" });
-                const data = result.json();
+                const result = await fetch(`/admin/offers/delete/${id}`, { method: "PATCH" });
+                console.log("result", result);
+                const data = await result.json();
+                console.log("data", data);
                 if (data.success) {
                     document.querySelector(`.offers[data-item-id="${id}"]`).remove();
                     showToast(data.message);
