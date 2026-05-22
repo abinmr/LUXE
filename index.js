@@ -65,9 +65,9 @@ app.use((req, res, next) => {
     next();
 });
 
+connectDB();
 app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
-    connectDB();
 });
 
 // 6527 6589 0000 1005
