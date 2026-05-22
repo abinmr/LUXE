@@ -166,6 +166,24 @@ export const updateOffersDetails = async (req, res) => {
     }
 };
 
+export const listOffer = async (req, res) => {
+    try {
+        const data = await Offer.findByIdAndUpdate(req.params.id, { isActive: true });
+        return res.status(200).json({ success: true, message: "offer listed" });
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+export const unlistOffer = async (req, res) => {
+    try {
+        const data = await Offer.findByIdAndUpdate(req.params.id, { isActive: false });
+        return res.status(200).json({ success: true, message: "offer unlisted" });
+    } catch (err) {
+        console.error(err);
+    }
+};
+
 /**
  * @param {import('express').Request} req
  * @param {import('express').Response} res

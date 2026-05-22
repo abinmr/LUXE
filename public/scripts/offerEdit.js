@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const minPurchaseInput = document.getElementById("min-purchase");
     const maxDiscountInput = document.getElementById("max-discount");
     /** @type {HTMLButtonElement} */
-    const submitBtn = document.getElementById("submit-btn");
+    const saveBtn = document.getElementById("save-btn");
     const offerForm = document.getElementById("offerForm");
 
     /**
@@ -57,13 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const results = activeFields.map(({ input, errorId, message }) => validate(input, errorId, message));
         const allValid = results.every(Boolean);
-        console.log("valid: ", allValid);
         if (!allValid) {
             return e.preventDefault();
         }
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Creating Offer...";
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving offer...";
     });
 
     const offerTypeSelect = document.getElementById("offer-type");

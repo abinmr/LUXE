@@ -26,7 +26,7 @@
     <body>
         <%- include('partials/navbar.ejs') %>
         <% if(offer){ %>
-        <section class="position-relative overflow-hidden mb-5" style="height: 600px">
+        <section class="position-relative overflow-hidden" style="height: 600px">
             <img src="<%= offer.image || '' %>" alt="hero section image" class="w-100 object-fit-cover" />
             <div class="position-absolute d-flex align-items-center text-white" style="inset: 0px; background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)">
                 <div class="container">
@@ -38,6 +38,19 @@
                 </div>
             </div>
         </section>
+        <% if (offer.offerType === "percentage") { %>
+            <section class="bg-danger mb-5 text-white py-2 text-center">
+                <p class="mb-0 fs-5">
+                    <% if (offer.applicableTo === "category") { %>
+                        🎉 Flat <%= offer.discountPercentage %>% Off on specific categories
+                    <% } else if (offer.applicableTo === "products") { %>
+                        🎉 Flat <%= offer.discountPercentage %>% Off on specific products
+                    <% } else { %>
+                        🎉 Flat <%= offer.discountPercentage %>% Off on all products
+                    <% } %>
+                </p>
+            </section>
+        <% } %>
         <% } %>
 
         <section class="my-5">

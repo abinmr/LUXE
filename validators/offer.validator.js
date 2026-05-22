@@ -18,8 +18,14 @@ export const offerSchema = z
         minPurchaseAmount: z.string().transform((val) => Number(val)),
         maxDiscountAmount: z.string().transform((val) => Number(val)),
         applicableTo: z.enum(["all", "category", "products"]),
-        applicableCategories: z.array(z.string()).optional(),
-        applicableProducts: z.array(z.string()).optional(),
+        applicableCategories: z.preprocess((val) => {
+            if (!val) return [];
+            return Array.isArray(val) ? val : [val];
+        }, z.array(z.string()).optional()),
+        applicableProducts: z.preprocess((val) => {
+            if (!val) return [];
+            return Array.isArray(val) ? val : [val];
+        }, z.array(z.string()).optional()),
         isActive: z
             .string()
             .transform((val) => val === "on")

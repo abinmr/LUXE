@@ -46,6 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         this.textContent = "Unlist";
                         statusBtn.textContent = "Active";
+                        statusBtn.classList.replace("btn-light", "btn-dark");
+                        statusBtn.classList.remove("border");
                         showToast(data.message);
                     }
                 } catch (err) {
@@ -60,6 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         this.textContent = "List";
                         statusBtn.textContent = "Inactive";
+                        statusBtn.classList.replace("btn-dark", "btn-light");
+                        statusBtn.classList.add("border");
                         showToast(data.message);
                     }
                 } catch (err) {
