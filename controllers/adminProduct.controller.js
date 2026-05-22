@@ -82,6 +82,11 @@ export const addProduct = async (req, res) => {
 
         return res.redirect("/admin/products");
     } catch (err) {
+        if (req.files) {
+            for (const file of req.files) {
+                await fs.unlink(file.path).catch((err) => console.error(err));
+            }
+        }
         req.flash("productError", "Error saving product");
         console.error(err);
         return res.redirect("/admin/products");
@@ -94,6 +99,10 @@ export const getEditPage = async (req, res) => {
     return res.render("productEdit", { product, categories });
 };
 
+/**
+ * @param {import('express').Request} req -
+ * @param {import('express').Response} res -
+ */
 export const editProductDetails = async (req, res) => {
     try {
         for (let key in req.body) {
@@ -152,6 +161,11 @@ export const editProductDetails = async (req, res) => {
 
         return res.redirect("/admin/products");
     } catch (err) {
+        if (req.files) {
+            for (const file of req.files) {
+                await fs.unlink(file.path).catch((err) => console.error(err));
+            }
+        }
         console.error(err);
         return res.redirect("/admin/products");
     }

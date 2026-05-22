@@ -101,6 +101,9 @@ export const addNewOffers = async (req, res) => {
 
         return res.redirect("/admin/offers");
     } catch (error) {
+        if (req.file) {
+            await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
+        }
         console.error(error);
         return res.render("offerAdd", {
             errors: { general: "Something went wrong. Please try again." },
@@ -189,6 +192,9 @@ export const updateOffersDetails = async (req, res) => {
         }
         return res.redirect("/admin/offers");
     } catch (err) {
+        if (req.file) {
+            await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
+        }
         console.error(err);
         const offers = await Offer.findById(id);
         return res.render("offersEdit", {

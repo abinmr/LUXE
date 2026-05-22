@@ -190,6 +190,9 @@ export const editCategoryDetails = async (req, res) => {
         await updateCategory(id, updatedData);
         return res.redirect("/admin/categories");
     } catch (err) {
+        if (req.file) {
+            await fs.promises.unlink(req.file.path);
+        }
         console.error(err);
         return res.redirect("/admin/categories");
     }
