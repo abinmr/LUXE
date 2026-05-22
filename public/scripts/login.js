@@ -2,6 +2,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("toggle-password");
 const eyeIcon = document.getElementById("eye-icon");
+const submitBtn = document.getElementById("submit-btn");
 const form = document.getElementById("form");
 
 function validateEmail() {
@@ -70,6 +71,9 @@ form.addEventListener("submit", (e) => {
     const isPasswordValid = validatePassword();
 
     if (!isEmailValid || !isPasswordValid) {
-        e.preventDefault();
+        return e.preventDefault();
     }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Loggin in...";
 });

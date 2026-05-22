@@ -32,7 +32,6 @@ export const addToWishlist = async (req, res) => {
         }
         if (!wishlist) {
             const newWishlist = await Wishlist.create({ userId: req.user._id, products: [{ productId: req.params.id }] });
-            req.flash("toast", JSON.stringify({ type: "success", message: "Added to wishlist" }));
             return res.status(success).json({ success: true, message: "Add to wishlist", totalWishlist: newWishlist.products.length });
         } else {
             const isAvailable = wishlist.products.some((p) => p.productId.toString() === req.params.id);

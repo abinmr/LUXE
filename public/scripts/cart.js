@@ -1,3 +1,10 @@
+const form = document.getElementById("cart-form");
+
+form.addEventListener("submit", () => {
+    const checkoutBtn = document.getElementById("checkout-btn");
+    checkoutBtn.disabled = true;
+});
+
 async function calculateTotal() {
     try {
         const res = await fetch("/cart/details");

@@ -108,8 +108,6 @@ export const applyCoupon = async (req, res) => {
         checkoutSessoin.discount = discountAmount;
         checkoutSessoin.total = checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount;
         checkoutSessoin.appliedCoupon = code;
-        coupon.users.push(req.user?._id);
-        await coupon.save();
 
         return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: "Coupon applied" });
     } catch (err) {
@@ -249,6 +247,11 @@ export const checkoutPlaceOrder = async (req, res) => {
 
         const order = await createOrder(req, checkout, address, paymentMethod);
 
+        if (checkout.appliedCoupon) {
+            const coupon = await Coupon.findOne({ code: checkout.appliedCoupon });
+            coupon.users.push(req.user?._id);
+            await coupon.save();
+        }
         if (paymentMethod !== "online") {
             if (order) {
                 for (const item of checkout.items) {
@@ -352,18 +355,15 @@ export const verifyPayment = async (req, res) => {
         if (razorpay_signature === expectedSign) {
             const paymentDetails = await razorpay.payments.fetch(razorpay_payment_id);
             const exactMethod = paymentDetails.method;
-            
+
             const order = await Order.findById(orderId);
             if (order && order.paymentStatus !== "paid") {
                 for (const item of order.items) {
                     await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
                 }
-                
+
                 const seletedIds = order.items.map((item) => item.sizeId.toString());
-                await Cart.updateOne(
-                    { userId: order.userId },
-                    { $pull: { items: { sizeId: { $in: seletedIds } } } }
-                );
+                await Cart.updateOne({ userId: order.userId }, { $pull: { items: { sizeId: { $in: seletedIds } } } });
             }
 
             await Order.updateOne({ _id: orderId }, { $set: { paymentStatus: "paid", paymentMethod: exactMethod } });

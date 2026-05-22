@@ -129,7 +129,7 @@ cropModalEl.addEventListener("shown.bs.modal", () => {
     cropperInstance = new Cropper(cropImg, {
         viewMode: 1,
         dragMode: "move",
-        aspectRatio: 1,
+        aspectRatio: NaN,
         autoCropArea: 0.85,
         movable: true,
         zoomable: true,
@@ -151,10 +151,8 @@ document.getElementById("cropConfirmBtn").addEventListener("click", () => {
 
     cropperInstance
         .getCroppedCanvas({
-            // maxWidth: 2048,
-            // width: 310,
-            // height: 400,
-            // maxHeight: 2048,
+            maxWidth: 2048,
+            maxHeight: 2048,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: "high",
         })
