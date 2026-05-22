@@ -72,3 +72,5 @@ app.listen(PORT, () => {
 
 // 6527 6589 0000 1005
 // 12/28
+
+export default app;

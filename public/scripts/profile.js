@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const emailInput = document.getElementById("email");
     const emailError = document.getElementById("emailError");
+    const saveBtn = document.getElementById("saveProflieBtn");
     const profileForm = document.getElementById("profileForm");
 
     const avatarWrapper = document.getElementById("avatarWrapper");
@@ -92,8 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
         profileForm.addEventListener("submit", (e) => {
             const isEmailValid = validateEmail();
             if (!isEmailValid) {
-                e.preventDefault();
+                return e.preventDefault();
             }
+            saveBtn.disabled = true;
+            saveBtn.textContent = "Saving Changes...";
         });
     }
 
@@ -103,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentPassError = document.getElementById("currentPasswordError");
     const newPassError = document.getElementById("newPasswordError");
     const confirmPassError = document.getElementById("confirmPasswordError");
+    const submitPasswordBtn = document.getElementById("password-submit");
     const passwordForm = document.getElementById("passwordForm");
 
     function setupPasswordToggle(btnId, inputEl, iconId) {
@@ -193,8 +197,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const isConfirmPassValid = validateConfirmPassword();
 
             if (!isPasswordValid || !isNewPassValid || !isConfirmPassValid) {
-                e.preventDefault();
+                return e.preventDefault();
             }
+
+            submitPasswordBtn.disabled = true;
+            submitPasswordBtn.textContent = "Changing Password...";
         });
     }
 

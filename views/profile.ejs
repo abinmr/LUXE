@@ -169,7 +169,7 @@
                                     <div class="error-container">
                                         <p class="m-0 text-danger"><%= locals.error %> </p>
                                     </div>
-                                    <button type="submit" class="btn btn-danger mt-2" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >Change Password</button>
+                                    <button type="submit" id="password-submit" class="btn btn-danger mt-2" <%= locals.user.authMethod === "google" ? 'disabled' : '' %> >Change Password</button>
                                 </form>
                             <% } %>
 

@@ -62,10 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const buyNowBtn = document.getElementById("buy-now");
     cartForms.forEach((form) => {
         form.addEventListener("submit", async (e) => {
             const submitter = e.submitter;
             if (!submitter || submitter.value !== "cart") {
+                buyNowBtn.disabled = true;
                 return;
             }
             e.preventDefault();
@@ -138,7 +140,7 @@ function selectSize(sizeId) {
 
     document.getElementById("inputSizeId").value = selectedSize._id;
     document.getElementById("displayPrice").innerText = displayPrice;
-    
+
     const compareEl = document.getElementById("displayCompareAtPrice");
     if (displayPrice < originalPrice) {
         compareEl.innerText = "₹" + originalPrice;
@@ -169,14 +171,14 @@ function renderSizes() {
     const displayPrice = effectivePrice ?? originalPrice;
 
     document.getElementById("displayPrice").innerText = displayPrice;
-    
+
     const compareEl = document.getElementById("displayCompareAtPrice");
     if (displayPrice < originalPrice) {
         compareEl.innerText = "₹" + originalPrice;
     } else {
         compareEl.innerText = "";
     }
-    
+
     document.getElementById("inputSizeId").value = selectedSize._id;
 }
 

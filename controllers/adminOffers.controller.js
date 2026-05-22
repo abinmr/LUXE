@@ -69,6 +69,23 @@ export const addNewOffers = async (req, res) => {
             delete data.applicableProducts;
         }
 
+        if (data.applicableTo === "all") {
+            const anyActiveOffer = await Offer.findOne({ applicableTo: "all", isDeleted: false });
+            if (anyActiveOffer) {
+                return res.render("offerAdd", { errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
+            }
+        } else if (data.applicableTo === "category") {
+            const anyActiveOffer = await Offer.findOne({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            if (anyActiveOffer) {
+                return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
+            }
+        } else if (data.applicableTo === "products") {
+            const anyActiveOffer = await Offer.findOne({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
+            if (anyActiveOffer) {
+                return res.render("offerAdd", { errors: {}, offerError: "Offer for these products are already available", oldData: req.body, products, categories });
+            }
+        }
+
         if (!req.file) {
             throw new Error("image is required");
         }
@@ -137,6 +154,23 @@ export const updateOffersDetails = async (req, res) => {
         else {
             delete data.applicableCategories;
             delete data.applicableProducts;
+        }
+
+        if (data.applicableTo === "all") {
+            const anyActiveOffer = await Offer.findOne({ applicableTo: "all", isDeleted: false });
+            if (anyActiveOffer) {
+                return res.render("offerAdd", { errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
+            }
+        } else if (data.applicableTo === "category") {
+            const anyActiveOffer = await Offer.findOne({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            if (anyActiveOffer) {
+                return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
+            }
+        } else if (data.applicableTo === "products") {
+            const anyActiveOffer = await Offer.findOne({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
+            if (anyActiveOffer) {
+                return res.render("offerAdd", { errors: {}, offerError: "Offer for these products are already available", oldData: req.body, products, categories });
+            }
         }
 
         if (req.file) {

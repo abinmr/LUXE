@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         saveBtn.disabled = true;
-        saveBtn.textContent = "Saving offer...";
+        saveBtn.textContent = "Saving Changes...";
     });
 
     const offerTypeSelect = document.getElementById("offer-type");
