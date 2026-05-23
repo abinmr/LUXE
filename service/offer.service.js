@@ -3,6 +3,44 @@ import Product from "../models/product.model.js";
 import nodeCron from "node-cron";
 
 /** @typedef {import('../types.d.ts').Offer} Offer */
+/** @typedef {import("mongoose").ObjectId} ObjectId */
+
+/**
+ * @param {Offer} query -
+ * @returns {Promise<Offer[]>} -
+ */
+export async function getOffers(query) {
+    return await Offer.find(query);
+}
+
+/**
+ * @param {ObjectId} id -
+ */
+export async function findOfferById(id) {
+    return await Offer.findById(id);
+}
+
+/**
+ * @param {Offer} query -
+ */
+export async function findOneOffer(query) {
+    return await Offer.findOne(query);
+}
+
+/**
+ * @param {Offer} data -
+ */
+export async function createOffer(data) {
+    return await Offer.create(data);
+}
+
+/**
+ * @param {ObjectId} id -
+ * @param {Offer} data -
+ */
+export async function updateOffer(id, data) {
+    return await Offer.findByIdAndUpdate(id, data, { new: true });
+}
 
 /**
  * @param {Offer} offer
@@ -42,7 +80,7 @@ export async function applyOffersToProducts(offer) {
 }
 
 /**
- * @param {string} offerId
+ * @param {ObjectId} offerId
  */
 export async function removeOfferFromProducts(offerId) {
     const products = await Product.find({ "variants.sizes.appliedOfferId": offerId });

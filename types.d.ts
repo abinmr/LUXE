@@ -27,3 +27,17 @@ interface ReportData {
     netSale: number;
     orders: number;
 }
+
+export interface WalletTransaction {
+    _id: ObjectId;
+    walletId: ObjectId;
+    userId: ObjectId;
+    referenceModel?: "Order" | "User";
+    referenceId?: ObjectId;
+    transactionType: "credit" | "debit";
+    amount: number;
+    description: string;
+    status?: "pending" | "completed" | "failed";
+    createdAt: Date;
+    updatedAt: Date;
+}

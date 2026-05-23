@@ -4,12 +4,15 @@ import { getAllCategories } from "../service/adminCategory.service.js";
 import { offerSchema } from "../validators/offer.validator.js";
 import { getAllProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
-import { applyOffersToProducts, removeOfferFromProducts } from "../service/offer.service.js";
+import { applyOffersToProducts, createOffer, findOfferById, findOneOffer, getOffers, removeOfferFromProducts, updateOffer } from "../service/offer.service.js";
 import { success, serverError } from "../service/status.service.js";
 
+/** @typedef {import('express').Request} Request */
+/** @typedef {import('express').Response} Response */
+
 /**
- * @param {import('express').Request} req -
- * @param {import('express').Response} res -
+ * @param {Request} req -
+ * @param {Response} res -
  */
 export const getOffersPage = async (req, res) => {
     try {
@@ -20,13 +23,17 @@ export const getOffersPage = async (req, res) => {
                 $or: [{ title: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }],
             };
         }
-        const offers = await Offer.find(dbQuery);
+        const offers = await getOffers(dbQuery);
         return res.render("offers", { currentPage: "offers", offers, search });
     } catch (err) {
         console.error(err);
     }
 };
 
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const getOfferAddPage = async (req, res) => {
     const categories = await getAllCategories();
     const products = await getAllProducts();
@@ -36,9 +43,8 @@ export const getOfferAddPage = async (req, res) => {
 };
 
 /**
- *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
+ * @param {Request} req -
+ * @param {Response} res -
  */
 export const addNewOffers = async (req, res) => {
     const products = await getAllProducts();
@@ -70,17 +76,17 @@ export const addNewOffers = async (req, res) => {
         }
 
         if (data.applicableTo === "all") {
-            const anyActiveOffer = await Offer.findOne({ applicableTo: "all", isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ applicableTo: "all", isDeleted: false });
             if (anyActiveOffer) {
                 return res.render("offerAdd", { errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "category") {
-            const anyActiveOffer = await Offer.findOne({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
             if (anyActiveOffer) {
                 return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "products") {
-            const anyActiveOffer = await Offer.findOne({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
             if (anyActiveOffer) {
                 return res.render("offerAdd", { errors: {}, offerError: "Offer for these products are already available", oldData: req.body, products, categories });
             }
@@ -96,7 +102,7 @@ export const addNewOffers = async (req, res) => {
 
         await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
 
-        const result = await Offer.create({ ...data, image: uploadResult.secure_url });
+        const result = await createOffer({ ...data, image: uploadResult.secure_url });
         await applyOffersToProducts(result);
 
         return res.redirect("/admin/offers");
@@ -115,13 +121,13 @@ export const addNewOffers = async (req, res) => {
 };
 
 /**
- * @param {import('express').Request} req
- * @param {import('express').Response} res
+ * @param {Request} req -
+ * @param {Response} res -
  */
 export const getOffersEditPage = async (req, res) => {
     try {
         const id = req.params.id;
-        const offers = await Offer.findById(id);
+        const offers = await findOfferById(id);
         const categories = await getAllCategories();
         const products = await getAllProducts();
         const errors = {};
@@ -132,8 +138,8 @@ export const getOffersEditPage = async (req, res) => {
 };
 
 /**
- * @param {import('express').Request} req
- * @param {import('express').Response} res
+ * @param {Request} req -
+ * @param {Response} res -
  */
 export const updateOffersDetails = async (req, res) => {
     const id = req.params.id;
@@ -147,7 +153,7 @@ export const updateOffersDetails = async (req, res) => {
         validateData.error.issues.forEach((err) => {
             errors[err.path[0]] = err.message;
         });
-        const offers = await Offer.findById(id);
+        const offers = await findOfferById(id);
         return res.render("offersEdit", { offers, categories, products, errors });
     }
     try {
@@ -160,17 +166,17 @@ export const updateOffersDetails = async (req, res) => {
         }
 
         if (data.applicableTo === "all") {
-            const anyActiveOffer = await Offer.findOne({ applicableTo: "all", isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ applicableTo: "all", isDeleted: false });
             if (anyActiveOffer) {
                 return res.render("offerAdd", { errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "category") {
-            const anyActiveOffer = await Offer.findOne({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
             if (anyActiveOffer) {
                 return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "products") {
-            const anyActiveOffer = await Offer.findOne({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
             if (anyActiveOffer) {
                 return res.render("offerAdd", { errors: {}, offerError: "Offer for these products are already available", oldData: req.body, products, categories });
             }
@@ -184,7 +190,7 @@ export const updateOffersDetails = async (req, res) => {
             await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
             data.image = uploadResult.secure_url;
         }
-        const result = await Offer.findByIdAndUpdate(id, { ...data }, { new: true });
+        const result = await updateOffer(id, { ...data });
         await removeOfferFromProducts(result._id);
 
         if (result.isActive) {
@@ -196,7 +202,7 @@ export const updateOffersDetails = async (req, res) => {
             await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
         }
         console.error(err);
-        const offers = await Offer.findById(id);
+        const offers = await findOfferById(req.params.id);
         return res.render("offersEdit", {
             offers,
             categories,
@@ -206,18 +212,26 @@ export const updateOffersDetails = async (req, res) => {
     }
 };
 
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const listOffer = async (req, res) => {
     try {
-        const data = await Offer.findByIdAndUpdate(req.params.id, { isActive: true });
+        await updateOffer(req.params.id, { isActive: true });
         return res.status(200).json({ success: true, message: "offer listed" });
     } catch (err) {
         console.error(err);
     }
 };
 
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const unlistOffer = async (req, res) => {
     try {
-        const data = await Offer.findByIdAndUpdate(req.params.id, { isActive: false });
+        await updateOffer(req.params.id);
         return res.status(success).json({ success: true, message: "offer unlisted" });
     } catch (err) {
         console.error(err);
@@ -225,8 +239,8 @@ export const unlistOffer = async (req, res) => {
 };
 
 /**
- * @param {import('express').Request} req
- * @param {import('express').Response} res
+ * @param {Request} req -
+ * @param {Response} res -
  */
 export const deleteOffer = async (req, res) => {
     try {

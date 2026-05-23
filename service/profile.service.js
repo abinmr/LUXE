@@ -40,16 +40,6 @@ export async function createAddress(details, userId) {
     });
 }
 
-/**
- *@param {string} userId
- */
-export async function findAddresses(userId) {
-    if (!userId) {
-        throw new Error("Invalid or missing userId");
-    }
-    return await Address.find({ user: userId }).sort({ createdAt: -1 });
-}
-
 export async function generateInvoice(order, res) {
     const doc = new PDFDocument({ margin: 50, size: "A4" });
 
