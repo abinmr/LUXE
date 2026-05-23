@@ -70,7 +70,4 @@ app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
 });
 
-// 6527 6589 0000 1005
-// 12/28
-
 export default app;
