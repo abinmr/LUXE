@@ -1,7 +1,7 @@
 import Product from "../models/product.model.js";
 
 export async function getAllProducts() {
-    return await Product.find({ isListed: true, isDeleted: true });
+    return await Product.find({ isListed: true, isDeleted: false });
 }
 
 /**

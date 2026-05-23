@@ -1,16 +1,9 @@
-.item-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    align-items: start;
+.responsive-title {
+    font-size: clamp(10px, 2.5vw, 16px);
 }
 
-.cart-items {
-    grid-column: span 2;
-}
-
-.cart-sidebar {
-    grid-column: 3;
-    grid-row: 1 / -1;
+.responsive-text {
+    font-size: clamp(12px, 2.5vw, 14px);
 }
 
 .qty-input {

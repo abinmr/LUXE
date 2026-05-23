@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loading || !hasMore) return;
 
         const scrollPosition = window.innerHeight + window.scrollY;
-        const bottom = document.body.offsetHeight - 500;
+        const bottom = document.body.offsetHeight - 700;
         loadingSpinner.style.display = "block";
 
         if (scrollPosition >= bottom) {

@@ -107,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateApplicabilityVisibility() {
         const selectedApplicable = applicableSelect.value;
+        console.log(selectedApplicable);
 
         if (selectedApplicable === "all") {
             categoryListContainer.classList.add("d-none");
@@ -114,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (selectedApplicable === "category") {
             categoryListContainer.classList.remove("d-none");
             productListContainer.classList.add("d-none");
-        } else if (selectedApplicable === "product") {
+        } else if (selectedApplicable === "products") {
             categoryListContainer.classList.add("d-none");
             productListContainer.classList.remove("d-none");
         }

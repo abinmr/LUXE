@@ -61,6 +61,11 @@
                    const mainEffectivePrice = mainSize.effectivePrice ?? null;
                    const mainDisplayPrice = mainEffectivePrice ?? mainOriginalPrice;
                 %>
+                <% if (mainEffectivePrice) { %>
+                    <div class="my-2">
+                        <span class="badge bg-danger">offer</span>
+                    </div>
+                <% } %>
                 <p class="fw-bold fs-5 mb-0">
                     ₹<span id="displayPrice"><%= mainDisplayPrice %></span>
                     <span id="displayCompareAtPrice" class="text-muted text-decoration-line-through fs-6 ms-2">

@@ -51,7 +51,7 @@ export async function applyOffersToProducts(offer) {
     if (offer.applicableTo === "category") {
         matchQuery.category = { $in: offer.applicableCategories };
     } else if (offer.applicableTo === "products") {
-        matchQuery.products = { $in: offer.applicableProducts };
+        matchQuery._id = { $in: offer.applicableProducts };
     }
 
     const products = await Product.find(matchQuery);

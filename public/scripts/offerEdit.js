@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return offerTypeSelect.value === "flat";
             }
             if (input === discountPercentageInput) {
-                return (offerTypeSelect.value = "percentage");
+                return offerTypeSelect.value === "percentage";
             }
 
             return true;
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (selectedApplicable === "category") {
             categoryListContainer.classList.remove("d-none");
             productListContainer.classList.add("d-none");
-        } else if (selectedApplicable === "product") {
+        } else if (selectedApplicable === "products") {
             categoryListContainer.classList.add("d-none");
             productListContainer.classList.remove("d-none");
         }
