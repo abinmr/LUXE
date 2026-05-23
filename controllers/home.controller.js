@@ -40,7 +40,6 @@ export const getHomePage = async (req, res) => {
             return res.json({ products, wishlist: userWishlist });
         }
         const toast = req.flash("home")[0];
-        console.log("home offer", offer);
         res.render("home", { products, userWishlist, offer, toast });
     } catch (err) {
         console.error(err);

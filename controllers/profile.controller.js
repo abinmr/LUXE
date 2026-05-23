@@ -1,17 +1,26 @@
 import bcrypt from "bcrypt";
 import fs from "fs";
-import User from "../models/user.model.js";
 import Address from "../models/address.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
 import Order from "../models/order.model.js";
-import { createAddress, findAddresses, generateInvoice } from "../service/profile.service.js";
+import { createAddress, generateInvoice } from "../service/profile.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { notFound, serverError, success } from "../service/status.service.js";
 import Wallet from "../models/wallet.model.js";
 import WalletTransaction from "../models/walletTransation.model.js";
+import { getWalletTransactions } from "../service/wallet.service.js";
+import { findOneUser, findUserById, userFindAndUpdate } from "../service/user.service.js";
+import { findAddresses } from "../service/address.service.js";
 
+/** @typedef {import('express').Request} Request */
+/** @typedef {import('express').Response} Response */
+
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const getProfile = async (req, res) => {
     try {
         const currentSection = req.query.section || "profile";
@@ -27,22 +36,20 @@ export const getProfile = async (req, res) => {
         }
         let wallet = "00:00";
         if (currentSection === "wallet") {
-            const walletData = await Wallet.findOne({ userId: req.user?._id });
-            if (walletData) {
-                wallet = walletData;
-            }
+            const walletData = await getUserWallet(req.user?._id);
+            wallet = walletData;
         }
         let totalReferrals = 0;
         let totalReferralEarning = 0;
         if (currentSection === "referrals") {
-            let referrals = await WalletTransaction.find({ referenceModel: "User" });
+            let referrals = await getWalletTransactions({ referenceModel: "User" });
             totalReferrals = referrals.length;
             totalReferralEarning = referrals.reduce((acc, curr) => acc + curr.amount, 0);
         }
 
         let walletHistory = [];
         if (currentSection === "wallet") {
-            walletHistory = await WalletTransaction.find({ userId: req.user?._id }).populate("referenceId").sort({ createdAt: -1 });
+            walletHistory = await getWalletTransactions({ userId: req.user?._id });
         }
         res.render("profile", {
             section: currentSection,
@@ -90,7 +97,7 @@ export const updateProfile = async (req, res) => {
             updateData.profile = result.secure_url;
         }
 
-        const currentUser = await User.findById(req.user._id);
+        const currentUser = await findUserById(req.user?._id);
         if (email !== currentUser.email) {
             req.session.pendingProfileUpdate = { fullname, email, phone, profile: updateData.profile };
             await Otp.deleteMany({ userId: currentUser._id });
@@ -98,7 +105,7 @@ export const updateProfile = async (req, res) => {
             return res.redirect("/profile/verify-email-otp");
         }
 
-        const updateDetails = await User.updateOne({ _id: req.user._id }, updateData);
+        const updateDetails = await userFindAndUpdate(req.user._id, updateData);
 
         if (updateDetails) {
             req.flash("toast", JSON.stringify({ type: "success", message: "Details updated" }));
@@ -148,19 +155,23 @@ export const verifyEmailOtp = async (req, res) => {
         req.flash("profileError", "Invalid otp");
         return res.redirect("/profile/verify-email-otp");
     }
-    await User.updateOne({ _id: req.user._id }, pendingUpdate);
+    await userFindAndUpdate(req.user?._id, pendingUpdate);
     delete req.session.pendingProfileUpdate;
     req.flash("toast", JSON.stringify({ type: "success", message: "profile updated" }));
     return res.redirect("/profile?section=profile");
 };
 
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const changePassword = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     if (newPassword !== confirmPassword) {
         return res.redirect("/profile?section=password");
     }
     try {
-        const user = await User.findOne({ _id: req.user._id });
+        const user = await findOneUser({ _id: req.user?._id });
         console.log("User: ", user);
         if (user) {
             const match = await bcrypt.compare(currentPassword, user.password);
@@ -171,7 +182,7 @@ export const changePassword = async (req, res) => {
             }
 
             const newHashPassword = await bcrypt.hash(newPassword, 10);
-            const updateResult = await User.findByIdAndUpdate(req.user._id, { password: newHashPassword });
+            const updateResult = await userFindAndUpdate(req.user?._id, { password: newHashPassword });
             console.log("update success:", updateResult);
             req.flash("toast", JSON.stringify({ type: "success", message: "Password Updated" }));
             return res.redirect("/profile?section=password");

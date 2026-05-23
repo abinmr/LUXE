@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import User from "../models/user.model.js";
+import { findUserById } from "../service/user.service.js";
 
 export const redirectIfAuth = async (req, res, next) => {
     const token = req.cookies.token;
@@ -26,7 +26,7 @@ export const protectedRoute = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.userId).select("-password");
+        const user = await findUserById(decoded.userId);
 
         if (!user) {
             req.flash("loginError", "User not found");
@@ -60,10 +60,9 @@ export const checkUserStatus = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decoded.userId).select("-password");
+        const user = await findUserById(decoded.userId);
 
         if (user && !user.isBlocked) {
-            // console.log("user mounted.");
             req.user = user;
             res.locals.user = user;
         } else {

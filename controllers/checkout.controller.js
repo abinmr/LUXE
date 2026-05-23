@@ -6,12 +6,13 @@ import Product from "../models/product.model.js";
 import { calcPricing, getCartItems } from "../service/cart.service.js";
 import { createOrder } from "../service/checkout.service.js";
 import { updateProduct } from "../service/product.service.js";
-import { createAddress, findAddresses } from "../service/profile.service.js";
+import { createAddress } from "../service/profile.service.js";
 import { badRequest, conflict, created, notFound, serverError, success } from "../service/status.service.js";
 import razorpay from "../lib/razorpay.js";
 import crypto from "crypto";
 import Wallet from "../models/wallet.model.js";
 import WalletTransaction from "../models/walletTransation.model.js";
+import { findAddresses } from "../service/address.service.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
