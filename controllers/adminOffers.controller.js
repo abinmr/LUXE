@@ -145,6 +145,7 @@ export const updateOffersDetails = async (req, res) => {
     const id = req.params.id;
     const categories = await getAllCategories();
     const products = await getAllProducts();
+    const offers = await findOfferById(id);
 
     const validateData = offerSchema.safeParse({ ...req.body });
 
@@ -153,7 +154,6 @@ export const updateOffersDetails = async (req, res) => {
         validateData.error.issues.forEach((err) => {
             errors[err.path[0]] = err.message;
         });
-        const offers = await findOfferById(id);
         return res.render("offersEdit", { offers, categories, products, errors });
     }
     try {
@@ -165,20 +165,28 @@ export const updateOffersDetails = async (req, res) => {
             delete data.applicableProducts;
         }
 
+        const updatePayload = { ...data };
+        /** @type {import("../types.js").Offer} */
+        const unsetPayload = {};
+
         if (data.applicableTo === "all") {
-            const anyActiveOffer = await findOneOffer({ applicableTo: "all", isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ _id: { $ne: id }, applicableTo: "all", isDeleted: false });
+            unsetPayload.applicableCategories = "";
+            unsetPayload.applicableProducts = "";
             if (anyActiveOffer) {
-                return res.render("offerAdd", { errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
+                return res.render("offersEdit", { offers, errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "category") {
-            const anyActiveOffer = await findOneOffer({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ _id: { $ne: id }, applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            unsetPayload.applicableProducts = "";
             if (anyActiveOffer) {
-                return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
+                return res.render("offersEdit", { offers, errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "products") {
-            const anyActiveOffer = await findOneOffer({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
+            const anyActiveOffer = await findOneOffer({ _id: { $ne: id }, applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
+            unsetPayload.applicableCategories = "";
             if (anyActiveOffer) {
-                return res.render("offerAdd", { errors: {}, offerError: "Offer for these products are already available", oldData: req.body, products, categories });
+                return res.render("offersEdit", { offers, errors: {}, offerError: "Offer for these products are already available", oldData: req.body, products, categories });
             }
         }
 
@@ -190,7 +198,7 @@ export const updateOffersDetails = async (req, res) => {
             await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
             data.image = uploadResult.secure_url;
         }
-        const result = await updateOffer(id, { ...data });
+        const result = await updateOffer(id, { $set: updatePayload, $unset: unsetPayload });
         await removeOfferFromProducts(result._id);
 
         if (result.isActive) {
