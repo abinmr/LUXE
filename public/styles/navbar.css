@@ -83,6 +83,14 @@ body {
     height: 600px;
 }
 
+.responsive-title {
+    font-size: clamp(14px, 2.5vw, 16px);
+}
+
+.responsive-text {
+    font-size: clamp(12px, 2.5vw, 14px);
+}
+
 @media screen and (max-width: 800px) {
     .hero-section {
         height: 400px;

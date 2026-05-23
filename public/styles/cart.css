@@ -1,10 +1,3 @@
-.responsive-title {
-    font-size: clamp(10px, 2.5vw, 16px);
-}
-
-.responsive-text {
-    font-size: clamp(12px, 2.5vw, 14px);
-}
 
 .qty-input {
     width: 36px;

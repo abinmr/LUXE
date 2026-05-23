@@ -319,19 +319,19 @@
                                 <% if (orders && orders.length > 0) { %>
                                 <% orders.forEach(order => { %>
                                     <div class="p-4 border border-1 rounded-4 mt-4">
-                                        <a href="/profile/orders/<%= order.orderId %>" class="d-flex justify-content-between align-items-center text-decoration-none">
+                                        <a href="/profile/orders/<%= order.orderId %>" class="d-flex flex-column flex-md-row justify-content-between align-items-center text-decoration-none">
                                             <div class="d-flex align-items-center gap-4">
                                                 <img src="<%= order.items[0].productImage %>" class="rounded-2" height="80" width="80">
                                                 <div>
-                                                    <p class="mb-2">Order <%= order.orderId %></p>
-                                                    <span class="text-muted"> <%= order.estimatedDeliveryDate ? order.estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
-                                                    <br>
+                                                    <p class="mb-2 responsive-title">Order <%= order.orderId %></p>
+                                                    <span class="text-muted responsive-text"> <%= order.estimatedDeliveryDate ? order.estimatedDeliveryDate.toLocaleDateString("en-US", options) : 'N/A' %></span>
+                                                    <br class="d-none d-sm-block">
                                                     <% if (order.items.length > 1) { %>
                                                     <span class="text-muted">+<%= order.items.length - 1 %> more</span>
                                                     <% } %>
                                                 </div>
                                             </div>
-                                            <div>
+                                            <div class="mt-2 mt-md-0 ms-auto">
                                                 <%
                                                     const terminalStates = ["returned", "delivered", "cancelled", "return-requested"];
                                                     const activeItem = order.items.find(item => !terminalStates.includes(item.orderStatus));

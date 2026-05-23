@@ -10,7 +10,7 @@
 </head>
 <body style="background-color: #fefbf8;">
     <%- include('partials/navbar.ejs') %>
-    <div class="container mt-5">
+    <div class="container-xl mt-5">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="/">Home</a></li>
@@ -20,15 +20,15 @@
             </ol>
         </nav>
 
-        <div class="d-flex justify-content-between gap-4 mt-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center align-items-lg-start gap-4 mt-4">
             <div class="w-100">
                 <div class="border border-1 rounded-4 p-4 bg-white mb-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package h-5 w-5" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><path d="m7.5 4.27 9 5.15"></path></svg>
-                            <span>Order #<%= orderDetails.orderId %></span>
+                            <span class="responsive-title">Order #<%= orderDetails.orderId %></span>
                         </div>
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex flex-column flex-sm-row align-items-center gap-3">
                             <% const displayStatus = orderDetails.items[0].orderStatus || 'pending'; %>
                             <button id="order-status" class="btn btn-sm <%= (displayStatus === "cancelled" || displayStatus === "return-requested") ? 'btn-danger' : "btn-light border" %> rounded-2"> <%= displayStatus === "return-requested" ? 'Return requested' : displayStatus %> </button>
                             <a href="/profile/orders/<%= orderDetails._id %>/invoice" target="_blank" class="btn btn-light btn-sm rounded-2 border d-flex align-items-center gap-2">
@@ -65,12 +65,10 @@
                         <hr class="text-muted">
                         <% } %>
                         <div class="mt-2 d-flex justify-content-between align-items-center gap-4">
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-start gap-3">
+                                <img src="<%= item.productImage %>" alt="<%= item.productName %>" class="rounded-2 object-fit-cover" height="140" width="140">
                                 <div>
-                                    <img src="<%= item.productImage %>" alt="<%= item.productName %>" class="rounded-2 object-fit-cover" height="140" width="140">
-                                </div>
-                                <div>
-                                    <p class="mb-1 fw-bold"> <%= item.productName %></p>
+                                    <p class="mb-1 fw-bold responsive-title"> <%= item.productName %></p>
                                     <div>
                                         <span>Size: <span class="fw-semibold"> <%= item.size %> </span></span>
                                         <span>Color: <span class="fw-semibold"> <%= item.color %> </span></span>
@@ -99,7 +97,7 @@
                 </div>
             </div>
 
-            <div class="w-50">
+            <div class="col-12 col-md-10 col-lg-4">
                 <div class="border border-1 rounded-4 p-4 bg-white shadow-sm mb-4">
                     <div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin h-5 w-5" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
