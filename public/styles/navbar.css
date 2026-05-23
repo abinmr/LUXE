@@ -78,3 +78,13 @@ input[type="number"] {
 body {
     background-color: #fefbf8;
 }
+
+.hero-section {
+    height: 600px;
+}
+
+@media screen and (max-width: 800px) {
+    .hero-section {
+        height: 400px;
+    }
+}

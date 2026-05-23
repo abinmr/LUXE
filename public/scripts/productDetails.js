@@ -103,6 +103,9 @@ const detail = document.getElementById("detail");
 let drift;
 function initZoom() {
     if (drift) drift.destroy();
+    if (window.innerWidth < 800) {
+        return;
+    }
     drift = new Drift(mainImage, {
         paneContainer: detail,
         containInline: true,

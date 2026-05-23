@@ -26,8 +26,8 @@
     <body>
         <%- include('partials/navbar.ejs') %>
         <% if(offer){ %>
-        <section class="position-relative overflow-hidden" style="height: 600px">
-            <img src="<%= offer.image || '' %>" alt="hero section image" class="w-100 object-fit-cover" />
+        <section class="position-relative overflow-hidden hero-section">
+            <img src="<%= offer.image || '' %>" alt="hero section image" class="w-100 h-100 object-fit-cover" />
             <div class="position-absolute d-flex align-items-center text-white" style="inset: 0px; background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%)">
                 <div class="container">
                     <div class="text-white" style="max-width: 36rem">
