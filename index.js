@@ -20,6 +20,7 @@ import adminSalesRouter from "./routes/adminSales.route.js";
 import adminOfferRouter from "./routes/adminOffers.route.js";
 import checkoutRouter from "./routes/checkout.route.js";
 import { connectDB } from "./lib/db.js";
+import { initCronJob } from "./service/cron.service.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,7 @@ app.use((req, res, next) => {
 });
 
 await connectDB();
+initCronJob();
 app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
 });

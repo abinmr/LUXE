@@ -386,8 +386,18 @@ export const retryPayment = async (req, res) => {
     try {
         const id = req.params.id;
         const order = await Order.findById(id);
-        if (!order || order.paymentStatus !== "pending") {
+        if (!order || !["pending", "failed"].includes(order.paymentStatus)) {
             return res.status(badRequest).json({ success: false, message: "Order cannot be retried" });
+        }
+
+        for (const item of order.items) {
+            const product = await Product.findById(item.productId);
+            if (!product) return res.status(badRequest).json({ success: false, message: "Product not found" });
+            const variant = product.variants.id(item.variantId);
+            const size = variant.sizes.id(item.sizeId);
+            if (!size || size.stock < item.quantity) {
+                return res.status(badRequest).json({ success: false, message: `Insufficient stock for ${item.productName}` });
+            }
         }
 
         const options = {

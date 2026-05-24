@@ -78,7 +78,6 @@
                             <select name="offerType" id="offer-type" class="form-select">
                                 <option value="percentage" <%= oldData.offerType === "percentage" ? 'selected' : '' %> >Percentage Discount</option>
                                 <option value="flat" <%= oldData.offerType === "flat" ? 'selected' : '' %> >Flat Discount</option>
-                                <option value="free-shipping" <%= oldData.offerType === "free-shipping" ? 'selected' : '' %> >Free Shipping</option>
                             </select>
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="offerType-error"><%= errors.offerType %></p>
