@@ -172,7 +172,6 @@ export const changePassword = async (req, res) => {
     }
     try {
         const user = await findOneUser({ _id: req.user?._id });
-        console.log("User: ", user);
         if (user) {
             const match = await bcrypt.compare(currentPassword, user.password);
             if (!match) {
@@ -183,7 +182,6 @@ export const changePassword = async (req, res) => {
 
             const newHashPassword = await bcrypt.hash(newPassword, 10);
             const updateResult = await userFindAndUpdate(req.user?._id, { password: newHashPassword });
-            console.log("update success:", updateResult);
             req.flash("toast", JSON.stringify({ type: "success", message: "Password Updated" }));
             return res.redirect("/profile?section=password");
         } else {

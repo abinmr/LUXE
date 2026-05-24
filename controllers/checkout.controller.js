@@ -335,7 +335,13 @@ export const getCheckoutSuccessPage = async (req, res) => {
 export const checkoutFailurePage = async (req, res) => {
     try {
         const id = req.query.id;
-        const order = await Order.findById(id);
+        if (!id) {
+            return res.redirect("/home");
+        }
+        const order = await Order.findByIdAndUpdate(id, { $set: { paymentStatus: "failed" } }, { new: true });
+        if (!order) {
+            return res.redirect("/home");
+        }
         return res.render("checkoutFail", { order });
     } catch (err) {
         console.error(err);

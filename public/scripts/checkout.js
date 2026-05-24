@@ -341,11 +341,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     window.location.href = `/checkout/failure?orderId=${orderId}`;
                 }
             },
+            modal: {
+                ondismiss: function () {
+                    window.location.href = `/checkout/failure?id=${orderId}`;
+                },
+            },
             theme: { color: "#000000" },
         };
         const rzp1 = new Razorpay(options);
         rzp1.on("payment.failed", function (response) {
             showToast("Payment Failed", "error");
+            window.location.href = `/checkout/failure?id=${orderId}`;
         });
         rzp1.open();
     }
