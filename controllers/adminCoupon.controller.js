@@ -1,11 +1,13 @@
-import Coupon from "../models/coupon.model.js";
-import { couponUpdateById, getCouponById } from "../service/coupon.service.js";
+import { couponUpdateById, createCoupon, getCouponById, getPaginatedCoupon, getTotalCoupons } from "../service/coupon.service.js";
 import { serverError, success } from "../service/status.service.js";
 
 export const getCouponPage = async (req, res) => {
     try {
         const search = req.query.search;
         const couponStatus = req.query.couponStatus;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 7;
+        const skip = (page - 1) * limit;
         let dbQuery = {};
         if (search) {
             dbQuery.$or = [{ code: { $regex: search, $options: "i" } }, { description: { $regex: description, $options: "i" } }];
@@ -16,8 +18,9 @@ export const getCouponPage = async (req, res) => {
         } else if (couponStatus === "inactive") {
             dbQuery.isActive = false;
         }
-        const coupons = await Coupon.find(dbQuery);
-        return res.render("coupons", { currentPage: "coupons", coupons, couponStatus });
+        const coupons = await getPaginatedCoupon(dbQuery, skip, limit);
+        const totalPages = await getTotalCoupons(dbQuery);
+        return res.render("coupons", { currentPage: page, coupons, couponStatus, totalPages });
     } catch (err) {
         console.error(err);
     }
@@ -36,7 +39,7 @@ export const createNewCoupon = async (req, res) => {
 
         const isActive = req.body.isActive === "on";
 
-        await Coupon.create({
+        const data = {
             code: code,
             discountType: discountType,
             description: description,
@@ -48,7 +51,8 @@ export const createNewCoupon = async (req, res) => {
             expiryDate: expiryDate,
             users: [],
             isActive: isActive,
-        });
+        };
+        await createCoupon(data);
         return res.redirect("/admin/coupons");
     } catch (err) {
         console.error(err);
