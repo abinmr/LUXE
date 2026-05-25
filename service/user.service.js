@@ -2,6 +2,17 @@ import User from "../models/user.model.js";
 
 /** @typedef {import("mongoose").ObjectId} ObjectId */
 
+export async function getTotalUsers(query = null) {
+    if (query) {
+        return User.countDocuments(query);
+    }
+    return User.countDocuments();
+}
+
+export async function getPaginatedUsers(query, skip, limit) {
+    return await User.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+}
+
 /**
  * @param {ObjectId} id -
  */

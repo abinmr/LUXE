@@ -1,8 +1,7 @@
 import fs from "fs";
-import Category from "../models/category.model.js";
-import cloudinary from "../lib/cloudinary.js";
 import { serverError, success } from "../service/status.service.js";
-import { updateCategory } from "../service/adminCategory.service.js";
+import { createCategory, getCategoryById, getOneCategory, getPaginatedCategory, getTotalCategories, updateCategory } from "../service/adminCategory.service.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getCategories = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -13,8 +12,8 @@ export const getCategories = async (req, res) => {
     if (search) {
         dbQuery.$or = [{ name: { $regex: search, $options: "i" } }, { slug: { $regex: search, $options: "i" } }];
     }
-    const totalCategory = await Category.countDocuments();
-    const categories = await Category.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
+    const totalCategory = await getTotalCategories();
+    const categories = await getPaginatedCategory(dbQuery, skip, limit);
     const totalPages = Math.ceil(totalCategory / limit);
     return res.render("categories", {
         categories: categories,
@@ -69,7 +68,7 @@ export const addCategory = async (req, res) => {
             return res.redirect("/admin/categories/add");
         }
 
-        const nameExist = await Category.findOne({
+        const nameExist = await getOneCategory({
             name: { $regex: `^${categoryName}$`, $options: "i" },
         });
         if (nameExist) {
@@ -85,7 +84,7 @@ export const addCategory = async (req, res) => {
             });
         }
 
-        const slugExist = await Category.findOne({ slug: slug });
+        const slugExist = await getOneCategory({ slug: slug });
         if (slugExist) {
             req.flash("slugError", "slug already exist");
             return res.redirect("/admin/categories/add");
@@ -104,13 +103,14 @@ export const addCategory = async (req, res) => {
         await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
 
         const isActive = active === "on" || active === true;
-        const category = await Category.create({
+        const data = {
             name: categoryName,
             slug: slug,
             description: description,
             isActive: isActive,
             image: uploadResult.secure_url,
-        });
+        };
+        const category = await createCategory(data);
         await category.save();
         return res.redirect("/admin/categories");
     } catch (err) {
@@ -125,7 +125,7 @@ export const addCategory = async (req, res) => {
 
 export const getEditCategory = async (req, res) => {
     try {
-        const category = await Category.findById(req.params.id);
+        const category = await getCategoryById(req.params.id);
         const categoryError = req.flash("categoryError")[0];
         const nameError = req.flash("nameError")[0];
         const slugError = req.flash("slugError")[0];
@@ -155,7 +155,7 @@ export const editCategoryDetails = async (req, res) => {
             return res.redirect("/admin/categories/add");
         }
 
-        const nameExist = await Category.findOne({
+        const nameExist = await getOneCategory({
             name: { $regex: `^${categoryName}$`, $options: "i" },
             _id: { $ne: id },
         });
@@ -164,7 +164,7 @@ export const editCategoryDetails = async (req, res) => {
             return res.redirect(`/admin/categories/edit/${id}`);
         }
 
-        const slugExist = await Category.findOne({
+        const slugExist = await getOneCategory({
             slug: slug,
             _id: { $ne: id },
         });

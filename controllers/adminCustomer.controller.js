@@ -1,4 +1,4 @@
-import User from "../models/user.model.js";
+import { findUserById, getPaginatedUsers, getTotalUsers } from "../service/user.service.js";
 
 export const getAllCustomers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -18,10 +18,10 @@ export const getAllCustomers = async (req, res) => {
     } else if (selectStatus === "blocked") {
         dbQuery.isBlocked = true;
     }
-    const userDetails = await User.find(dbQuery).sort({ createdAt: -1 }).skip(skip).limit(6);
-    const totalUsers = await User.countDocuments(dbQuery);
-    const activeUsers = await User.countDocuments({ isBlocked: false });
-    const blockedUsers = await User.countDocuments({ isBlocked: true });
+    const userDetails = await getPaginatedUsers(dbQuery, skip, limit);
+    const totalUsers = await getTotalUsers(dbQuery);
+    const activeUsers = await getTotalUsers({ isBlocked: true });
+    const blockedUsers = await getTotalUsers({ isBlocked: true });
     const userInfo = {
         total: totalUsers,
         active: activeUsers,
@@ -43,7 +43,7 @@ export const getAllCustomers = async (req, res) => {
 export const blockCustomer = async (req, res) => {
     try {
         const id = req.params.id;
-        const user = await User.findById(id);
+        const user = await findUserById(id);
         if (user) {
             user.isBlocked = !user.isBlocked;
             await user.save();

@@ -1,4 +1,5 @@
 import Coupon from "../models/coupon.model.js";
+import { couponUpdateById, getCouponById } from "../service/coupon.service.js";
 import { serverError, success } from "../service/status.service.js";
 
 export const getCouponPage = async (req, res) => {
@@ -57,7 +58,7 @@ export const createNewCoupon = async (req, res) => {
 
 export const unlistCoupon = async (req, res) => {
     try {
-        await Coupon.findByIdAndUpdate(req.params.id, { isActive: false });
+        await couponUpdateById(req.params.id, { isActive: false });
         return res.status(success).json({ success: true, message: "status updated" });
     } catch (err) {
         console.error(err);
@@ -67,7 +68,7 @@ export const unlistCoupon = async (req, res) => {
 
 export const listCoupon = async (req, res) => {
     try {
-        await Coupon.findByIdAndUpdate(req.params.id, { isActive: true });
+        await couponUpdateById(req.params.id, { isActive: true });
         return res.status(success).json({ success: true, message: "status updated" });
     } catch (err) {
         console.error(err);
@@ -77,7 +78,7 @@ export const listCoupon = async (req, res) => {
 
 export const getEditCouponPage = async (req, res) => {
     try {
-        const coupon = await Coupon.findById(req.params.id);
+        const coupon = await getCouponById(req.params.id);
         return res.render("couponsEdit", { coupon });
     } catch (err) {
         console.error(err);
@@ -96,20 +97,18 @@ export const updateCoupon = async (req, res) => {
             return res.render("couponsEdit", { couponError: "Please provide all the fields" });
         }
 
-        await Coupon.updateOne(
-            { _id: req.params.id },
-            {
-                code,
-                discountType,
-                description,
-                discountValue,
-                minPurchaseAmount,
-                maxDiscountAmount: maxDiscount,
-                usageLimit,
-                startDate,
-                expiryDate: expiryDate,
-            },
-        );
+        const data = {
+            code,
+            discountType,
+            description,
+            discountValue,
+            minPurchaseAmount,
+            maxDiscountAmount: maxDiscount,
+            usageLimit,
+            startDate,
+            expiryDate: expiryDate,
+        };
+        await couponUpdateById(req.params.id, data);
         return res.redirect("/admin/coupons");
     } catch (err) {
         console.error(err);
