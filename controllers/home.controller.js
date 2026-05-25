@@ -1,19 +1,16 @@
-import Category from "../models/category.model.js";
-import Wishlist from "../models/wishlist.model.js";
-import Cart from "../models/cart.model.js";
 import { getFilterAndSortProducts, getPaginatedProducts, getProductById, getRelatedProducts, getSearchProductsByName, getWishlistProducts } from "../service/home.service.js";
 import { success } from "../service/status.service.js";
-import Offer from "../models/offer.model.js";
+import { getUserWishlist } from "../service/wishlist.service.js";
+import { getUserCart } from "../service/cart.service.js";
+import { findOneOffer } from "../service/offer.service.js";
+import { getAllCategories } from "../service/adminCategory.service.js";
 
 export const loadCategories = async (req, res, next) => {
     try {
-        const categories = await Category.find({
-            isActive: true,
-            isDeleted: false,
-        });
+        const categories = await getAllCategories();
         if (req.user) {
-            const wishlist = await Wishlist.findOne({ userId: req.user._id });
-            const carts = await Cart.findOne({ userId: req.user?._id });
+            const wishlist = await getUserWishlist(req.user?._id);
+            const carts = await getUserCart(req.user?._id);
             if (wishlist) {
                 res.locals.totalWishlist = wishlist.products.length;
             }
@@ -34,7 +31,7 @@ export const getHomePage = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
 
         const [products, userWishlist] = await Promise.all([getPaginatedProducts(page), getWishlistProducts(req.user?._id)]);
-        const offer = await Offer.findOne({ isActive: true, isDeleted: false, featureHomepage: true });
+        const offer = await findOneOffer({ isActive: true, isDeleted: false, featureHomepage: true });
 
         if (req.xhr || req.headers.accept.includes("json")) {
             return res.json({ products, wishlist: userWishlist });
