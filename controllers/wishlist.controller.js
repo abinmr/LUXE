@@ -1,16 +1,10 @@
-import Wishlist from "../models/wishlist.model.js";
-import Product from "../models/product.model.js";
+import { createWishlist, getUserWishlist, getWishlistDetails } from "../service/wishlist.service.js";
+import { getProductById } from "../service/home.service.js";
 import { badRequest, conflict, notFound, serverError, success } from "../service/status.service.js";
 
 export const getWishlistProducts = async (req, res) => {
     try {
-        const result = await Wishlist.findOne({ userId: req.user._id }).populate({
-            path: "products.productId",
-            populate: {
-                path: "category",
-                model: "Category",
-            },
-        });
+        const result = await getWishlistDetails(req.user?._id);
         const wishlist = result?.products.map((item) => item.productId);
         return res.render("wishlist", { wishlist });
     } catch (err) {
@@ -21,8 +15,8 @@ export const getWishlistProducts = async (req, res) => {
 
 export const addToWishlist = async (req, res) => {
     try {
-        const wishlist = await Wishlist.findOne({ userId: req.user._id });
-        const product = await Product.findById(req.params.id);
+        const wishlist = await getUserWishlist(req.user?._id);
+        const product = await getProductById(req.params.id);
         if (!product) {
             return res.status(notFound).json({ success: false, message: "product not found" });
         }
@@ -31,7 +25,7 @@ export const addToWishlist = async (req, res) => {
             return res.status(badRequest).json({ success: false, message: "product not longer available" });
         }
         if (!wishlist) {
-            const newWishlist = await Wishlist.create({ userId: req.user._id, products: [{ productId: req.params.id }] });
+            const newWishlist = await createWishlist(req.user?._id, req.params.id);
             return res.status(success).json({ success: true, message: "Add to wishlist", totalWishlist: newWishlist.products.length });
         } else {
             const isAvailable = wishlist.products.some((p) => p.productId.toString() === req.params.id);
@@ -51,7 +45,7 @@ export const addToWishlist = async (req, res) => {
 
 export const deleteWishlistProduct = async (req, res) => {
     try {
-        const wishlist = await Wishlist.findOne({ userId: req.user._id });
+        const wishlist = await getUserWishlist(req.user?._id);
         let totalWishlist = 0;
         if (wishlist) {
             wishlist.products = wishlist.products.filter((p) => p.productId.toString() !== req.params.id);

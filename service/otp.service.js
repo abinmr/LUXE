@@ -1,4 +1,4 @@
-import Otp from "../models/otp.model";
+import Otp from "../models/otp.model.js";
 
 /** @typedef {import("mongoose").ObjectId} ObjectId */
 
