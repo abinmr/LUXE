@@ -2,10 +2,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import nodeMailer from "nodemailer";
-import Otp from "../models/otp.model.js";
-import User from "../models/user.model.js";
 import dotenv from "dotenv";
 import { nanoid } from "nanoid";
+import { createOtp, deleteOtp, deleteOtpById, findOneOtp } from "../service/otp.service.js";
+import { createUser, findOneUser, userFindAndUpdate } from "../service/user.service.js";
 
 dotenv.config({ quiet: true });
 
@@ -56,13 +56,7 @@ export const sendOtpVerification = async (userId, email) => {
 
         const hashedOtp = await bcrypt.hash(otp, 10);
 
-        const newOtpVerification = await Otp.create({
-            userId: userId,
-            otp: hashedOtp,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + 5 * 60 * 1000,
-        });
-
+        const newOtpVerification = await createOtp(userId, hashedOtp);
         await newOtpVerification.save();
         await transporter.sendMail(mailOptions);
     } catch (err) {
@@ -75,10 +69,10 @@ export const resendOtp = async (req, res) => {
         const userId = req.session.userId;
         if (!userId) return res.redirect("/auth/register");
 
-        const user = await User.findById(userId);
+        const user = await findUserById(userId);
         if (!user) return res.redirect("/auth/register");
 
-        await Otp.deleteOne({ userId: userId });
+        await deleteOtp(userId);
         await sendOtpVerification(userId, user.email);
         return res.redirect("/auth/register/otp");
     } catch (err) {
@@ -105,7 +99,7 @@ export const login = async (req, res) => {
         return res.render("login", { passwordError: "Please provide a password for your account" });
     }
 
-    const user = await User.findOne({ email: email });
+    const user = await findOneUser({ email: email });
 
     if (!user) {
         return res.render("login", { error: "Please register first." });
@@ -177,7 +171,7 @@ export const register = async (req, res) => {
         return res.render("register", { confirmError: "Password do not match." });
     }
 
-    const userExist = await User.findOne({ email: email });
+    const userExist = await findOneUser({ email: email });
 
     if (userExist) {
         return res.render("register", { error: "User alredy exist. Please login" });
@@ -185,7 +179,7 @@ export const register = async (req, res) => {
 
     let referrer = null;
     if (referralCode) {
-        referrer = await User.findOne({ referralCode: referralCode });
+        referrer = await findOneUser({ referralCode: referralCode });
         if (!referrer) {
             return res.render("register", { error: "Invalid referral code. Please check and try again" });
         }
@@ -195,7 +189,7 @@ export const register = async (req, res) => {
 
     let user;
     try {
-        user = await User.create({
+        user = await createUser({
             fullname: fullName,
             email: email,
             password: hashedPassword,
@@ -218,7 +212,7 @@ export const getRegisterOtp = async (req, res) => {
     const userId = req.session.userId;
     if (!userId) return res.redirect("/auth/register");
 
-    const otpRecord = await Otp.findOne({ userId: userId });
+    const otpRecord = await findOneOtp({ userid: userId });
 
     let secondsLeft = 0;
     if (otpRecord) {
@@ -239,7 +233,7 @@ export const otpVerification = async (req, res) => {
             return res.redirect("/auth/register/otp");
         }
 
-        const otpDetails = await Otp.findOne({ userId: userId });
+        const otpDetails = await findOneOtp({ userId: userId });
 
         if (!otpDetails) {
             req.flash("otpError", "OTP not found");
@@ -247,7 +241,7 @@ export const otpVerification = async (req, res) => {
         }
 
         if (otpDetails.expiresAt < new Date()) {
-            await Otp.deleteOne({ _id: otpDetails._id });
+            await deleteOtpById(otpDetails._id);
             req.flash("otpError", "OTP expired. Please request a new one");
             return res.redirect("/auth/register/otp");
         }
@@ -259,8 +253,8 @@ export const otpVerification = async (req, res) => {
             return res.redirect("/auth/register/otp");
         }
 
-        await User.findOneAndUpdate({ _id: userId }, { isVerified: true });
-        await Otp.deleteOne({ _id: otpDetails._id });
+        await userFindAndUpdate(userId, { isVerified: true });
+        await deleteOtpById(otpDetails._id);
         setCookies(req.session.userId, res);
 
         return res.redirect("/home");
@@ -275,7 +269,7 @@ export const resetPasswordOtp = async (req, res) => {
     try {
         const { email } = req.body;
 
-        const user = await User.findOne({ email: email });
+        const user = await findOneUser({ email: email });
 
         if (!user) {
             req.flash("resetError", "Email does not exist");
@@ -284,7 +278,7 @@ export const resetPasswordOtp = async (req, res) => {
 
         req.session.resetUserId = user._id;
 
-        await Otp.deleteOne({ userId: user._id });
+        await deleteOtp(user._id);
         await sendOtpVerification(user._id, email);
 
         return res.redirect("/auth/login/reset-otp");
@@ -299,7 +293,6 @@ export const updatePassword = async (req, res) => {
     try {
         const { newPassword, confirmPassword } = req.body;
         const userId = req.session.resetUserId;
-        console.log(newPassword, confirmPassword);
         const numberCount = (newPassword.match(/[0-9]/g) || []).length;
 
         if (newPassword.length < 8) {
@@ -323,7 +316,7 @@ export const updatePassword = async (req, res) => {
         }
 
         const hashed = await bcrypt.hash(newPassword, 10);
-        await User.findByIdAndUpdate(userId, { password: hashed });
+        await userFindAndUpdate(userId, { password: hashed });
 
         delete req.session.resetUserId;
         delete req.session.resetVerified;
@@ -339,7 +332,7 @@ export const getResetOtp = async (req, res) => {
     const userId = req.session.resetUserId;
     if (!userId) return res.redirect("/auth/login/reset-password");
 
-    const otpRecord = await Otp.findOne({ userId: userId });
+    const otpRecord = await findOneOtp({ userId: userId });
     let secondsLeft = 0;
     if (otpRecord) {
         const resendAt = new Date(otpRecord.createdAt).getTime() + 60 * 1000;
@@ -356,7 +349,7 @@ export const resetOtp = async (req, res) => {
 
         if (!userId) return res.redirect("/auth/login/reset-password");
 
-        const otpDetails = await Otp.findOne({ userId: userId });
+        const otpDetails = await findOneOtp({ userId: userId });
         if (!otpDetails) {
             req.flash("resetOtpError", "OTP not found. Try again");
             return res.redirect("/auth/login/reset-otp");
@@ -373,7 +366,7 @@ export const resetOtp = async (req, res) => {
             return res.redirect("/auth/login/reset-otp");
         }
 
-        await Otp.deleteOne({ _id: otpDetails._id });
+        await deleteOtpById(otpDetails._id);
 
         req.session.resetVerified = true;
 

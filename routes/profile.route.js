@@ -1,20 +1,6 @@
 import express from "express";
 import { protectedRoute } from "../middlewares/user.auth.middleware.js";
-import {
-    addAddress,
-    cancelOrder,
-    changePassword,
-    deleteAddress,
-    editAddress,
-    getEmailOtpPage,
-    getOrderDetails,
-    getOrderInvoice,
-    getProfile,
-    logout,
-    returnOrder,
-    updateProfile,
-    verifyEmailOtp,
-} from "../controllers/profile.controller.js";
+import { addAddress, cancelOrder, changePassword, deleteAddress, editAddress, getEmailOtpPage, getOrderDetails, getOrderInvoice, getProfile, logout, returnOrder, updateProfile, verifyEmailOtp } from "../controllers/profile.controller.js";
 import upload from "../lib/multer.js";
 
 const router = express.Router();

@@ -12,6 +12,17 @@ export async function getOrderById(id) {
 }
 
 /**
+ * @param {ObjectId} userId
+ */
+export async function getUserOrders(userId) {
+    return await Order.find({ userId: userId }).sort({ createdAt: -1 });
+}
+
+export async function getOneOrder(data) {
+    return await Order.findOne(data);
+}
+
+/**
  * @param {ObjectId} id -
  * @param {OrderUpdate} updateData -
  */

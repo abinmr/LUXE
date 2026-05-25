@@ -1,18 +1,15 @@
 import bcrypt from "bcrypt";
 import fs from "fs";
-import Address from "../models/address.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
-import Order from "../models/order.model.js";
 import { generateInvoice } from "../service/profile.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { notFound, serverError, success } from "../service/status.service.js";
-import Wallet from "../models/wallet.model.js";
-import WalletTransaction from "../models/walletTransation.model.js";
-import { getWalletTransactions } from "../service/wallet.service.js";
+import { createWalletTransaction, getUserWallet, getWalletTransactions } from "../service/wallet.service.js";
 import { findOneUser, findUserById, userFindAndUpdate } from "../service/user.service.js";
-import { createAddress, findAddresses } from "../service/address.service.js";
+import { createAddress, findAddresses, updateAddressById, updateManyAddress, deleteAddressById } from "../service/address.service.js";
+import { getOneOrder, getOrderById, getUserOrders } from "../service/order.service.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -32,7 +29,7 @@ export const getProfile = async (req, res) => {
             addresses = await findAddresses(req.user?._id);
         }
         if (currentSection === "order-history") {
-            orders = await Order.find({ userId: req.user?._id }).sort({ createdAt: -1 });
+            orders = await getUserOrders(req.user?._id);
         }
         let wallet = "00:00";
         if (currentSection === "wallet") {
@@ -217,7 +214,7 @@ export const addAddress = async (req, res) => {
         }
 
         if (makeDefault) {
-            await Address.updateMany({ user: req.user._id }, { isDefault: false });
+            await updateManyAddress(req.user?._id, { isDefault: false });
         }
 
         await createAddress(req.body, req.user?._id);
@@ -241,10 +238,10 @@ export const editAddress = async (req, res) => {
         const makeDefault = isDefault === "on" || isDefault === "true";
 
         if (makeDefault) {
-            await Address.updateMany({ user: req.user._id }, { isDefault: false });
+            await updateManyAddress(req.user?._id, { isDefault: false });
         }
 
-        const updateResult = await Address.findByIdAndUpdate(addressId, {
+        const updateResult = await updateAddressById(addressId, {
             fullName: fullName,
             phone: phone,
             pincode: pincode,
@@ -268,7 +265,7 @@ export const editAddress = async (req, res) => {
 export const deleteAddress = async (req, res) => {
     try {
         const addressId = req.params.id;
-        const deleteResult = await Address.deleteOne({ _id: addressId });
+        const deleteResult = await deleteAddressById(addressId);
         if (deleteResult) {
             req.flash("toast", JSON.stringify({ type: "success", message: "Address deleted" }));
         }
@@ -281,14 +278,14 @@ export const deleteAddress = async (req, res) => {
 
 export const getOrderDetails = async (req, res) => {
     const id = req.params.id;
-    const orderDetails = await Order.findOne({ orderId: id });
+    const orderDetails = await getOneOrder({ orderId: id });
     return res.render("orderDetails", { orderDetails });
 };
 
 export const getOrderInvoice = async (req, res) => {
     try {
         const orderId = req.params.id;
-        const order = await Order.findById(orderId);
+        const order = await getOrderById(orderId);
         if (!order) {
             return res.redirect("/home");
         }
@@ -303,8 +300,7 @@ export const cancelOrder = async (req, res) => {
     try {
         const id = req.params.id;
         const { reason, itemId } = req.body;
-        console.log(req.body);
-        const order = await Order.findById(id);
+        const order = await getOrderById(id);
 
         let refundAmount = 0;
         let itemsCancelled = 0;
@@ -347,13 +343,10 @@ export const cancelOrder = async (req, res) => {
         }
 
         if (order.paymentMethod !== "cod" && refundAmount > 0) {
-            let wallet = await Wallet.findOne({ userId: req.user?._id });
-            if (!wallet) {
-                wallet = await Wallet.create({ userId: req.user?._id, balance: 0 });
-            }
+            const wallet = await getUserWallet(req.user?._id);
             wallet.balance = Math.round((wallet.balance + refundAmount) * 100) / 100;
             await wallet.save();
-            await WalletTransaction.create({
+            await createWalletTransaction({
                 walletId: wallet._id,
                 userId: req.user?._id,
                 orderId: order.orderId,
@@ -378,7 +371,7 @@ export const returnOrder = async (req, res) => {
         const id = req.params.id;
         const reason = req.body.reason;
         const itemId = req.body.itemId;
-        const order = await Order.findById(id);
+        const order = await getOrderById(id);
 
         let itemsReturned = 0;
 

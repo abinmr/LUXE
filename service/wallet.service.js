@@ -12,7 +12,6 @@ export async function getUserWallet(userId) {
     if (!userWallet) {
         userWallet = Wallet.create({ userId: userId, balance: 0 });
     }
-
     return userWallet;
 }
 

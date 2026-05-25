@@ -13,6 +13,13 @@ export async function findOneUser(query) {
     return await User.findOne(query);
 }
 
+/**
+ * @param {Object} data
+ */
+export async function createUser(data) {
+    return await User.create(data);
+}
+
 export async function userFindAndUpdate(id, data) {
     return await User.findByIdAndUpdate(id, data);
 }

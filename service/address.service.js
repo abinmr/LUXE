@@ -48,3 +48,26 @@ export async function createAddress(details, userId) {
         isDefault: details.isDefault === "on" ? true : false,
     });
 }
+
+/**
+ * @param {ObjectId} id
+ * @param {Object} data
+ */
+export async function updateAddressById(id, data) {
+    return await Address.findByIdAndUpdate(id, data);
+}
+
+/**
+ * @param {ObjectId} userId
+ * @param {Object} data
+ */
+export async function updateManyAddress(userId, data) {
+    return await Address.updateMany({ user: userId }, data);
+}
+
+/**
+ * @param {ObjectId} id - object id of addres
+ */
+export async function deleteAddressById(id) {
+    return await Address.deleteOne({ _id: id });
+}
