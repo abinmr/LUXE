@@ -1,5 +1,8 @@
 import Coupon from "../models/coupon.model";
 
-export async function getCoupons() {
-    const result = await Coupon.find().limit(3);
+/**
+ * @param {string} code -
+ */
+export async function getCouponsDetails(code) {
+    return await Coupon.findOne({ code: code });
 }

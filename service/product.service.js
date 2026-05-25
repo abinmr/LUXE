@@ -1,7 +1,17 @@
 import Product from "../models/product.model.js";
 
+/** @typedef {import("mongoose").ObjectId} ObjectId */
+
 export async function getAllProducts() {
     return await Product.find({ isListed: true, isDeleted: false });
+}
+
+/**
+ * @param {ObjectId} id -
+ * @param {Object} projection -
+ */
+export async function getProductById(id, projection = null) {
+    return Product.findById(id, projection);
 }
 
 /**

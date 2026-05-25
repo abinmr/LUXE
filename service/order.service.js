@@ -1,5 +1,24 @@
 import Order from "../models/order.model.js";
 
+/** @typedef {import("mongoose").ObjectId} ObjectId */
+/** @typedef {InstanceType<typeof import('../models/order.model.js').default>} OrderDocument */
+/** @typedef {import('mongoose').UpdateQuery<OrderDocument>} OrderUpdate */
+
+/**
+ * @param {Object} id -
+ */
+export async function getOrderById(id) {
+    return await Order.findById(id);
+}
+
+/**
+ * @param {ObjectId} id -
+ * @param {OrderUpdate} updateData -
+ */
+export async function updateOrder(id, updateData) {
+    return await Order.findByIdAndUpdate(id, updateData, { returnDocument: "after" });
+}
+
 export async function getBestSellingProducts() {
     const bestSellingProducts = await Order.aggregate([
         { $unwind: "$items" },

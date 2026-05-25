@@ -1,22 +1,17 @@
-import Address from "../models/address.model.js";
-import Cart from "../models/cart.model.js";
-import Coupon from "../models/coupon.model.js";
-import Order from "../models/order.model.js";
-import Product from "../models/product.model.js";
-import { calcPricing, getCartItems } from "../service/cart.service.js";
+import crypto from "crypto";
+import { calcPricing, getCartItems, getUserCart, removeSelectedItemsFromCart } from "../service/cart.service.js";
 import { createOrder } from "../service/checkout.service.js";
 import { updateProduct } from "../service/product.service.js";
-import { createAddress } from "../service/profile.service.js";
 import { badRequest, conflict, created, notFound, serverError, success } from "../service/status.service.js";
 import razorpay from "../lib/razorpay.js";
-import crypto from "crypto";
-import Wallet from "../models/wallet.model.js";
-import WalletTransaction from "../models/walletTransation.model.js";
-import { findAddresses } from "../service/address.service.js";
+import { createAddress, findAddressById, findAddresses } from "../service/address.service.js";
+import { createWalletTransaction, getUserWallet } from "../service/wallet.service.js";
+import { getOrderById, updateOrder } from "../service/order.service.js";
+import { getProductById } from "../service/home.service.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
-        const address = await Address.find({ user: req.user?._id });
+        const address = await findAddresses(req.user?._id);
         const defaultAddress = address.find((add) => add.isDefault) || address[0];
         res.locals.defaultAddress = defaultAddress;
         next();
@@ -58,10 +53,7 @@ export const getCheckoutPage = async (req, res) => {
             total: data.total,
         };
 
-        let wallet = await Wallet.findOne({ userId: req.user?._id });
-        if (!wallet) {
-            wallet = await Wallet.create({ userId: req.user?._id, balance: 0 });
-        }
+        const wallet = await getUserWallet(req.user?._id);
         return res.render("checkout", { address, data, products, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
@@ -75,14 +67,12 @@ export const getCheckoutPage = async (req, res) => {
 export const applyCoupon = async (req, res) => {
     try {
         const { code } = req.body;
-        const coupon = await Coupon.findOne({ code: code });
+        const coupon = await getCouponsDetails(code);
         if (!coupon) {
             return res.status(notFound).json({ success: false, message: "Not a valid coupon" });
         }
 
-        console.log("coupon", coupon);
         const couponUsed = coupon.users.includes(req.user?._id);
-        console.log(couponUsed);
         if (couponUsed) {
             return res.status(conflict).json({ success: false, message: "coupon already used before" });
         }
@@ -150,7 +140,7 @@ export const checkoutBuyNow = async (req, res) => {
             return res.redirect(`/product/${productId}`);
         }
 
-        const product = await Product.findById(productId, { name: 1, isListed: 1, isDeleted: 1, variants: 1, category: 1 });
+        const product = await getProductById(productId, { name: 1, isListed: 1, isdeleted: 1, variants: 1, category: 1 })
         if (!product || !product.isListed) {
             req.flash("home", { type: "error", message: "product no longer available" });
             return res.redirect("/home");
@@ -201,10 +191,7 @@ export const checkoutBuyNow = async (req, res) => {
             shipping: data.shipping,
             total: data.total,
         };
-        let wallet = await Wallet.findOne({ userId: req.user?._id });
-        if (!wallet) {
-            wallet = "00.00";
-        }
+        const wallet = await getUserWallet(req.user?._id);
         return res.render("checkout", { address, products, data, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
     } catch (err) {
         console.error(err);
@@ -231,13 +218,13 @@ export const checkoutPlaceOrder = async (req, res) => {
             return res.status(badRequest).json({ success: false, message: "Session expired" });
         }
 
-        const address = await Address.findById(addressId);
+        const address = await findAddressById(addressId);
         if (!address) {
             return res.status(badRequest).json({ success: false, message: "Address not found" });
         }
 
         for (const item of checkout.items) {
-            const product = await Product.findById(item.productId);
+            const product = await getProductById(item.productId);
             if (!product) return res.status(badRequest).json({ success: false, message: "Product not found" });
             const variant = product.variants.id(item.variantId);
             const size = variant.sizes.id(item.sizeId);
@@ -249,7 +236,7 @@ export const checkoutPlaceOrder = async (req, res) => {
         const order = await createOrder(req, checkout, address, paymentMethod);
 
         if (checkout.appliedCoupon) {
-            const coupon = await Coupon.findOne({ code: checkout.appliedCoupon });
+            const coupon = await getCouponsDetails(checkout.appliedCoupon);
             coupon.users.push(req.user?._id);
             await coupon.save();
         }
@@ -261,32 +248,20 @@ export const checkoutPlaceOrder = async (req, res) => {
             }
 
             if (checkout.source === "cart") {
-                const cart = await Cart.findOne({ userId: req.user._id });
+                const cart = await getUserCart(req.user?._id);
                 const seletedIds = cart.items.map((item) => item.sizeId._id.toString());
-                await Cart.updateOne(
-                    {
-                        userId: req.user._id,
-                    },
-                    {
-                        $pull: {
-                            items: {
-                                isSelected: true,
-                                sizeId: { $in: seletedIds },
-                            },
-                        },
-                    },
-                );
+                await removeSelectedItemsFromCart(req.user?._id, seletedIds);
             }
         }
 
         if (paymentMethod === "wallet") {
-            const wallet = await Wallet.findOne({ userId: req.user?._id });
+            const wallet = await getUserWallet(req.user?._id);
             if (!wallet || wallet.balance < checkout.total) {
                 return res.status(badRequest).json({ success: false, message: "Insufficient wallet balance" });
             }
             wallet.balance = Math.round((wallet.balance - checkout.total) * 100) / 100;
             await wallet.save();
-            const walletTransaction = await WalletTransaction.create({
+            const walletTransaction = await createWalletTransaction({
                 walletId: wallet._id,
                 userId: req.user?._id,
                 transactionType: "debit",
@@ -321,7 +296,7 @@ export const checkoutPlaceOrder = async (req, res) => {
 export const getCheckoutSuccessPage = async (req, res) => {
     try {
         const id = req.query.orderId;
-        const order = await Order.findOne({ _id: id });
+        const order = await getOrderById(id);
         return res.render("checkoutSuccess", { order });
     } catch (err) {
         console.error(err);
@@ -338,7 +313,8 @@ export const checkoutFailurePage = async (req, res) => {
         if (!id) {
             return res.redirect("/home");
         }
-        const order = await Order.findByIdAndUpdate(id, { $set: { paymentStatus: "failed" } }, { new: true });
+
+        const order = await updateOrder(id, { $set: { paymentStatus: "failed" } });
         if (!order) {
             return res.redirect("/home");
         }
@@ -363,17 +339,17 @@ export const verifyPayment = async (req, res) => {
             const paymentDetails = await razorpay.payments.fetch(razorpay_payment_id);
             const exactMethod = paymentDetails.method;
 
-            const order = await Order.findById(orderId);
+            const order = await getOrderById(orderId);
             if (order && order.paymentStatus !== "paid") {
                 for (const item of order.items) {
                     await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
                 }
 
-                const seletedIds = order.items.map((item) => item.sizeId.toString());
-                await Cart.updateOne({ userId: order.userId }, { $pull: { items: { sizeId: { $in: seletedIds } } } });
+                const selectedIds = order.items.map((item) => item.sizeId.toString());
+                await removeSelectedItemsFromCart(order.userId, selectedIds);
             }
 
-            await Order.updateOne({ _id: orderId }, { $set: { paymentStatus: "paid", paymentMethod: exactMethod } });
+            await updateOrder(orderId, { $set: { paymentStatus: "paid", paymentMethod: exactMethod } });
             return res.status(success).json({ success: true, message: "Payment verified successfully" });
         } else {
             return res.status(badRequest).json({ success: false, message: "Invalid signature" });
@@ -391,13 +367,13 @@ export const verifyPayment = async (req, res) => {
 export const retryPayment = async (req, res) => {
     try {
         const id = req.params.id;
-        const order = await Order.findById(id);
+        const order = await getOrderById(id);
         if (!order || !["pending", "failed"].includes(order.paymentStatus)) {
             return res.status(badRequest).json({ success: false, message: "Order cannot be retried" });
         }
 
         for (const item of order.items) {
-            const product = await Product.findById(item.productId);
+            const product = await getProductById(item.productId);
             if (!product) return res.status(badRequest).json({ success: false, message: "Product not found" });
             const variant = product.variants.id(item.variantId);
             const size = variant.sizes.id(item.sizeId);

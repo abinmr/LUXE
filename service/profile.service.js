@@ -1,5 +1,4 @@
 import PDFDocument from "pdfkit";
-import { Types } from "mongoose";
 import Address from "../models/address.model.js";
 
 /**
@@ -13,32 +12,6 @@ import Address from "../models/address.model.js";
  * @property {string} state
  * @property {boolean} isDefault
  */
-
-/**
- * @param {Address} details
- * @param {string} userId
- * @returns
- */
-export async function createAddress(details, userId) {
-    if (!userId || !Types.ObjectId.isValid(userId)) {
-        throw new Error("Invalid or missing userId");
-    }
-
-    if (!details) {
-        throw new Error("Address details are required");
-    }
-    return await Address.create({
-        user: userId,
-        fullName: details.fullName,
-        phone: details.phone,
-        pincode: details.pincode,
-        houseNumber: details.house,
-        street: details.street,
-        city: details.city,
-        state: details.state,
-        isDefault: details.isDefault === "on" ? true : false,
-    });
-}
 
 export async function generateInvoice(order, res) {
     const doc = new PDFDocument({ margin: 50, size: "A4" });

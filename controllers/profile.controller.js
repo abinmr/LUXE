@@ -5,14 +5,14 @@ import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
 import Otp from "../models/otp.model.js";
 import Order from "../models/order.model.js";
-import { createAddress, generateInvoice } from "../service/profile.service.js";
+import { generateInvoice } from "../service/profile.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { notFound, serverError, success } from "../service/status.service.js";
 import Wallet from "../models/wallet.model.js";
 import WalletTransaction from "../models/walletTransation.model.js";
 import { getWalletTransactions } from "../service/wallet.service.js";
 import { findOneUser, findUserById, userFindAndUpdate } from "../service/user.service.js";
-import { findAddresses } from "../service/address.service.js";
+import { createAddress, findAddresses } from "../service/address.service.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */

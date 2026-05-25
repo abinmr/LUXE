@@ -22,3 +22,11 @@ export async function getUserWallet(userId) {
 export async function getWalletTransactions(query) {
     return await WalletTransaction.find(query).populate("referenceId").sort({ createdAt: -1 });
 }
+
+/**
+ * @param {Partial<WalletTransaction>} data -
+ * @returns {Promise<WalletTransaction>}
+ */
+export async function createWalletTransaction(data) {
+    return await WalletTransaction.create(data);
+}

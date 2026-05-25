@@ -1,6 +1,18 @@
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
 
+/** @typedef {import("mongoose").ObjectId} ObjectId */
+
+/**
+ * @param {ObjectId} userId -
+ */
+export async function getUserCart(userId) {
+    if (!userId) {
+        throw new Error("Invalid or missing userId");
+    }
+    return await Cart.findOne({ userId: userId });
+}
+
 export async function getCartItems(userId) {
     return Cart.aggregate([
         { $match: { userId } },
@@ -161,3 +173,22 @@ export async function removeCartItem(userId, itemId) {
     const total = cart.items.reduce((acc, curr) => acc + curr.quantity, 0);
     return { totalCart: total };
 }
+
+/**
+ * @param {ObjectId} userId -
+ * @param {string[]} sizeIds -
+ */
+export async function removeSelectedItemsFromCart(userId, sizeIds) {
+    return await Cart.updateOne(
+        { userId: userId },
+        {
+            $pull: {
+                items: {
+                    isSelected: true,
+                    sizeId: { $in: sizeIds },
+                },
+            },
+        }
+    );
+}
+

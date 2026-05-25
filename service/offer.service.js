@@ -39,7 +39,7 @@ export async function createOffer(data) {
  * @param {Offer} data -
  */
 export async function updateOffer(id, data) {
-    return await Offer.findByIdAndUpdate(id, data, { new: true });
+    return await Offer.findByIdAndUpdate(id, data, { returnDocument: "after" });
 }
 
 /**
