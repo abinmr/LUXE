@@ -191,6 +191,8 @@
                                 <span>Payment Method</span>
                                 <% if (order.paymentMethod === "cod") { %>
                                     <span class="fw-semibold">Cash on Delivery</span>
+                                <% } else { %>
+                                    <span class="fw-semibold"> <%= order.paymentMethod %> </span>
                                 <% } %>
                             </div>
                         </div>

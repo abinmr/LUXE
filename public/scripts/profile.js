@@ -282,10 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        const saveBtn = formEl.querySelector(".save-address-btn");
         formEl.addEventListener("submit", (e) => {
             if (!validateAddressForm(formEl)) {
                 return e.preventDefault();
             }
+            saveBtn.disabled = true;
         });
     });
 
