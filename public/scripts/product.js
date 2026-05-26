@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const result = await fetch(`/admin/products/delete/${itemId}`, { method: "DELETE" });
                 const data = await result.json();
                 if (data.success) {
-                    document.querySelector(`.table[data-item-id="${itemId}"]`).remove();
+                    document.querySelector(`.product-row[data-item-id="${itemId}"]`).remove();
                     showToast(data.message);
                 }
             } catch (err) {
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const productId = this.dataset.itemId;
             const btnStatus = this.textContent.trim().toLowerCase();
 
-            const badge = document.querySelector(`.table[data-item-id="${productId}"] .badge-btn`);
+            const badge = document.querySelector(`.product-row[data-item-id="${productId}"] .badge-btn`);
 
             if (btnStatus === "unlist") {
                 try {
