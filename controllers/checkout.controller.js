@@ -8,6 +8,7 @@ import { createAddress, findAddressById, findAddresses } from "../service/addres
 import { createWalletTransaction, getUserWallet } from "../service/wallet.service.js";
 import { getOrderById, updateOrder } from "../service/order.service.js";
 import { getProductById } from "../service/home.service.js";
+import { getCouponsDetails } from "../service/coupon.service.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -40,14 +41,15 @@ export const getCheckoutPage = async (req, res) => {
         const allCartItems = await getCartItems(req.user?._id);
         const products = allCartItems.filter((item) => item.isSelected);
         const data = calcPricing(products);
-        if (!data.isListed) {
-            req.flash("home", { type: "error", message: "product no longer available" });
-            return res.redirect("/home");
-        }
         const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
             ...rest,
             productImage: productImage[0],
         }));
+
+        if (!products[0].isListed || !products[0].categoryActive) {
+            req.flash("home", { type: "error", message: "product no longer available" });
+            return res.redirect("/home");
+        }
         req.session.checkout = {
             source: "cart",
             items: formattedProducts,
