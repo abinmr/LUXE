@@ -40,6 +40,10 @@ export const getCheckoutPage = async (req, res) => {
         const allCartItems = await getCartItems(req.user?._id);
         const products = allCartItems.filter((item) => item.isSelected);
         const data = calcPricing(products);
+        if (!data.isListed) {
+            req.flash("home", { type: "error", message: "product no longer available" });
+            return res.redirect("/home");
+        }
         const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
             ...rest,
             productImage: productImage[0],
@@ -140,7 +144,7 @@ export const checkoutBuyNow = async (req, res) => {
             return res.redirect(`/product/${productId}`);
         }
 
-        const product = await getProductById(productId, { name: 1, isListed: 1, isdeleted: 1, variants: 1, category: 1 })
+        const product = await getProductById(productId, { name: 1, isListed: 1, isdeleted: 1, variants: 1, category: 1 });
         if (!product || !product.isListed) {
             req.flash("home", { type: "error", message: "product no longer available" });
             return res.redirect("/home");
