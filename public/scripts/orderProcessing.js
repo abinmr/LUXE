@@ -12,12 +12,17 @@ document.addEventListener("DOMContentLoaded", () => {
         toastIcon.classList.add(type === "success" ? "text-black" : "text-danger");
         toast.show();
     };
+
+    const statusForm = document.getElementById("status-form");
+    const submitBtn = document.getElementById("save-button");
+    statusForm.addEventListener("submit", () => {
+        submitBtn.disabled = true;
+    })
     const refundBtn = document.getElementById("refund-btn");
     const returnModalBtn = document.getElementById("process-return-btn");
     const orderStatusBtn = document.getElementById("order-status-btn");
     const form = document.getElementById("admin-return-form");
 
-    // Enable/disable refund button based on checkbox selection
     const productCheckboxes = form ? form.querySelectorAll('input[name="product"]') : [];
     
     function toggleRefundButton() {

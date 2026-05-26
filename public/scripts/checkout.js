@@ -290,7 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.success) {
                 if (data.razorpayOrderId) {
-                    console.log(data.razorpayOrderId);
                     openRazorpay(data.order, data.razorpayOrderId, data.amount);
                 } else {
                     window.location.href = `/checkout/success?orderId=${data.order}`;

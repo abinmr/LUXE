@@ -40,6 +40,11 @@ export const getCheckoutPage = async (req, res) => {
         const address = await findAddresses(req.user?._id);
         const allCartItems = await getCartItems(req.user?._id);
         const products = allCartItems.filter((item) => item.isSelected);
+        if (!products || products.length === 0) {
+            req.flash("home", { type: "error", message: "select atleast 1 item to continue"});
+            return res.redirect("/home");
+        }
+
         const data = calcPricing(products);
         const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
             ...rest,
