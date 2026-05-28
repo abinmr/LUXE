@@ -58,11 +58,18 @@
                         </div>
                     </div>
                     <div class="input-group gap-4 mb-2">
-                        <div class="col">
-                            <label for="discount-value" class="form-label">Discount Value</label>
-                            <input type="number" class="form-control" min="0" placeholder="0" name="discountValue" id="discount-value">
+                        <div class="col" id="discount-percentage-container">
+                            <label for="discount-value-percentage" class="form-label">Discount Percentage (%)</label>
+                            <input type="number" class="form-control" min="0" max="100" placeholder="0" name="discountValue" id="discount-value-percentage">
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="discount-error"></p>
+                                <p class="mb-0 fw-semibold" id="discount-percentage-error"></p>
+                            </div>
+                        </div>
+                        <div class="col d-none" id="discount-fixed-container">
+                            <label for="discount-value-fixed" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" min="0" placeholder="0" name="discountValue" id="discount-value-fixed" disabled>
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="discount-fixed-error"></p>
                             </div>
                         </div>
                         <div class="col">
@@ -74,7 +81,7 @@
                         </div>
                     </div>
                     <div class="input-group gap-4 mb-2">
-                        <div class="col">
+                        <div class="col" id="max-discount-container">
                             <label for="max-discount" class="form-label">Max Discount (optional)</label>
                             <input type="number" class="form-control" placeholder="0" min="1" name="maxDiscount" id="max-discount">
                             <div class="error-container text-danger">

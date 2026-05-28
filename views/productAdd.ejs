@@ -29,16 +29,19 @@
 
                 <div class="p-4 border rounded-4 bg-white mb-3">
                     <h5 class="mb-3">Basic Information</h5>
+                    <div class="error-container text-center text-danger">
+                        <p class="mb-0 fw-semibold" style="font-size: 18px;"><%= locals.productError %></p>
+                    </div>
                     <div class="mb-3">
                         <label for="productName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control bg-light text-capitalize" name="productName" id="productName" placeholder="Product name" required>
+                        <input type="text" class="form-control bg-light text-capitalize" value="<%= oldData.name || '' %>" name="productName" id="productName" placeholder="Product name" required>
                         <div class="error-container">
                             <p class="text-danger mb-0 small" id="productError"></p>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="productDescription" class="form-label">Description</label>
-                        <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize:none;" required></textarea>
+                        <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize:none;" required><%= oldData.description || '' %></textarea>
                         <div class="error-container">
                             <p class="text-danger small mb-0" id="productDescError"></p>
                         </div>
@@ -48,15 +51,15 @@
                             <label for="categorySelect" class="form-label">Category</label>
                             <select class="form-select bg-light" name="category" id="categorySelect">
                                 <% categories.forEach((cat) => { %>
-                                    <option value="<%= cat._id %>"><%= cat.name %></option>
+                                    <option value="<%= cat._id %>" <%= oldData.category === cat._id ? 'selected' : '' %> ><%= cat.name %></option>
                                 <% }) %>
                             </select>
                         </div>
                         <div class="col">
                             <label for="listing" class="form-label">Listing Status</label>
                             <select class="form-select bg-light" name="listing" id="listing">
-                                <option value="list">Listed</option>
-                                <option value="unlist">Unlisted</option>
+                                <option value="list" <%= oldData.isListed ? 'selected' : '' %> >Listed</option>
+                                <option value="unlist" <%= !oldData.isListed ? 'selected' : '' %>>Unlisted</option>
                             </select>
                         </div>
                     </div>
@@ -87,7 +90,7 @@
                                 <div class="row g-3 mb-3">
                                     <div class="col">
                                         <label class="form-label small fw-semibold text-muted text-capitalize">Color Name</label>
-                                        <input type="text" class="form-control bg-light text-capitalize color-input" name="variants[0][color]" placeholder="e.g., Black, Navy Blue, Red" >
+                                        <input type="text" class="form-control bg-light text-capitalize color-input" name="variants[0][color]" placeholder="e.g. Black, Blue, Red" >
                                         <div class="error-container">
                                             <p class="text-danger small mb-0 color-error"></p>
                                         </div>
@@ -128,7 +131,7 @@
                                     </div>
                                     <div class="size-row row g-2 align-items-center mb-2">
                                         <div class="col">
-                                            <input type="text"   class="form-control bg-light text-uppercase size-input" name="variants[0][sizes][0][size]" placeholder="e.g., M">
+                                            <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[0][sizes][0][size]" placeholder="e.g., M">
                                             <div class="error-container">
                                                 <p class="text-danger mb-0 small size-error"></p>
                                             </div>

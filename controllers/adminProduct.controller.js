@@ -21,8 +21,6 @@ export const getProductPage = async (req, res) => {
     }
     const totalProductCount = await Product.countDocuments(dbQuery);
     const totalPages = Math.ceil(totalProductCount / limit);
-    // const productGthan = await Product.aggregate([{ $unwind: "$variants" }, { $unwind: "$variants.sizes" }, { $match: { "variants.sizes.stock": { $gte: 100 } } }]);
-    // console.log(JSON.stringify(productGthan, null, 2));
     return res.render("products", {
         productError: productError || null,
         products,
@@ -35,9 +33,14 @@ export const getProductPage = async (req, res) => {
 
 export const getAddPage = async (req, res) => {
     const categories = await Category.find({ isDeleted: false, isActive: true });
-    return res.render("productAdd", { categories });
+    const oldData = {};
+    return res.render("productAdd", { categories, oldData });
 };
 
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const addProduct = async (req, res) => {
     try {
         for (let key in req.body) {
@@ -45,8 +48,7 @@ export const addProduct = async (req, res) => {
         }
         const { productName, productDescription, category, listing } = req.body;
         if (!productName || !productDescription || !category || !listing) {
-            req.flash("productError", "Please provide all the details");
-            return res.redirect("/product/add");
+            return res.render("productAdd", { productError: "Please provide all the details", oldData: req.body });
         }
         const isListed = listing === "list";
         const rawVariants = req.body.variants || {};

@@ -17,6 +17,7 @@ const couponModel = new mongoose.Schema(
         discountValue: {
             type: Number,
             required: true,
+            min: 1,
         },
         startDate: {
             type: Date,

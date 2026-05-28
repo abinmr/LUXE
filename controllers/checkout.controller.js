@@ -8,7 +8,7 @@ import { createAddress, findAddressById, findAddresses } from "../service/addres
 import { createWalletTransaction, getUserWallet } from "../service/wallet.service.js";
 import { getOrderById, updateOrder } from "../service/order.service.js";
 import { getProductById } from "../service/home.service.js";
-import { getCouponsDetails } from "../service/coupon.service.js";
+import { getCouponsDetails, getValidCoupons } from "../service/coupon.service.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -41,7 +41,7 @@ export const getCheckoutPage = async (req, res) => {
         const allCartItems = await getCartItems(req.user?._id);
         const products = allCartItems.filter((item) => item.isSelected);
         if (!products || products.length === 0) {
-            req.flash("home", { type: "error", message: "select atleast 1 item to continue"});
+            req.flash("home", { type: "error", message: "select atleast 1 item to continue" });
             return res.redirect("/home");
         }
 
@@ -65,7 +65,8 @@ export const getCheckoutPage = async (req, res) => {
         };
 
         const wallet = await getUserWallet(req.user?._id);
-        return res.render("checkout", { address, data, products, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
+        const coupons = await getValidCoupons();
+        return res.render("checkout", { address, data, products, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID, coupons });
     } catch (err) {
         console.error(err);
     }
@@ -87,6 +88,11 @@ export const applyCoupon = async (req, res) => {
         if (couponUsed) {
             return res.status(conflict).json({ success: false, message: "coupon already used before" });
         }
+
+        if (coupon.usageLimit >= coupon.users.length) {
+            return res.status(conflict).json({ success: false, message: "coupon limit reached" });
+        }
+
         const currentDate = new Date();
         if (!coupon.isActive || currentDate < coupon.startDate || currentDate > coupon.expiryDate) {
             return res.status(notFound).json({ success: false, message: "Coupon expired" });
@@ -203,7 +209,8 @@ export const checkoutBuyNow = async (req, res) => {
             total: data.total,
         };
         const wallet = await getUserWallet(req.user?._id);
-        return res.render("checkout", { address, products, data, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID });
+        const coupons = await getValidCoupons();
+        return res.render("checkout", { address, products, data, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID, coupons });
     } catch (err) {
         console.error(err);
     }

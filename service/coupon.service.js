@@ -11,6 +11,11 @@ export async function getCouponById(id) {
     return await Coupon.findById(id);
 }
 
+export async function getValidCoupons() {
+    const currentDate = new Date(Date.now());
+    return await Coupon.find({ startDate: { $lte: currentDate } }).limit(3);
+}
+
 /**
  * @param {string} code -
  */

@@ -142,7 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return e.preventDefault();
         }
 
+        console.log("Code reached");
+
         submitBtn.disabled = true;
-        submitBtn.textContent = "Creating Coupon...";
+        submitBtn.textContent = "Saving Changes...";
     });
 });

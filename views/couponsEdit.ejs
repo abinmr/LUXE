@@ -42,7 +42,7 @@
                             <label for="discount-type" class="form-label">Discount Type</label>
                             <select name="discountType" id="discount-type" class="form-select">
                                 <option value="percentage" <%= coupon.discountType === "percentage" ? 'selected' : '' %>>Percentage</option>
-                                <option value="fixed-amount" <%= coupon.discountType === "fixed-amount" ? 'selected' : '' %> >Fixed Amount</option>
+                                <option value="fixed" <%= coupon.discountType === "fixed" ? 'selected' : '' %> >Fixed Amount</option>
                             </select>
                         </div>
                     </div>
@@ -54,11 +54,20 @@
                         </div>
                     </div>
                     <div class="input-group gap-4 mb-2">
-                        <div class="col">
-                            <label for="discount-value" class="form-label">Discount Value</label>
-                            <input type="number" class="form-control" value="<%= coupon.discountValue %>" min="0" placeholder="0" name="discountValue" id="discount-value">
+                        <!-- Percentage Discount Field -->
+                        <div class="col <%= coupon.discountType !== 'percentage' ? 'd-none' : '' %>" id="discount-percentage-container">
+                            <label for="discount-value-percentage" class="form-label">Discount Percentage (%)</label>
+                            <input type="number" class="form-control" value="<%= coupon.discountType === 'percentage' ? coupon.discountValue : '' %>" min="0" max="100" placeholder="0" name="discountValue" id="discount-value-percentage" <%= coupon.discountType !== 'percentage' ? 'disabled' : '' %>>
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold" id="discount-error"></p>
+                                <p class="mb-0 fw-semibold" id="discount-percentage-error"></p>
+                            </div>
+                        </div>
+                        <!-- Fixed Discount Field -->
+                        <div class="col <%= coupon.discountType !== 'fixed' ? 'd-none' : '' %>" id="discount-fixed-container">
+                            <label for="discount-value-fixed" class="form-label">Discount Amount</label>
+                            <input type="number" class="form-control" value="<%= coupon.discountType === 'fixed' ? coupon.discountValue : '' %>" min="0" placeholder="0" name="discountValue" id="discount-value-fixed" <%= coupon.discountType !== 'fixed' ? 'disabled' : '' %>>
+                            <div class="error-container text-danger">
+                                <p class="mb-0 fw-semibold" id="discount-fixed-error"></p>
                             </div>
                         </div>
                         <div class="col">
@@ -70,7 +79,7 @@
                         </div>
                     </div>
                     <div class="input-group gap-4 mb-2">
-                        <div class="col">
+                        <div class="col <%= coupon.discountType !== 'percentage' ? 'd-none' : '' %>" id="max-discount-container">
                             <label for="max-discount" class="form-label">Max Discount</label>
                             <input type="number" class="form-control" value="<%= coupon.maxDiscountAmount %>" placeholder="0" name="maxDiscount" id="max-discount">
                             <div class="error-container text-danger">
@@ -91,15 +100,15 @@
                             <% const startDate = coupon.startDate.toISOString().split("T")[0]; %>
                             <input type="date" class="form-control" value="<%= startDate %>" name="startDate" id="start-date">
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold"></p>
+                                <p class="mb-0 fw-semibold" id="start-date-error"></p>
                             </div>
                         </div>
                         <div class="col">
-                            <label for="end-date" class="form-label">End Date</label>
+                            <label for="expiry-date" class="form-label">End Date</label>
                             <% const endDate = coupon.expiryDate.toISOString().split("T")[0]; %>
-                            <input type="date" class="form-control" value="<%= endDate %>" name="expiryDate" id="end-date">
+                            <input type="date" class="form-control" value="<%= endDate %>" name="expiryDate" id="expiry-date">
                             <div class="error-container text-danger">
-                                <p class="mb-0 fw-semibold"></p>
+                                <p class="mb-0 fw-semibold" id="expiry-date-error"></p>
                             </div>
                         </div>
                     </div>
@@ -116,6 +125,6 @@
             </form>
         </div>
 
-        <script src="/scripts/adminCouponsAdd.js"></script>
+        <script src="/scripts/adminCouponsEdit.js"></script>
 </body>
 </html>

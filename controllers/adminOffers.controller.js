@@ -6,6 +6,7 @@ import { getAllProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
 import { applyOffersToProducts, createOffer, findOfferById, findOneOffer, getOffers, removeOfferFromProducts, updateOffer } from "../service/offer.service.js";
 import { success, serverError } from "../service/status.service.js";
+import Product from "../models/product.model.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -81,10 +82,23 @@ export const addNewOffers = async (req, res) => {
                 return res.render("offerAdd", { errors: {}, offerError: "Their is already an offer available", oldData: req.body, products, categories });
             }
         } else if (data.applicableTo === "category") {
-            const anyActiveOffer = await findOneOffer({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
-            if (anyActiveOffer) {
-                return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
+            const hasOffers = await Product.exists({ category: { $in: data.applicableCategories }, "variants.sizes.appliedOfferId": { $exists: true, $ne: null } });
+            console.log(hasOffers);
+            if (hasOffers) {
+                console.log("Has offers");
+                return res.render("offerAdd", {
+                    errors: {},
+                    offerError: "One or more products in these categories already have an offer active.",
+                    oldData: req.body,
+                    products,
+                    categories,
+                });
             }
+            return;
+            // const anyActiveOffer = await findOneOffer({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
+            // if (anyActiveOffer) {
+            //     return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
+            // }
         } else if (data.applicableTo === "products") {
             const anyActiveOffer = await findOneOffer({ applicableTo: "products", applicableProducts: { $in: data.applicableProducts }, isDeleted: false });
             if (anyActiveOffer) {
