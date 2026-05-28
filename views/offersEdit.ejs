@@ -10,11 +10,6 @@
     <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.js"></script>
     <link rel="stylesheet" href="/styles/admin-nav.css">
     <link rel="stylesheet" href="/styles/adminCategory.css">
-    <style>
-        .error-container p {
-            display: none;
-        }
-    </style>
 </head>
 <body>
     <%- include('partials/admin-header.ejs', { activePage: 'offers' }) %>
@@ -30,7 +25,7 @@
                 </div>
             </div>
 
-            <form action="/admin/offers/edit/<%= offers._id %>" method="POST" enctype="multipart/form-data" id="offerForm">
+            <form action="/admin/offers/edit/<%= offers._id %>?_method=PUT" method="POST" enctype="multipart/form-data" id="offerForm">
                 <div class="border p-4 rounded-4 bg-white mb-4">
                     <h5>Basic Information</h5>
                     <div class="error-container text-center text-danger">

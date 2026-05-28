@@ -37,7 +37,7 @@
                     <div class="input-group gap-4">
                         <div class="col">
                             <label for="code" class="form-label">Coupon Code</label>
-                            <input type="text" class="form-control" placeholder="eg, WELCOME10" name="code" id="code">
+                            <input type="text" class="form-control" placeholder="eg, WELCOME10" value="<%= oldData.code || '' %>" name="code" id="code">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="codeError"></p>
                             </div>
@@ -45,14 +45,14 @@
                         <div class="col">
                             <label for="discount-type" class="form-label">Discount Type</label>
                             <select name="discountType" id="discount-type" class="form-select">
-                                <option value="percentage">Percentage</option>
-                                <option value="fixed">Fixed Amount</option>
+                                <option value="percentage" <%= oldData.discountType === "percentage" ? "selected" : '' %> >Percentage</option>
+                                <option value="fixed" <%= oldData.discountType === "fixed" ? "selected" : '' %> >Fixed Amount</option>
                             </select>
                         </div>
                     </div>
                     <div class="my-2">
                         <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" placeholder="description about the coupon" name="description" id="description">
+                        <input type="text" class="form-control" placeholder="describe coupon" value="<%= oldData.description || '' %>" name="description" id="description">
                         <div class="error-container text-danger">
                             <p class="mb-0 fw-semibold" id="descriptionError"></p>
                         </div>
@@ -60,21 +60,21 @@
                     <div class="input-group gap-4 mb-2">
                         <div class="col" id="discount-percentage-container">
                             <label for="discount-value-percentage" class="form-label">Discount Percentage (%)</label>
-                            <input type="number" class="form-control" min="0" max="100" placeholder="0" name="discountValue" id="discount-value-percentage">
+                            <input type="number" class="form-control" min="0" value="<%= oldData.discountValue || '' %>" placeholder="0" name="discountValue" id="discount-value-percentage">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="discount-percentage-error"></p>
                             </div>
                         </div>
                         <div class="col d-none" id="discount-fixed-container">
                             <label for="discount-value-fixed" class="form-label">Discount Amount</label>
-                            <input type="number" class="form-control" min="0" placeholder="0" name="discountValue" id="discount-value-fixed" disabled>
+                            <input type="number" class="form-control" min="0" value="<%= oldData.discountValue || '' %>" placeholder="0" name="discountValue" id="discount-value-fixed" disabled>
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="discount-fixed-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="min-purchase-amount" class="form-label">Min Purchase Amout</label>
-                            <input type="number" class="form-control" name="minPurchaseAmount" placeholder="0" id="min-purchase-amount">
+                            <input type="number" class="form-control" value="<%= oldData.minPurchaseAmount || '' %>" name="minPurchaseAmount" placeholder="0" id="min-purchase-amount">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="min-purchase-error"></p>
                             </div>
@@ -83,14 +83,14 @@
                     <div class="input-group gap-4 mb-2">
                         <div class="col" id="max-discount-container">
                             <label for="max-discount" class="form-label">Max Discount (optional)</label>
-                            <input type="number" class="form-control" placeholder="0" min="1" name="maxDiscount" id="max-discount">
+                            <input type="number" class="form-control" value="<%= oldData.maxDiscount || '' %>" placeholder="0" min="1" name="maxDiscount" id="max-discount">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="max-discount-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="usage-limit" class="form-label">Usage Limit</label>
-                            <input type="number" class="form-control" placeholder="0" min="1" name="usageLimit" id="usage-limit">
+                            <input type="number" class="form-control" placeholder="0" min="1" value="<%= oldData.usageLimit || '' %>" name="usageLimit" id="usage-limit">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="usage-limit-error"></p>
                             </div>
@@ -99,21 +99,21 @@
                     <div class="input-group gap-4 mb-2">
                         <div class="col">
                             <label for="start-date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control user-select-none" name="startDate" id="start-date">
+                            <input type="date" class="form-control user-select-none" value="<%= oldData.startDate || '' %>" name="startDate" id="start-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="start-date-error"></p>
                             </div>
                         </div>
                         <div class="col">
                             <label for="end-date" class="form-label">Expiry Date</label>
-                            <input type="date" class="form-control" name="expiryDate" id="expiry-date">
+                            <input type="date" class="form-control" value="<%= oldData.expiryDate || '' %>" name="expiryDate" id="expiry-date">
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="expiry-date-error"></p>
                             </div>
                         </div>
                     </div>
                     <div class="">
-                        <input type="checkbox" name="isActive" class="form-check-input" id="couponStatus">
+                        <input type="checkbox" name="isActive" class="form-check-input" id="couponStatus" <%= oldData.isActive ? 'checked' : '' %> >
                         <label for="couponStatus">Set as Active</label>
                     </div>
                 </div>

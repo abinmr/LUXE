@@ -26,6 +26,11 @@ export const getCouponPage = async (req, res) => {
     }
 };
 
+export const getCouponCreatePage = async (req, res) => {
+    const oldData = {};
+    return res.render("couponsAdd", { oldData });
+};
+
 export const createNewCoupon = async (req, res) => {
     try {
         for (let key in req.body) {

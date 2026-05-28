@@ -17,7 +17,7 @@ router.patch("/status/inactive/:id", requireAdminAuth, unlistCategory);
 
 router.get("/edit/:id", requireAdminAuth, getEditCategory);
 
-router.post("/edit/:id", requireAdminAuth, upload.single("image"), editCategoryDetails);
+router.put("/edit/:id", requireAdminAuth, upload.single("image"), editCategoryDetails);
 
 router.get("/delete/:id", requireAdminAuth, deleteCategory);
 

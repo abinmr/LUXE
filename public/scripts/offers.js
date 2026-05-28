@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = this.dataset.id;
             console.log(id);
             try {
-                const result = await fetch(`/admin/offers/delete/${id}`, { method: "PATCH" });
+                const result = await fetch(`/admin/offers/delete/${id}`, { method: "DELETE" });
                 console.log("result", result);
                 const data = await result.json();
                 console.log("data", data);

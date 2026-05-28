@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import flash from "connect-flash";
+import methodOverride from "method-override";
 import adminRouter from "./routes/admin.route.js";
 import userAuthRouter from "./routes/userAuth.route.js";
 import homeRouter from "./routes/home.route.js";
@@ -28,6 +29,7 @@ const PORT = process.env.PORT || 3000;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(methodOverride("_method"));
 app.use(
     session({
         secret: process.env.SESSION_SECRET,

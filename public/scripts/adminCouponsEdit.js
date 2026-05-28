@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (inputEl === discountPercentageInput) {
-            if (num < 1 || num > 100) {
+            if (num < 1 || num > 99) {
                 error.textContent = "Discount percentage must be between 1 and 100";
                 error.style.display = "block";
                 return false;

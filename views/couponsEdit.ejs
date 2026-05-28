@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <form action="/admin/coupons/edit/<%= coupon._id %>" method="POST" id="coupon-form">
+            <form action="/admin/coupons/edit/<%= coupon._id %>?_method=PUT" method="POST" id="coupon-form">
                 <div class="p-4 border rounded-4 bg-white">
                     <h5>Coupon Details</h5>
 
@@ -54,15 +54,13 @@
                         </div>
                     </div>
                     <div class="input-group gap-4 mb-2">
-                        <!-- Percentage Discount Field -->
                         <div class="col <%= coupon.discountType !== 'percentage' ? 'd-none' : '' %>" id="discount-percentage-container">
                             <label for="discount-value-percentage" class="form-label">Discount Percentage (%)</label>
-                            <input type="number" class="form-control" value="<%= coupon.discountType === 'percentage' ? coupon.discountValue : '' %>" min="0" max="100" placeholder="0" name="discountValue" id="discount-value-percentage" <%= coupon.discountType !== 'percentage' ? 'disabled' : '' %>>
+                            <input type="number" class="form-control" value="<%= coupon.discountType === 'percentage' ? coupon.discountValue : '' %>" min="0" placeholder="0" name="discountValue" id="discount-value-percentage" <%= coupon.discountType !== 'percentage' ? 'disabled' : '' %>>
                             <div class="error-container text-danger">
                                 <p class="mb-0 fw-semibold" id="discount-percentage-error"></p>
                             </div>
                         </div>
-                        <!-- Fixed Discount Field -->
                         <div class="col <%= coupon.discountType !== 'fixed' ? 'd-none' : '' %>" id="discount-fixed-container">
                             <label for="discount-value-fixed" class="form-label">Discount Amount</label>
                             <input type="number" class="form-control" value="<%= coupon.discountType === 'fixed' ? coupon.discountValue : '' %>" min="0" placeholder="0" name="discountValue" id="discount-value-fixed" <%= coupon.discountType !== 'fixed' ? 'disabled' : '' %>>
@@ -113,7 +111,7 @@
                         </div>
                     </div>
                     <div class="">
-                        <input type="checkbox" name="isActive" class="form-check-input" id="couponStatus">
+                        <input type="checkbox" name="isActive" class="form-check-input" id="couponStatus" <%= coupon.isActive ? 'checked' : '' %> >
                         <label for="couponStatus">Set as Active</label>
                     </div>
                 </div>

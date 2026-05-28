@@ -46,7 +46,7 @@
                         <p class="fw-semibold"> <%= error %> </p>
                     <% } %>
                 </div>
-                <form action="/admin/login" method="POST" class="d-flex flex-column justify-content-center align-items-center">
+                <form action="/admin/login" method="POST" class="d-flex flex-column justify-content-center align-items-center" id="form">
                     <div class="mb-3 w-75">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" name="email" id="email" placeholder="email" />
@@ -60,7 +60,7 @@
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-4 mb-5">Sign In to Dashboard</button>
+                    <button type="submit" class="btn btn-primary mt-4 mb-5 col-2 col-sm-3" id="signIn">Sign In</button>
                 </form>
             </div>
         </div>
@@ -81,5 +81,13 @@
                 eyeIcon.classList.add("bi-eye-slash");
             }
         });
+
+        const submitBtn = document.getElementById("signIn");
+        const form = document.getElementById("form");
+
+        form.addEventListener("submit", () => {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Signing In..."
+        })
     </script>
 </html>

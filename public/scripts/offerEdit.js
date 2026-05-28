@@ -19,14 +19,23 @@ document.addEventListener("DOMContentLoaded", () => {
     function validate(inputEl, errorId, message) {
         /** @type {HTMLParagraphElement} */
         const error = document.getElementById(errorId);
-        const isEmpty = inputEl.value.trim().length === 0;
-        if (isEmpty) {
+        const valueStr = inputEl.value.trim();
+        if (valueStr.length === 0) {
             error.textContent = message;
-            error.style.display = "block";
+            error.style.visibility = "visible";
             return false;
         }
+
+        const num = Number(valueStr);
+        if (inputEl === discountPercentageInput) {
+            if (num < 1 || num > 99) {
+                error.textContent = "Discount percentage must be between 1 and 100";
+                error.style.visibility = "visible";
+                return false;
+            }
+        }
         error.textContent = "";
-        error.style.display = "none";
+        error.style.visibility = "hidden";
         return true;
     }
 

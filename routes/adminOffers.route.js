@@ -13,12 +13,12 @@ router.post("/add", requireAdminAuth, upload.single("image"), addNewOffers);
 
 router.get("/edit/:id", requireAdminAuth, getOffersEditPage);
 
-router.post("/edit/:id", requireAdminAuth, upload.single("image"), updateOffersDetails);
-
-router.patch("/delete/:id", requireAdminAuth, deleteOffer);
+router.put("/edit/:id", requireAdminAuth, upload.single("image"), updateOffersDetails);
 
 router.patch("/list/:id", requireAdminAuth, listOffer);
 
 router.patch("/unlist/:id", requireAdminAuth, unlistOffer);
+
+router.delete("/delete/:id", requireAdminAuth, deleteOffer);
 
 export default router;
