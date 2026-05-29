@@ -7,17 +7,22 @@ import { generateSalesReportExcel, generateSalesReportPDF, getDates } from "../s
  * @param {import('express').Response} res -
  */
 export const getSalesReportPage = async (req, res) => {
-    const { date } = req.query;
+    const { date, startDate, endDate } = req.query;
     let query = {};
     if (date) {
-        const { startDate, endDate } = await getDates(date);
-        console.log(startDate, endDate);
-
-        if (["today", "week", "month", "year"].includes(date)) {
+        if (date === "custom" && startDate && endDate) {
             query.createdAt = {
-                $gte: startDate,
-                $lte: endDate,
+                $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
             };
+        } else {
+            const { startDate, endDate } = await getDates(date);
+            if (["today", "week", "month", "year"].includes(date)) {
+                query.createdAt = {
+                    $gte: startDate,
+                    $lte: endDate,
+                };
+            }
         }
     }
 
@@ -38,6 +43,8 @@ export const getSalesReportPage = async (req, res) => {
         totalProducts,
         selectedDate: date || "all",
         revenueArray: revenue,
+        startDate: startDate || "",
+        endDate: endDate || "",
     });
 };
 
@@ -53,14 +60,22 @@ export const downloadSalesPDF = async (req, res) => {
         let displayEndDate = "Today";
 
         if (date !== "all") {
-            const { startDate, endDate } = await getDates(date);
+            let start, end;
+            if (date === "custom" && req.query.startDate && req.query.endDate) {
+                start = new Date(new Date(req.query.startDate).setHours(0, 0, 0, 0));
+                end = new Date(new Date(req.query.endDate).setHours(23, 59, 59, 999));
+            } else {
+                const { startDate, endDate } = await getDates(date);
+                start = startDate;
+                end = endDate;
+            }
             query.createdAt = {
-                $gte: startDate,
-                $lte: endDate,
+                $gte: start,
+                $lte: end,
             };
 
-            displayStartDate = new Date(startDate).toLocaleDateString("en-IN");
-            displayEndDate = new Date(endDate).toLocaleDateString("en-IN");
+            displayStartDate = new Date(start).toLocaleDateString("en-IN");
+            displayEndDate = new Date(end).toLocaleDateString("en-IN");
         }
 
         const orders = await Order.find(query);
@@ -104,10 +119,21 @@ export const downloadSalesExcel = async (req, res) => {
         let displayEndDate = "Today";
 
         if (date !== "all") {
-            const { startDate, endDate } = await getDates(date);
-            query.createdAt = { $gte: startDate, $lte: endDate };
-            displayStartDate = new Date(startDate).toLocaleDateString("en-IN");
-            displayEndDate = new Date(endDate).toLocaleDateString("en-IN");
+            let start, end;
+            if (date === "custom" && req.query.startDate && req.query.endDate) {
+                start = new Date(new Date(req.query.startDate).setHours(0, 0, 0, 0));
+                end = new Date(new Date(req.query.endDate).setHours(23, 59, 59, 999));
+            } else {
+                const { startDate, endDate } = await getDates(date);
+                start = startDate;
+                end = endDate;
+            }
+            query.createdAt = {
+                $gte: start,
+                $lte: end,
+            };
+            displayStartDate = new Date(start).toLocaleDateString("en-IN");
+            displayEndDate = new Date(end).toLocaleDateString("en-IN");
         }
 
         const orders = await Order.find(query);

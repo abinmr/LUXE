@@ -31,10 +31,12 @@
                         <div class="d-flex flex-column flex-sm-row align-items-center gap-3">
                             <% const displayStatus = orderDetails.items[0].orderStatus || 'pending'; %>
                             <button id="order-status" class="btn btn-sm <%= (displayStatus === "cancelled" || displayStatus === "return-requested") ? 'btn-danger' : "btn-light border" %> rounded-2"> <%= displayStatus === "return-requested" ? 'Return requested' : displayStatus %> </button>
+                            <% if (orderDetails.paymentStatus === "paid" || orderDetails.paymentMethod === "cod") { %>
                             <a href="/profile/orders/<%= orderDetails._id %>/invoice" target="_blank" class="btn btn-light btn-sm rounded-2 border d-flex align-items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download h-3.5 w-3.5" aria-hidden="true"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
                                 invoice
                             </a>
+                            <% } %>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between mb-2">

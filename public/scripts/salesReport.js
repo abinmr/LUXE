@@ -1,15 +1,66 @@
-const selectedDateRange = document.getElementById("date").value;
+document.addEventListener("DOMContentLoaded", () => {
+    const toastEl = document.getElementById("actionToast");
+    const toastBodyEl = document.getElementById("actionToastBody");
+    const toastIcon = document.getElementById("toast-icon");
+    const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
 
-const downloadPdfBtn = document.getElementById("downloadPdfBtn");
-downloadPdfBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const downloadUrl = `/admin/sales-report/pdf?date=${selectedDateRange}`;
-    window.location.href = downloadUrl;
-});
+    const showToast = (message, type = "success") => {
+        if (!toast || !toastBodyEl) return;
+        toastBodyEl.textContent = message;
+        toastBodyEl.classList.remove("text-success", "text-danger");
+        toastBodyEl.classList.add(type === "success" ? "text-black" : "text-danger");
+        toastIcon.classList.add(type === "success" ? "text-black" : "text-danger");
+        toast.show();
+    };
 
-const downloadExcelBtn = document.getElementById("downloadExcelBtn");
-downloadExcelBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const downloadUrl = `/admin/sales-report/excel?date=${selectedDateRange}`;
-    window.location.href = downloadUrl;
+    const dateSelect = document.getElementById("date");
+    const customDateContainer = document.getElementById("custom-date-container");
+    const filterForm = document.getElementById("filterForm");
+
+    dateSelect.addEventListener("change", () => {
+        if (dateSelect.value === "custom") {
+            customDateContainer.classList.remove("d-none");
+        } else {
+            customDateContainer.classList.add("d-none");
+            filterForm.submit();
+        }
+    });
+
+    filterForm.addEventListener("submit", (e) => {
+        if (dateSelect.value === "custom") {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+
+            if (!startDate || !endDate) {
+                e.preventDefault();
+                showToast("Please select both a Start Date and End Date.");
+            }
+        }
+    });
+
+    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+    downloadPdfBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const selectedDateRange = dateSelect.value;
+        let downloadUrl = `/admin/sales-report/pdf?date=${selectedDateRange}`;
+        if (selectedDateRange === "custom") {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            downloadUrl += `&startDate=${startDate}&endDate=${endDate}`;
+        }
+        window.location.href = downloadUrl;
+    });
+
+    const downloadExcelBtn = document.getElementById("downloadExcelBtn");
+    downloadExcelBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const selectedDateRange = dateSelect.value;
+        let downloadUrl = `/admin/sales-report/excel?date=${selectedDateRange}`;
+        if (selectedDateRange === "custom") {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            downloadUrl += `&startDate=${startDate}&endDate=${endDate}`;
+        }
+        window.location.href = downloadUrl;
+    });
 });
