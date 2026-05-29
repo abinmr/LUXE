@@ -23,13 +23,12 @@ export const getSalesReportPage = async (req, res) => {
 
     const allOrders = await Order.find(query).sort({ createdAt: -1 });
     const totalOrders = allOrders.length;
-    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalRevenue = Math.round(allOrders.reduce((sum, order) => sum + (order.total || 0), 0));
     const totalProducts = allOrders.reduce((sum, order) => {
         return sum + (order.total ? order.items.length : 0);
     }, 0);
     const revenue = await monthelyRevenue();
     const transactions = allOrders.slice(0, 10);
-    console.log(totalOrders, totalRevenue);
 
     return res.render("sales-report", {
         currentPage: "sales-report",

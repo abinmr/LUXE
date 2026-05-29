@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
 
     const cancelForm = document.getElementById("cancel-form");
-    const continueBtn = document.getElementById("continue");
+    const cancelOrderBtn = document.getElementById("continue");
     const radioBtns = document.querySelectorAll('input[name="reason"]');
     const orderStatusBtn = document.getElementById("order-status");
 
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     radioBtns.forEach((radio) => {
         radio.addEventListener("change", () => {
             if (continueReturn) continueReturn.disabled = false;
-            if (continueBtn) continueBtn.disabled = false;
+            if (cancelOrderBtn) cancelOrderBtn.disabled = false;
         });
     });
 
@@ -51,6 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = cancelForm.dataset.id;
         const body = Object.fromEntries(formData.entries());
         body.itemId = activeItemId;
+        cancelOrderBtn.disabled = true;
+        cancelOrderBtn.textContent = "Cancelling";
 
         try {
             const response = await fetch(`/profile/orders/${id}/cancel`, {
@@ -79,6 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     orderStatusBtn.classList.remove("border");
                     orderStatusBtn.textContent = "cancelled";
                 }
+            } else {
+                cancelOrderBtn.disabled = false;
+                cancelOrderBtn.textContent = "Cancel";
             }
         } catch (err) {
             console.error(err);
@@ -93,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = returnForm.dataset.id;
             const body = Object.fromEntries(formData.entries());
             body.itemId = activeItemId;
+            continueReturn.disabled = true;
 
             const response = await fetch(`/profile/orders/${id}/return`, {
                 method: "post",
@@ -120,6 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     orderStatusBtn.classList.remove("border");
                     orderStatusBtn.textContent = "Return requested";
                 }
+            } else {
+                continueReturn.disabled = false;
             }
         } catch (err) {
             console.error(err);
