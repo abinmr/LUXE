@@ -112,7 +112,7 @@
                 </div>
 
                 <div class="border border-1 rounded-4 p-4 bg-white shadow-sm mb-4">
-                    <div class="mb-4 d-flex align-items-center gap-2">
+                    <div class="mb-2 d-flex align-items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card h-5 w-5" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
                         <span class="h5 fw-bold mb-0">Payment Method</span>
                     </div>
@@ -127,6 +127,18 @@
                             <p class="fw-semibold h5">UPI</p>
                         <% } else { %>
                             <p class="fw-semibold h5"><%= orderDetails.paymentMethod %></p>
+                        <% } %>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="small text-muted">Status:</span>
+                            <span class="badge <%= orderDetails.paymentStatus === 'paid' ? 'bg-success' : (orderDetails.paymentStatus === 'failed' ? 'bg-danger' : 'bg-warning') %> text-capitalize">
+                                <%= orderDetails.paymentStatus %>
+                            </span>
+                        </div>
+
+                        <% if (orderDetails.paymentStatus !== "cod" && (orderDetails.paymentStatus === "failed" || orderDetails.paymentStatus === "pending")) { %>
+                            <button id="retry-payment-btn" class="btn btn-danger btn-sm mt-3 w-100 rounded-2" data-id="<%= orderDetails._id %>">
+                                Retry Payment
+                            </button>
                         <% } %>
                     </div>
                 </div>
@@ -258,6 +270,7 @@
     </div>
 
     <%- include('partials/footer.ejs') %>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="/scripts/orderDetails.js"></script>
 </body>
 </html>
