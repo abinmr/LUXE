@@ -1,10 +1,9 @@
 import fs from "fs";
-import Offer from "../models/offer.model.js";
 import { getAllCategories } from "../service/adminCategory.service.js";
 import { offerSchema } from "../validators/offer.validator.js";
 import { getAllProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
-import { applyOffersToProducts, createOffer, findOfferById, findOneOffer, getOffers, removeOfferFromProducts, updateOffer } from "../service/offer.service.js";
+import { applyOffersToProducts, createOffer, deleteOfferById, findOfferById, findOneOffer, getOffers, removeOfferFromProducts, updateOffer } from "../service/offer.service.js";
 import { success, serverError } from "../service/status.service.js";
 import Product from "../models/product.model.js";
 
@@ -94,7 +93,6 @@ export const addNewOffers = async (req, res) => {
                     categories,
                 });
             }
-            return;
             // const anyActiveOffer = await findOneOffer({ applicableTo: "category", applicableCategories: { $in: data.applicableCategories }, isDeleted: false });
             // if (anyActiveOffer) {
             //     return res.render("offerAdd", { errors: {}, offerError: "Offer for these categories is already available", oldData: req.body, products, categories });
@@ -269,7 +267,7 @@ export const unlistOffer = async (req, res) => {
 export const deleteOffer = async (req, res) => {
     try {
         const id = req.params.id;
-        const result = await Offer.findByIdAndUpdate(id, { isDeleted: true });
+        const result = await deleteOfferById(id);
         await removeOfferFromProducts(result._id);
         return res.status(success).json({ success: true, message: "offer deleted" });
     } catch (err) {

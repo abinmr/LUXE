@@ -98,6 +98,10 @@ export async function removeOfferFromProducts(offerId) {
     }
 }
 
+export async function deleteOfferById(id) {
+    return await Offer.findByIdAndUpdate(id, { isDeleted: true });
+}
+
 nodeCron.schedule("0 * * * *", async () => {
     const now = new Date();
     const expiredOffer = await Offer.find({ isActive: true, endDate: { $lt: now } });

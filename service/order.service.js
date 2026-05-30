@@ -4,11 +4,28 @@ import Order from "../models/order.model.js";
 /** @typedef {InstanceType<typeof import('../models/order.model.js').default>} OrderDocument */
 /** @typedef {import('mongoose').UpdateQuery<OrderDocument>} OrderUpdate */
 
+export async function getTotalOrders(query) {
+    return await Order.countDocuments(query);
+}
+
 /**
  * @param {Object} id -
  */
 export async function getOrderById(id) {
     return await Order.findById(id);
+}
+
+/**
+ * @param {Object} query -
+ * @param {number} skip -
+ * @param {number} limit -
+ */
+export async function getPaginatedOrder(query, skip, limit) {
+    return await Order.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+}
+
+export async function getOrderWithUser(id) {
+    return await Order.findById(id).populate("userId");
 }
 
 /**

@@ -1,8 +1,7 @@
-import Order from "../models/order.model.js";
-import User from "../models/user.model.js";
-import Wallet from "../models/wallet.model.js";
-import WalletTransaction from "../models/walletTransation.model.js";
+import { getOrderById, getOrderWithUser, getPaginatedOrder, getTotalOrders } from "../service/order.service.js";
 import { updateProduct } from "../service/product.service.js";
+import { findUserById } from "../service/user.service.js";
+import { createWalletTransaction, getUserWallet } from "../service/wallet.service.js";
 import { success } from "../service/status.service.js";
 
 export const getOrdersPage = async (req, res) => {
@@ -21,8 +20,8 @@ export const getOrdersPage = async (req, res) => {
         if (customerStatus && customerStatus !== "all-status") {
             dbQuery["items.orderStatus"] = customerStatus;
         }
-        const orders = await Order.find(dbQuery).skip(skip).limit(limit).sort({ createdAt: -1 });
-        const totalOrders = await Order.countDocuments(dbQuery);
+        const orders = await getPaginatedOrder(dbQuery, skip, limit);
+        const totalOrders = await getTotalOrders(dbQuery);
         const totalPages = Math.ceil(totalOrders / limit);
         return res.render("orders", {
             currentPage: "orders",
@@ -39,7 +38,7 @@ export const getOrdersPage = async (req, res) => {
 };
 
 export const orderDetailsById = async (req, res) => {
-    const order = await Order.findById(req.params.id).populate("userId");
+    const order = await getOrderWithUser(req.params.id);
     return res.render("orderProcessing", { order });
 };
 
@@ -50,7 +49,7 @@ export const orderDetailsById = async (req, res) => {
 export const updateOrderDetails = async (req, res) => {
     try {
         const status = req.query.status;
-        const order = await Order.findById(req.params.id);
+        const order = await getOrderById(req.params.id);
         const terminalStates = ["cancelled", "return-requested", "returned"];
         for (const item of order.items) {
             if (!terminalStates.includes(item.orderStatus)) {
@@ -59,16 +58,13 @@ export const updateOrderDetails = async (req, res) => {
         }
         if (status === "delivered") {
             order.estimatedDeliveryDate = new Date(Date.now());
-            const user = await User.findById(order.userId);
+            const user = await findUserById(order.userId);
             if (user && user.referredBy && !user.referralBonusGranted) {
                 const bonusAmount = 100;
-                let referrerWallet = await Wallet.findOne({ userId: user.referredBy });
-                if (!referrerWallet) {
-                    referrerWallet = await Wallet.create({ userId: user.referredBy, balance: 0 });
-                }
+                let referrerWallet = await getUserWallet(user.referredBy);
                 referrerWallet.balance = Math.round((referrerWallet.balance + bonusAmount) * 100) / 100;
                 await referrerWallet.save();
-                WalletTransaction.create({
+                const data = {
                     walletId: referrerWallet._id,
                     userId: user.referredBy,
                     referenceModel: "User",
@@ -77,7 +73,8 @@ export const updateOrderDetails = async (req, res) => {
                     amount: bonusAmount,
                     description: `Referral bonus for inviting ${user.fullname || `a new user`}!`,
                     status: "completed",
-                });
+                };
+                await createWalletTransaction(data);
                 user.referralBonusGranted = true;
                 order.paymentStatus = "paid";
                 await user.save();
@@ -99,7 +96,7 @@ export const updateOrderDetails = async (req, res) => {
  */
 export const orderReturn = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id);
+        const order = await getOrderById(req.params.id);
         if (!order) {
             return res.redirect("/admin/orders");
         }
@@ -140,9 +137,8 @@ export const orderReturn = async (req, res) => {
         await order.save();
 
         const userId = order.userId;
-        const wallet = await Wallet.findOne({ userId: userId });
-        const userWallet = wallet || (await Wallet.create({ userId: userId, balance: 0 }));
-        const transaction = await WalletTransaction.create({
+        const userWallet = await getUserWallet(userId);
+        const data = {
             walletId: userWallet._id,
             userId: userId,
             orderId: order.orderId,
@@ -150,7 +146,8 @@ export const orderReturn = async (req, res) => {
             amount: refund,
             description: req.body["admin-note"] || "refund for returned order",
             status: "completed",
-        });
+        };
+        const transaction = await createWalletTransaction(data);
         userWallet.balance = Math.round((userWallet.balance + refund) * 100) / 100;
         await userWallet.save();
         return res.status(success).json({ success: true, message: `Item returned. ₹${refund} refunded`, returnedItems: selectedIts });
