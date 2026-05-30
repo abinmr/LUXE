@@ -35,6 +35,10 @@ export async function getUserOrders(userId) {
     return await Order.find({ userId: userId }).sort({ createdAt: -1 });
 }
 
+export async function getSortedOrders(query) {
+    return await Order.find(query).sort({ createdAt: -1 });
+}
+
 export async function getOneOrder(data) {
     return await Order.findOne(data);
 }

@@ -1,5 +1,4 @@
-import Order from "../models/order.model.js";
-import { monthelyRevenue } from "../service/order.service.js";
+import { getSortedOrders, monthelyRevenue } from "../service/order.service.js";
 import { generateSalesReportExcel, generateSalesReportPDF, getDates } from "../service/sales.service.js";
 
 /**
@@ -26,7 +25,7 @@ export const getSalesReportPage = async (req, res) => {
         }
     }
 
-    const allOrders = await Order.find(query).sort({ createdAt: -1 });
+    const allOrders = await getSortedOrders(query);
     const totalOrders = allOrders.length;
     const totalRevenue = Math.round(allOrders.reduce((sum, order) => sum + (order.total || 0), 0));
     const totalProducts = allOrders.reduce((sum, order) => {
@@ -78,7 +77,7 @@ export const downloadSalesPDF = async (req, res) => {
             displayEndDate = new Date(end).toLocaleDateString("en-IN");
         }
 
-        const orders = await Order.find(query);
+        const orders = await getSortedOrders(query);
         let totalRevenue = 0;
         let totalDiscount = 0;
         let netSales = 0;
@@ -136,7 +135,7 @@ export const downloadSalesExcel = async (req, res) => {
             displayEndDate = new Date(end).toLocaleDateString("en-IN");
         }
 
-        const orders = await Order.find(query);
+        const orders = await getSortedOrders(query);
         let revenue = 0,
             totalDiscount = 0,
             netSales = 0;
