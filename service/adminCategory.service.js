@@ -5,6 +5,10 @@ export async function getTotalCategories() {
 }
 
 export async function getAllCategories() {
+    return await Category.find({ isDeleted: false });
+}
+
+export async function getAllActiveCategories() {
     return await Category.find({ isActive: true, isDeleted: false });
 }
 

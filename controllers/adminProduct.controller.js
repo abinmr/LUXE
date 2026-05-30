@@ -1,8 +1,8 @@
 import fs from "fs/promises";
-import Product from "../models/product.model.js";
-import Category from "../models/category.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { serverError, success } from "../service/status.service.js";
+import { createProduct, getPaginatedProducts, getProductWithCateogory, getTotalDocuments, updateProductById } from "../service/product.service.js";
+import { getAllActiveCategories, getAllCategories } from "../service/adminCategory.service.js";
 
 export const getProductPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -14,12 +14,12 @@ export const getProductPage = async (req, res) => {
     if (search) {
         JSON.stringify((dbQuery.$or = [{ name: { $regex: search, $options: "i" } }]));
     }
-    const products = await Product.find(dbQuery).populate("category").lean().skip(skip).limit(limit).sort({ createdAt: -1 });
+    const products = await getPaginatedProducts(dbQuery, skip, limit);
     for (const product of products) {
         const allSizes = (product.variants || []).flatMap((v) => v.sizes);
         product.totalStock = allSizes.reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
     }
-    const totalProductCount = await Product.countDocuments(dbQuery);
+    const totalProductCount = await getTotalDocuments(dbQuery);
     const totalPages = Math.ceil(totalProductCount / limit);
     return res.render("products", {
         productError: productError || null,
@@ -32,7 +32,7 @@ export const getProductPage = async (req, res) => {
 };
 
 export const getAddPage = async (req, res) => {
-    const categories = await Category.find({ isDeleted: false, isActive: true });
+    const categories = await getAllActiveCategories();
     const oldData = {};
     return res.render("productAdd", { categories, oldData });
 };
@@ -74,13 +74,14 @@ export const addProduct = async (req, res) => {
             sizes: Array.isArray(variant.sizes) ? variant.sizes : variant.sizes ? [variant.sizes] : [],
         }));
 
-        await Product.create({
+        const data = {
             name: productName,
             description: productDescription,
             category,
             isListed,
             variants,
-        });
+        };
+        await createProduct(data);
 
         return res.redirect("/admin/products");
     } catch (err) {
@@ -96,8 +97,8 @@ export const addProduct = async (req, res) => {
 };
 
 export const getEditPage = async (req, res) => {
-    const product = await Product.findById(req.params.id).populate("category").lean();
-    const categories = await Category.find({ isDeleted: false });
+    const product = await getProductWithCateogory(req.params.id);
+    const categories = await getAllCategories();
     return res.render("productEdit", { product, categories });
 };
 
@@ -153,13 +154,15 @@ export const editProductDetails = async (req, res) => {
             return vObj;
         });
 
-        await Product.findByIdAndUpdate(id, {
+        const updateData = {
             name: productName,
             description: productDescription,
             category,
             isListed,
             variants,
-        });
+        };
+
+        await updateProductById(id, updateData);
 
         return res.redirect("/admin/products");
     } catch (err) {
@@ -175,7 +178,7 @@ export const editProductDetails = async (req, res) => {
 
 export const listProduct = async (req, res) => {
     try {
-        await Product.findByIdAndUpdate(req.params.id, { isListed: true });
+        await updateProductById(req.params.id, { isListed: true });
         return res.status(success).json({ success: true, message: "product listed" });
     } catch (err) {
         console.error(err);
@@ -185,7 +188,7 @@ export const listProduct = async (req, res) => {
 
 export const unlistProduct = async (req, res) => {
     try {
-        await Product.findByIdAndUpdate(req.params.id, { isListed: false });
+        await updateProductById(req.params.id, { isListed: false });
         return res.status(success).json({ success: true, message: "product unlisted" });
     } catch (err) {
         console.error(err);
@@ -195,7 +198,7 @@ export const unlistProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        await Product.findByIdAndUpdate(req.params.id, { isDeleted: true });
+        await updateProductById(req.params.id, { isDeleted: true });
         return res.status(success).json({ success: true, message: "product deleted successfully " });
     } catch (err) {
         console.error(err);

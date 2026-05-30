@@ -1,5 +1,5 @@
 import fs from "fs";
-import { getAllCategories } from "../service/adminCategory.service.js";
+import { getAllActiveCategories } from "../service/adminCategory.service.js";
 import { offerSchema } from "../validators/offer.validator.js";
 import { getAllProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
@@ -35,7 +35,7 @@ export const getOffersPage = async (req, res) => {
  * @param {Response} res -
  */
 export const getOfferAddPage = async (req, res) => {
-    const categories = await getAllCategories();
+    const categories = await getAllActiveCategories();
     const products = await getAllProducts();
     const offerError = req.flash("offerError")[0];
     const offerImageError = req.flash("offerImageError")[0];
@@ -48,7 +48,7 @@ export const getOfferAddPage = async (req, res) => {
  */
 export const addNewOffers = async (req, res) => {
     const products = await getAllProducts();
-    const categories = await getAllCategories();
+    const categories = await getAllActiveCategories();
 
     const validateData = offerSchema.safeParse({ ...req.body });
 
@@ -140,7 +140,7 @@ export const getOffersEditPage = async (req, res) => {
     try {
         const id = req.params.id;
         const offers = await findOfferById(id);
-        const categories = await getAllCategories();
+        const categories = await getAllActiveCategories();
         const products = await getAllProducts();
         const errors = {};
         return res.render("offersEdit", { offers, categories, products, errors });
@@ -155,7 +155,7 @@ export const getOffersEditPage = async (req, res) => {
  */
 export const updateOffersDetails = async (req, res) => {
     const id = req.params.id;
-    const categories = await getAllCategories();
+    const categories = await getAllActiveCategories();
     const products = await getAllProducts();
     const offers = await findOfferById(id);
 

@@ -3,11 +3,11 @@ import { success } from "../service/status.service.js";
 import { getUserWishlist } from "../service/wishlist.service.js";
 import { getUserCart } from "../service/cart.service.js";
 import { findOneOffer } from "../service/offer.service.js";
-import { getAllCategories } from "../service/adminCategory.service.js";
+import { getAllActiveCategories } from "../service/adminCategory.service.js";
 
 export const loadCategories = async (req, res, next) => {
     try {
-        const categories = await getAllCategories();
+        const categories = await getAllActiveCategories();
         if (req.user) {
             const wishlist = await getUserWishlist(req.user?._id);
             const carts = await getUserCart(req.user?._id);
