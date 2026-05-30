@@ -1,6 +1,6 @@
 import express from "express";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
-import { blockCustomer, blockUser, getAllCustomers, unblockUser } from "../controllers/adminCustomer.controller.js";
+import { blockUser, getAllCustomers, unblockUser } from "../controllers/adminCustomer.controller.js";
 
 const router = express.Router();
 

@@ -1,4 +1,4 @@
-import { findUserById, getPaginatedUsers, getTotalUsers, userFindAndUpdate } from "../service/user.service.js";
+import { getPaginatedUsers, getTotalUsers, userFindAndUpdate } from "../service/user.service.js";
 import { serverError, success } from "../service/status.service.js";
 
 export const getAllCustomers = async (req, res) => {
