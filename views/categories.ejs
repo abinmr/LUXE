@@ -59,7 +59,7 @@
                     <tbody>
                         <% locals.categories.forEach((category, index) => { %>
 
-                        <tr class="table" data-item-id="<%= category._id %>">
+                        <tr class="product-row" data-item-id="<%= category._id %>">
                             <th scope="row"> <%= (currentPage - 1) * limit + index + 1 %></th>
                             <td class="d-flex gap-4">
                                 <%= category.name %>
@@ -82,26 +82,29 @@
                                     <ul class="dropdown-menu rounded-3">
                                         <li class="mb-1 dropdown-item">
                                             <% if(category.isActive) { %>
-                                                <div class="d-flex align-items-center gap-1">
+                                                <div class="dropdown-item-text">
                                                     <img src="/images/close-details.svg" alt="close eye icon">
-                                                    <button class="btn btn-sm category-status" data-item-id="<%= category._id %>">Unlist</button>
+                                                    <button class="btn btn-sm category-status border-0" data-item-id="<%= category._id %>">Unlist</button>
                                                 </div>
                                             <% } else { %>
-                                                <img src="/images/view-details.svg" alt="open eye icon">
-                                                <button class="btn btn-sm category-status" data-item-id="<%= category._id %>">List</button>
+                                                <div class="dropdown-item-text">
+                                                    <img src="/images/view-details.svg" alt="open eye icon">
+                                                    <button class="btn btn-sm category-status" data-item-id="<%= category._id %>">List</button>
+                                                </div>
                                             <% } %>
                                         </li>
-                                        <li class="mb-1">
+                                        <hr class="dropdown-divider">
+                                        <li class="mb-1 dropdown-item">
                                             <a href="/admin/categories/edit/<%= category._id %>" class="dropdown-item small py-2 rounded-2">
                                                 <img src="/images/edit.svg" alt="edit icon" class="me-2">
                                                 Edit
                                             </a>
                                         </li>
-                                        <li>
-                                            <a href="/admin/categories/delete/<%= category._id %>" class="dropdown-item text-danger small py-2 rounded-2">
+                                        <li class="dropdown-item delete-btn" data-id="<%= category._id %>">
+                                            <button class="dropdown-item text-danger small py-2 rounded-2">
                                                 <img src="/images/delete.svg" alt="trash icon" class="me-2">
                                                 Delete
-                                            </a>
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>

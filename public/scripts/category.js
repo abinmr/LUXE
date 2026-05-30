@@ -15,11 +15,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const categoryStatus = document.querySelectorAll(".category-status");
 
+    const deleteBtns = document.querySelectorAll(".delete-btn");
+
+    deleteBtns.forEach((button) => {
+        button.addEventListener("click", async () => {
+            const categoryId = button.dataset.id;
+            try {
+                const response = await fetch(`/admin/categories/delete/${categoryId}`, { method: "DELETE" });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.querySelector(`.product-row[data-item-id='${categoryId}']`).remove();
+                    showToast(data.message);
+                } else {
+                    showToast("Error deleting", "error");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+
     categoryStatus.forEach((btn) => {
         btn.addEventListener("click", async function () {
             const categoryId = this.dataset.itemId;
             const btnStatus = this.textContent.trim().toLowerCase();
-            const status = document.querySelector(`.table[data-item-id="${categoryId}"] .status-btn`);
+            const status = document.querySelector(`.product-row[data-item-id="${categoryId}"] .status-btn`);
             if (btnStatus === "list") {
                 try {
                     const response = await fetch(`/admin/categories/status/active/${categoryId}`, { method: "PATCH" });

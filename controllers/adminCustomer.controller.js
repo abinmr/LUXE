@@ -1,4 +1,5 @@
-import { findUserById, getPaginatedUsers, getTotalUsers } from "../service/user.service.js";
+import { findUserById, getPaginatedUsers, getTotalUsers, userFindAndUpdate } from "../service/user.service.js";
+import { serverError, success } from "../service/status.service.js";
 
 export const getAllCustomers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -20,7 +21,7 @@ export const getAllCustomers = async (req, res) => {
     }
     const userDetails = await getPaginatedUsers(dbQuery, skip, limit);
     const totalUsers = await getTotalUsers(dbQuery);
-    const activeUsers = await getTotalUsers({ isBlocked: true });
+    const activeUsers = await getTotalUsers({ isBlocked: false });
     const blockedUsers = await getTotalUsers({ isBlocked: true });
     const userInfo = {
         total: totalUsers,
@@ -40,17 +41,24 @@ export const getAllCustomers = async (req, res) => {
     });
 };
 
-export const blockCustomer = async (req, res) => {
+export const blockUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const user = await findUserById(id);
-        if (user) {
-            user.isBlocked = !user.isBlocked;
-            await user.save();
-        }
-        return res.redirect("/admin/customers");
+        await userFindAndUpdate(id, { isBlocked: true });
+        return res.status(success).json({ success: true, message: "user blocked successfully" });
     } catch (err) {
-        console.error("Error toggling block status:", err);
-        return res.redirect("/admin/customers");
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: err.message });
+    }
+};
+
+export const unblockUser = async (req, res) => {
+    try {
+        const id = req.params.id;
+        await userFindAndUpdate(id, { isBlocked: false });
+        return res.status(success).json({ success: true, message: "user unblocked successfully" });
+    } catch (err) {
+        console.error(err);
+        return res.status(serverError).json({ success: false, message: err.message });
     }
 };

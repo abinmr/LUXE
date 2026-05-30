@@ -1,7 +1,3 @@
-window.addEventListener("beforeunload", () => {
-    sessionStorage.setItem("scrollPosition", window.scrollY);
-});
-
 window.addEventListener("DOMContentLoaded", () => {
     const savedScrollPosition = sessionStorage.getItem("scrollPosition");
 
@@ -15,6 +11,20 @@ window.addEventListener("DOMContentLoaded", () => {
             searchInput.setSelectionRange(textLength, textLength);
         }
     }
+
+    const toastEl = document.getElementById("actionToast");
+    const toastBodyEl = document.getElementById("actionToastBody");
+    const toastIcon = document.getElementById("toast-icon");
+    const toast = toastEl ? new bootstrap.Toast(toastEl, { delay: 3000 }) : null;
+
+    const showToast = (message, type = "success") => {
+        if (!toast || !toastBodyEl) return;
+        toastBodyEl.textContent = message;
+        toastBodyEl.classList.remove("text-success", "text-danger");
+        toastBodyEl.classList.add(type === "success" ? "text-black" : "text-danger");
+        toastIcon.classList.add(type === "success" ? "text-black" : "text-danger");
+        toast.show();
+    };
 
     const customerStatusBtn = document.querySelectorAll(".customer-status");
     customerStatusBtn.forEach((btn) => {
@@ -30,6 +40,9 @@ window.addEventListener("DOMContentLoaded", () => {
                     this.textContent = "Unblock Customer";
                     badge.textContent = "Blocked";
                     badge.classList.replace("btn-dark", "btn-danger");
+                    showToast(data.message);
+                } else {
+                    showToast(data.message, "error");
                 }
             } else if (btnText === "unblock customer") {
                 const response = await fetch(`/admin/customers/unblock/${itemId}`, { method: "PATCH" });
@@ -38,6 +51,9 @@ window.addEventListener("DOMContentLoaded", () => {
                     this.textContent = "Block Customer";
                     badge.textContent = "Active";
                     badge.classList.replace("btn-danger", "btn-dark");
+                    showToast(data.message);
+                } else {
+                    showToast(data.message, "error");
                 }
             }
         });

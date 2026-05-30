@@ -1,7 +1,7 @@
 import fs from "fs";
 import { getAllActiveCategories } from "../service/adminCategory.service.js";
 import { offerSchema } from "../validators/offer.validator.js";
-import { getAllProducts } from "../service/product.service.js";
+import { getAllActiveProducts } from "../service/product.service.js";
 import cloudinary from "../lib/cloudinary.js";
 import { applyOffersToProducts, createOffer, deleteOfferById, findOfferById, findOneOffer, getOffers, removeOfferFromProducts, updateOffer } from "../service/offer.service.js";
 import { success, serverError } from "../service/status.service.js";
@@ -36,7 +36,7 @@ export const getOffersPage = async (req, res) => {
  */
 export const getOfferAddPage = async (req, res) => {
     const categories = await getAllActiveCategories();
-    const products = await getAllProducts();
+    const products = await getAllActiveProducts();
     const offerError = req.flash("offerError")[0];
     const offerImageError = req.flash("offerImageError")[0];
     return res.render("offerAdd", { categories, products, offerError, offerImageError, errors: {}, oldData: {} });
@@ -47,7 +47,7 @@ export const getOfferAddPage = async (req, res) => {
  * @param {Response} res -
  */
 export const addNewOffers = async (req, res) => {
-    const products = await getAllProducts();
+    const products = await getAllActiveProducts();
     const categories = await getAllActiveCategories();
 
     const validateData = offerSchema.safeParse({ ...req.body });
@@ -141,7 +141,7 @@ export const getOffersEditPage = async (req, res) => {
         const id = req.params.id;
         const offers = await findOfferById(id);
         const categories = await getAllActiveCategories();
-        const products = await getAllProducts();
+        const products = await getAllActiveProducts();
         const errors = {};
         return res.render("offersEdit", { offers, categories, products, errors });
     } catch (err) {
@@ -156,7 +156,7 @@ export const getOffersEditPage = async (req, res) => {
 export const updateOffersDetails = async (req, res) => {
     const id = req.params.id;
     const categories = await getAllActiveCategories();
-    const products = await getAllProducts();
+    const products = await getAllActiveProducts();
     const offers = await findOfferById(id);
 
     const validateData = offerSchema.safeParse({ ...req.body });

@@ -1,17 +1,17 @@
-import Category from "../models/category.model.js";
-import Product from "../models/product.model.js";
-import Wishlist from "../models/wishlist.model.js";
+import { getAllActiveCategories } from "../service/adminCategory.service.js";
+import { getCategoryColors, getProducts } from "../service/product.service.js";
 import { serverError, success } from "../service/status.service.js";
+import { getUserWishlist } from "../service/wishlist.service.js";
 
 export const getCategoryProducts = async (req, res) => {
     try {
         let userWishlist = [];
-        const categories = await Category.find({ isActive: true, isDeleted: false });
-        const products = await Product.find({ category: req.params.id, isListed: true, isDeleted: false });
-        const colors = await Product.find({ category: req.params.id, isListed: true, isDeleted: false }).distinct("variants.color");
+        const categories = await getAllActiveCategories();
+        const products = await getProducts({ category: req.params.id, isListed: true, isDeleted: false });
+        const colors = await getCategoryColors(req.params.id);
         let wishlist = null;
         if (req.user) {
-            wishlist = await Wishlist.findOne({ userId: req.user._id });
+            wishlist = await getUserWishlist(req.user?._id);
         }
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
@@ -46,25 +46,22 @@ export const filterCategoryProducts = async (req, res) => {
             query["variants.sizes.price"] = { $lte: parseInt(priceRange) };
         }
 
-        let dbQuery = Product.find(query);
-
+        let sortOption = { createdAt: 1 };
         if (sort === "low-to-high") {
-            dbQuery = dbQuery.sort({ "variants.0.sizes.0.price": 1 });
+            sortOption = { "variants.0.sizes.0.price": 1 };
         } else if (sort === "high-to-low") {
-            dbQuery = dbQuery.sort({ "variants.0.sizes.0.price": -1 });
+            sortOption = { "variants.0.sizes.0.price": -1 };
         } else if (sort === "A-Z") {
-            dbQuery = dbQuery.sort({ name: 1 });
+            sortOption = { name: 1 };
         } else if (sort === "Z-A") {
-            dbQuery = dbQuery.sort({ name: -1 });
-        } else {
-            dbQuery = dbQuery.sort({ createdAt: 1 });
+            sortOption = { name: -1 };
         }
 
-        const products = await dbQuery.exec();
+        const products = await getProducts(query, { sort: sortOption });
 
         let userWishlist = [];
         if (req.user) {
-            const wishlist = await Wishlist.findOne({ userId: req.user._id });
+            const wishlist = await getUserWishlist(req.user?._id);
             if (wishlist) {
                 userWishlist = wishlist.products.map((item) => item.productId.toString());
             }

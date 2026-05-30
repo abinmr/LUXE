@@ -14,8 +14,20 @@ export async function getProductWithCateogory(id) {
     return await Product.findById(id).populate("category").lean();
 }
 
-export async function getAllProducts() {
+export async function getAllActiveProducts() {
     return await Product.find({ isListed: true, isDeleted: false });
+}
+
+export async function getProducts(query, options = {}) {
+    let dbQuery = Product.find(query);
+    if (options.sort) {
+        dbQuery = dbQuery.sort(options.sort);
+    }
+    return await dbQuery.lean();
+}
+
+export async function getCategoryColors(categoryId) {
+    return await Product.find({ category: categoryId, isListed: true, isDeleted: false }).distinct("variants.color");
 }
 
 /**

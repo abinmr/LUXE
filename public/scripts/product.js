@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(window.initialToast.message, window.initialToast.type);
     }
 
-    const tables = document.querySelectorAll(".table");
+    // const tables = document.querySelectorAll(".table");
     const deleteBtn = document.querySelectorAll(".delete-btn");
     const productView = document.querySelectorAll(".product-view");
 

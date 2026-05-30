@@ -19,6 +19,6 @@ router.get("/edit/:id", requireAdminAuth, getEditCategory);
 
 router.put("/edit/:id", requireAdminAuth, upload.single("image"), editCategoryDetails);
 
-router.get("/delete/:id", requireAdminAuth, deleteCategory);
+router.delete("/delete/:id", requireAdminAuth, deleteCategory);
 
 export default router;

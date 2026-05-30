@@ -3,6 +3,9 @@ import { serverError, success } from "../service/status.service.js";
 import { createCategory, getCategoryById, getOneCategory, getPaginatedCategory, getTotalCategories, updateCategory } from "../service/adminCategory.service.js";
 import cloudinary from "../lib/cloudinary.js";
 
+/** @typedef {import('express').Request} Request */
+/** @typedef {import('express').Response} Response */
+
 export const getCategories = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 7;
@@ -198,12 +201,16 @@ export const editCategoryDetails = async (req, res) => {
     }
 };
 
+/**
+ * @param {Request} req -
+ * @param {Response} res -
+ */
 export const deleteCategory = async (req, res) => {
     try {
         await updateCategory(req.params.id, { isDeleted: true });
-        return res.redirect("/admin/categories");
+        return res.status(success).json({ success: true, message: "category deleted successfully" });
     } catch (err) {
         console.error(err);
-        return res.redirect("/admin/categories");
+        return res.status(serverError).json({ success: false, message: "Error in deleteing category" });
     }
 };
