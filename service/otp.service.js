@@ -32,3 +32,7 @@ export async function deleteOtpById(id) {
 export async function deleteOtp(userId) {
     return await Otp.deleteOne({ userId: userId });
 }
+
+export async function deleteManyOtp(userId) {
+    return await Otp.deleteMany({ userId: userId });
+}

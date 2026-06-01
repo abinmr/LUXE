@@ -4,9 +4,9 @@ import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { getRegisterOtp, getResetOtp, login, otpVerification, register, resendOtp, resetOtp, resetPasswordOtp, setCookies, updatePassword } from "../controllers/userAuth.controller.js";
 import { redirectIfAuth } from "../middlewares/user.auth.middleware.js";
-import User from "../models/user.model.js";
-import Wallet from "../models/wallet.model.js";
 import { noCache } from "../middlewares/admin-auth.middleware.js";
+import { createUser, findOneUser } from "../service/user.service.js";
+import { getUserWallet } from "../service/wallet.service.js";
 
 const router = express.Router();
 
@@ -87,9 +87,9 @@ passport.use(
         },
         async (accessToken, refreshToken, profile, cb) => {
             try {
-                const user = await User.findOne({ email: profile.email });
+                const user = await findOneUser({ email: profile.email });
                 if (!user) {
-                    const newUser = await User.create({
+                    const newUserData = {
                         fullname: profile.given_name,
                         email: profile.email,
                         googleId: profile.id,
@@ -97,8 +97,9 @@ passport.use(
                         profile: profile.picture,
                         isVerified: true,
                         referralCode: nanoid(8),
-                    });
-                    await Wallet.create({ userId: newUser._id, balance: 0 });
+                    };
+                    const newUser = await createUser(newUserData);
+                    await getUserWallet(newUser._id);
                     return cb(null, newUser);
                 } else {
                     if (user.isBlocked) {

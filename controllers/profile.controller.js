@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import cloudinary from "../lib/cloudinary.js";
 import { sendOtpVerification } from "./userAuth.controller.js";
-import Otp from "../models/otp.model.js";
 import { generateInvoice } from "../service/profile.service.js";
 import { updateProduct } from "../service/product.service.js";
 import { notFound, serverError, success } from "../service/status.service.js";
@@ -10,6 +9,7 @@ import { createWalletTransaction, getUserWallet, getWalletTransactions } from ".
 import { findOneUser, findUserById, userFindAndUpdate } from "../service/user.service.js";
 import { createAddress, findAddresses, updateAddressById, updateManyAddress, deleteAddressById } from "../service/address.service.js";
 import { getOneOrder, getOrderById, getUserOrders } from "../service/order.service.js";
+import { deleteManyOtp, findOneOtp } from "../service/otp.service.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -97,7 +97,7 @@ export const updateProfile = async (req, res) => {
         const currentUser = await findUserById(req.user?._id);
         if (email !== currentUser.email) {
             req.session.pendingProfileUpdate = { fullname, email, phone, profile: updateData.profile };
-            await Otp.deleteMany({ userId: currentUser._id });
+            await deleteManyOtp(currentUser._id);
             await sendOtpVerification(req.user._id, email);
             return res.redirect("/profile/verify-email-otp");
         }
@@ -128,7 +128,7 @@ export const getEmailOtpPage = async (req, res) => {
         req.flash("toast", JSON.stringify({ type: "error", message: "Verification failed" }));
         return res.redirect("/profile?section=profile");
     }
-    const otpRecord = await Otp.findOne({ userId: userId });
+    const otpRecord = await findOneOtp({ userId: userId });
 
     const error = req.flash("profileError")[0];
     let secondsLeft = 0;
@@ -146,7 +146,7 @@ export const verifyEmailOtp = async (req, res) => {
         req.flash("toast", JSON.stringify({ type: "error", message: "Verification failed" }));
         return res.redirect("/profile?section=profile");
     }
-    const otpDetails = await Otp.findOne({ userId: req.user._id });
+    const otpDetails = await findOneOtp({ userId: req.user?._id });
     const isMatch = await bcrypt.compare(otp, otpDetails.otp);
     if (!isMatch) {
         req.flash("profileError", "Invalid otp");
