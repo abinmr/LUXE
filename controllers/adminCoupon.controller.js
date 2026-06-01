@@ -8,7 +8,9 @@ export const getCouponPage = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 7;
         const skip = (page - 1) * limit;
-        let dbQuery = {};
+        let dbQuery = {
+            isDeleted: false,
+        };
         if (search) {
             dbQuery.$or = [{ code: { $regex: search, $options: "i" } }, { description: { $regex: description, $options: "i" } }];
         }
@@ -119,6 +121,15 @@ export const updateCoupon = async (req, res) => {
         };
         await couponUpdateById(req.params.id, data);
         return res.redirect("/admin/coupons");
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+export const deleteCoupon = async (req, res) => {
+    try {
+        const result = await Coupon.findByIdAndUpdate(req.params.id, { isDeleted: true });
+        return res.status(success).json({ success: true, message: "Coupon deleted" });
     } catch (err) {
         console.error(err);
     }

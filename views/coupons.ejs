@@ -61,7 +61,7 @@
                 <tbody>
                     <% const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }; %>
                     <% locals.coupons.forEach((coupon) => { %>
-                        <tr class="table" data-item-id="<%= coupon._id %>">
+                        <tr class="table-row" data-item-id="<%= coupon._id %>">
                             <th scope="row"> <%= coupon.code %> </th>
                             <td> <%= coupon.description %> </td>
                             <td>
@@ -88,14 +88,14 @@
                                         <li class="dropdown-item coupon-list" id="coupon-list">
                                             <% if (coupon.isActive) { %>
                                                 <div class="dropdown-item-text small">
-                                                    <img src="/images/close-details.svg" alt="close eye icon">
+                                                    <img src="/images/close-details.svg" alt="close eye icon" class="me-2">
                                                     <span class="coupon-status" data-id="<%= coupon._id %>" role="button">
                                                         Unlist
                                                     </span>
                                                 </div>
                                             <% } else { %>
                                                 <div class="dropdown-item-text small">
-                                                    <img src="/images/view-details.svg" alt="open eye icon">
+                                                    <img src="/images/view-details.svg" alt="open eye icon" class="me-2">
                                                     <span class="coupon-status" data-id="<%= coupon._id %>" role="button">
                                                         List
                                                     </span>
@@ -109,11 +109,13 @@
                                                 Edit
                                             </a>
                                         </li>
-                                        <li class="dropdown-item">
-                                            <span class="dropdown-item-text small text-danger">
+                                        <li class="dropdown-item" role="button">
+                                            <div class="dropdown-item-text">
                                                 <img src="/images/delete.svg" alt="trash icon" class="me-2">
-                                                Delete
-                                            </span>
+                                                <span class="small text-danger delete-btn" data-id="<%= coupon._id %>">
+                                                    Delete
+                                                </span>
+                                            </div>
                                         </li>
                                     </ul>
                                 </div>

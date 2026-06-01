@@ -1,6 +1,6 @@
 import express from "express";
 import { requireAdminAuth } from "../middlewares/admin-auth.middleware.js";
-import { createNewCoupon, getCouponCreatePage, getCouponPage, getEditCouponPage, listCoupon, unlistCoupon, updateCoupon } from "../controllers/adminCoupon.controller.js";
+import { createNewCoupon, deleteCoupon, getCouponCreatePage, getCouponPage, getEditCouponPage, listCoupon, unlistCoupon, updateCoupon } from "../controllers/adminCoupon.controller.js";
 
 const router = express.Router();
 
@@ -17,5 +17,7 @@ router.patch("/status/list/:id", requireAdminAuth, listCoupon);
 router.get("/edit/:id", requireAdminAuth, getEditCouponPage);
 
 router.put("/edit/:id", requireAdminAuth, updateCoupon);
+
+router.delete("/delete/:id", requireAdminAuth, deleteCoupon);
 
 export default router;
