@@ -128,7 +128,7 @@ export const updateCoupon = async (req, res) => {
 
 export const deleteCoupon = async (req, res) => {
     try {
-        const result = await Coupon.findByIdAndUpdate(req.params.id, { isDeleted: true });
+        const result = await couponUpdateById(req.params.id, { isDeleted: true });
         return res.status(success).json({ success: true, message: "Coupon deleted" });
     } catch (err) {
         console.error(err);
