@@ -342,7 +342,8 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             modal: {
                 ondismiss: function () {
-                    window.location.href = `/checkout/failure?id=${orderId}`;
+                    placeOrderBtn.disabled = true;
+                    showToast("Payment window closed.", "error");
                 },
             },
             theme: { color: "#000000" },

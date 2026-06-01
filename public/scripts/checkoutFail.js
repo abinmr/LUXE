@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         console.error(err);
                     }
                 },
+                theme: { color: "#000000" },
             };
 
             const rzp = new Razorpay(options);
