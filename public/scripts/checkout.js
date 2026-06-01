@@ -342,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             modal: {
                 ondismiss: function () {
-                    placeOrderBtn.disabled = true;
+                    placeOrderBtn.disabled = false;
                     showToast("Payment window closed.", "error");
                 },
             },
