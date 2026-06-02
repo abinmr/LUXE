@@ -11,6 +11,7 @@ import { createAddress, findAddresses, updateAddressById, updateManyAddress, del
 import { getOneOrder, getOrderById, getUserOrders } from "../service/order.service.js";
 import { deleteManyOtp, findOneOtp } from "../service/otp.service.js";
 import Order from "../models/order.model.js";
+import { ADDRESS_MESSAGE, ORDER_MESSAGE, PASSWORD_MESSAGE, PROFILE_MESSAGE } from "../constants/messages.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -106,12 +107,12 @@ export const updateProfile = async (req, res) => {
         const updateDetails = await userFindAndUpdate(req.user._id, updateData);
 
         if (updateDetails) {
-            req.flash("toast", JSON.stringify({ type: "success", message: "Details updated" }));
+            req.flash("toast", JSON.stringify({ type: "success", message: PROFILE_MESSAGE.UPDATED }));
         }
 
         return res.redirect("/profile?section=profile");
     } catch (err) {
-        req.flash("toast", JSON.stringify({ type: "error", message: "profile update failed" }));
+        req.flash("toast", JSON.stringify({ type: "error", message: PROFILE_MESSAGE.UPDATE_FAIL }));
         console.error("Error updating user profile:", err);
         return res.redirect("/profile?section=profile");
     }
@@ -174,20 +175,20 @@ export const changePassword = async (req, res) => {
             const match = await bcrypt.compare(currentPassword, user.password);
             if (!match) {
                 console.log("Password is wrong");
-                req.flash("toast", JSON.stringify({ type: "error", message: "Wrong password" }));
+                req.flash("toast", JSON.stringify({ type: "error", message: PASSWORD_MESSAGE.WRONG }));
                 return res.redirect("/profile?section=password");
             }
 
             const newHashPassword = await bcrypt.hash(newPassword, 10);
             const updateResult = await userFindAndUpdate(req.user?._id, { password: newHashPassword });
-            req.flash("toast", JSON.stringify({ type: "success", message: "Password Updated" }));
+            req.flash("toast", JSON.stringify({ type: "success", message: PASSWORD_MESSAGE.UPDATED }));
             return res.redirect("/profile?section=password");
         } else {
             req.flash("toast", JSON.stringify({ type: "error", message: "User not found" }));
             return res.redirect("/profile?section=password");
         }
     } catch (err) {
-        req.flash("toast", JSON.stringify({ type: "error", message: "Error in changing password" }));
+        req.flash("toast", JSON.stringify({ type: "error", message: PASSWORD_MESSAGE.ERROR }));
         console.error("Error in changing password", err);
         return res.redirect("/profile?section=password");
     }
@@ -203,7 +204,7 @@ export const addAddress = async (req, res) => {
         const makeDefault = isDefault === "on" || isDefault === "true";
 
         if (fullName === "" || phone === "" || pincode === "" || house === "" || city === "" || state === "") {
-            req.flash("toast", JSON.stringify({ type: "error", message: "Address failed to save" }));
+            req.flash("toast", JSON.stringify({ type: "error", message: ADDRESS_MESSAGE.FAILED_SAVE }));
             return res.redirect("/profile?section=address");
         }
 
@@ -220,7 +221,7 @@ export const addAddress = async (req, res) => {
 
         await createAddress(req.body, req.user?._id);
 
-        req.flash("toast", JSON.stringify({ type: "success", message: "Address created" }));
+        req.flash("toast", JSON.stringify({ type: "success", message: ADDRESS_MESSAGE.CREATED }));
         res.redirect("/profile?section=address");
     } catch (err) {
         console.error("Error saving address:", err);
@@ -253,12 +254,12 @@ export const editAddress = async (req, res) => {
             isDefault: makeDefault,
         });
         if (updateResult) {
-            req.flash("toast", JSON.stringify({ type: "success", message: "Address updated" }));
+            req.flash("toast", JSON.stringify({ type: "success", message: ADDRESS_MESSAGE.UPDATED }));
             return res.redirect("/profile?section=address");
         }
     } catch (err) {
         console.error("Error updating address:", err);
-        req.flash("toast", JSON.stringify({ type: "error", message: "Update failed" }));
+        req.flash("toast", JSON.stringify({ type: "error", message: ADDRESS_MESSAGE.UPDATE_FAIL }));
         return res.redirect("/profile?section=address");
     }
 };
@@ -268,7 +269,7 @@ export const deleteAddress = async (req, res) => {
         const addressId = req.params.id;
         const deleteResult = await deleteAddressById(addressId);
         if (deleteResult) {
-            req.flash("toast", JSON.stringify({ type: "success", message: "Address deleted" }));
+            req.flash("toast", JSON.stringify({ type: "success", message: ADDRESS_MESSAGE.DELETE_SUCCESS }));
         }
         return res.redirect("/profile?section=address");
     } catch (err) {
@@ -310,8 +311,8 @@ export const cancelOrder = async (req, res) => {
 
         if (itemId) {
             const item = order.items.id(itemId);
-            if (!item) return res.status(404).json({ success: false, message: "Item not found" });
-            if (item.orderStatus === "cancelled") return res.status(400).json({ success: false, message: "Item already cancelled" });
+            if (!item) return res.status(404).json({ success: false, message: ORDER_MESSAGE.ITEM_UNAVAILABLE });
+            if (item.orderStatus === "cancelled") return res.status(400).json({ success: false, message: ORDER_MESSAGE.CANCELLED_BEFORE });
 
             item.orderStatus = "cancelled";
             item.cancellationReason = reason;
@@ -341,7 +342,7 @@ export const cancelOrder = async (req, res) => {
         }
 
         if (itemsCancelled === 0) {
-            return res.status(400).json({ success: false, message: "No items to cancel" });
+            return res.status(400).json({ success: false, message: ORDER_MESSAGE.EMPTY_CANCEL });
         }
 
         const date = new Date(Date.now());
@@ -365,10 +366,10 @@ export const cancelOrder = async (req, res) => {
 
         await order.save();
         const allCancelled = order.items.every((item) => item.orderStatus === "cancelled");
-        return res.status(success).json({ success: true, message: "Order cancelled", allCancelled });
+        return res.status(success).json({ success: true, message: ORDER_MESSAGE.CANCEL_SUCCESS, allCancelled });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Failed to cancel order" });
+        return res.status(serverError).json({ success: false, message: ORDER_MESSAGE.CANCEL_FAILED });
     }
 };
 
@@ -383,9 +384,9 @@ export const returnOrder = async (req, res) => {
 
         if (itemId) {
             const item = order.items.id(itemId);
-            if (!item) return res.status(notFound).json({ success: false, message: "Item not found" });
+            if (!item) return res.status(notFound).json({ success: false, message: ORDER_MESSAGE.ITEM_UNAVAILABLE });
             if (["return-requested", "returned", "cancelled"].includes(item.orderStatus)) {
-                return res.status(400).json({ success: false, message: "Item cannot be returned" });
+                return res.status(400).json({ success: false, message: ORDER_MESSAGE.RETURN_UNAVAILABLE });
             }
             item.orderStatus = "return-requested";
             item.returnReason = reason;
@@ -401,7 +402,7 @@ export const returnOrder = async (req, res) => {
         }
 
         if (itemsReturned === 0) {
-            return res.status(400).json({ success: false, message: "No items to return" });
+            return res.status(400).json({ success: false, message: ORDER_MESSAGE.NO_RETURN });
         }
 
         await order.save();
@@ -409,7 +410,7 @@ export const returnOrder = async (req, res) => {
         return res.status(success).json({ success: true, message: "Return requested", allReturnRequested });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Failed to request return" });
+        return res.status(serverError).json({ success: false, message: ORDER_MESSAGE.FAILED_RETURN_REQUEST });
     }
 };
 

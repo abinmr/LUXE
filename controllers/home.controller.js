@@ -4,6 +4,7 @@ import { getUserWishlist } from "../service/wishlist.service.js";
 import { getUserCart } from "../service/cart.service.js";
 import { findOneOffer } from "../service/offer.service.js";
 import { getAllActiveCategories } from "../service/adminCategory.service.js";
+import { SERVER_ERROR } from "../constants/messages.js";
 
 export const loadCategories = async (req, res, next) => {
     try {
@@ -78,6 +79,6 @@ export const searchProductFilter = async (req, res) => {
         return res.status(success).json({ success: true, products, userWishlist });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        return res.status(500).json({ success: false, message: SERVER_ERROR });
     }
 };

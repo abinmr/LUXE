@@ -31,6 +31,14 @@ export const OFFER_MESSAGE = {
 
 export const ORDER_MESSAGE = {
     INVALID_ITEMS: "No items processed for return",
+    CANCELLED_BEFORE: "Item already cancelled",
+    CANCEL_SUCCESS: "Order cancelled successfully",
+    EMPTY_CANCEL: "No items to cancel",
+    ITEM_UNAVAILABLE: "Item not found",
+    CANCEL_FAILED: "Failed to cancel order",
+    NO_RETURN: "No items to return",
+    RETURN_UNAVAILABLE: "Item cannot be returned",
+    FAILED_RETURN_REQUEST: "Failed to request return",
 };
 
 export const PRODUCT_MESSAGE = {
@@ -42,9 +50,25 @@ export const PRODUCT_MESSAGE = {
     STOCK_UNAVAILABLE: "product no longer in stock",
 };
 
+export const PROFILE_MESSAGE = {
+    UPDATED: "Profile updated successfully",
+    UPDATE_FAIL: "Profile updated failed",
+};
+
+export const PASSWORD_MESSAGE = {
+    WRONG: "Wrong password",
+    UPDATED: "Password updated successfully",
+    ERROR: "Error in changing password",
+};
+
 export const ADDRESS_MESSAGE = {
+    CREATED: "Address created successfully",
+    UPDATED: "Address updated successfully",
+    UPDATE_FAIL: "Address failed to update",
     FAILED: "Failed to save address",
     SUCCESS: "Address saved successfully",
+    FAILED_SAVE: "Address failed to save",
+    DELETE_SUCCESS: "Address deleted successfully",
 };
 
 export const CART_MESSAGE = {
