@@ -10,6 +10,7 @@ import { findOneUser, findUserById, userFindAndUpdate } from "../service/user.se
 import { createAddress, findAddresses, updateAddressById, updateManyAddress, deleteAddressById } from "../service/address.service.js";
 import { getOneOrder, getOrderById, getUserOrders } from "../service/order.service.js";
 import { deleteManyOtp, findOneOtp } from "../service/otp.service.js";
+import Order from "../models/order.model.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -295,7 +296,6 @@ export const getOrderInvoice = async (req, res) => {
     }
 };
 
-// FIX: refund money when cancel order if not COD
 export const cancelOrder = async (req, res) => {
     try {
         const id = req.params.id;
@@ -306,7 +306,7 @@ export const cancelOrder = async (req, res) => {
         let itemsCancelled = 0;
 
         const isStockDeducted = order.paymentMethod !== "online" || order.paymentStatus === "paid";
-        const isPaid = order.paymentMethod === "wallet" || (order.paymentMethod === "online" && order.paymentStatus === "paid");
+        const isPaid = order.paymentMethod === "wallet" || (order.paymentMethod !== "online" && order.paymentStatus === "paid");
 
         if (itemId) {
             const item = order.items.id(itemId);
@@ -329,7 +329,9 @@ export const cancelOrder = async (req, res) => {
                     item.orderStatus = "cancelled";
                     item.cancellationReason = reason;
                     await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
-                    refundAmount += item.price * item.quantity;
+                    if (isPaid) {
+                        refundAmount += item.price * item.quantity;
+                    }
                     itemsCancelled++;
                 }
             }
@@ -341,6 +343,10 @@ export const cancelOrder = async (req, res) => {
         if (itemsCancelled === 0) {
             return res.status(400).json({ success: false, message: "No items to cancel" });
         }
+
+        const date = new Date(Date.now());
+
+        const orders = await Order.find({ createdAt: { $eq: date } }, { "items.orderStatus": "cancelled" });
 
         if (order.paymentMethod !== "cod" && refundAmount > 0) {
             const wallet = await getUserWallet(req.user?._id);
