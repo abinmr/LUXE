@@ -12,6 +12,9 @@ import { getCouponsDetails, getValidCoupons } from "../service/coupon.service.js
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
+        if (!req.user?._id) {
+            next();
+        }
         const address = await findAddresses(req.user?._id);
         const defaultAddress = address.find((add) => add.isDefault) || address[0];
         res.locals.defaultAddress = defaultAddress;
@@ -213,6 +216,7 @@ export const checkoutBuyNow = async (req, res) => {
         return res.render("checkout", { address, products, data, wallet, razorpayKeyId: process.env.RAZORPAY_API_KEY_ID, coupons });
     } catch (err) {
         console.error(err);
+        return res.redirect("/home");
     }
 };
 

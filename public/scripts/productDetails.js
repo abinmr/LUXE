@@ -54,10 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         icon.classList.add("bi-heart-fill", "text-danger");
                         if (data.totalWishlist !== undefined) updateBadge("wishlist-badge", data.totalWishlist);
                         showToast(data.message);
-                    }
+                    } 
                 }
             } catch (err) {
-                console.error("something went wrong", err);
+                console.error("something went wrong", err.message);
+                window.location.href = "/auth/login";
             }
         });
     });
