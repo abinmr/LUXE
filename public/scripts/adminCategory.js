@@ -35,8 +35,11 @@ function validateCategoryDesc() {
 
 function validateImageFile() {
     const uploadedImageInput = hiddenInputDivContainer.querySelector('input[type="file"][name="image"]');
+    const base64Input = document.getElementById("croppedImageBase64");
+    const hasBase64 = base64Input && base64Input.value.trim() !== "";
+    const hasFile = uploadedImageInput && uploadedImageInput.files && uploadedImageInput.files.length > 0;
 
-    if (!uploadedImageInput || !uploadedImageInput.files || !uploadedImageInput.files.length === 0) {
+    if (!hasFile && !hasBase64) {
         imageError.textContent = "Image is required";
         imageError.style.visibility = "visible";
         return false;
@@ -161,6 +164,11 @@ document.getElementById("resultUseBtn").addEventListener("click", () => {
         currentObjURL = null;
     }
 
+    const base64Input = document.getElementById("croppedImageBase64");
+    if (base64Input) {
+        base64Input.value = croppedDataURL;
+    }
+
     fetch(croppedDataURL)
         .then((r) => r.blob())
         .then((blob) => {
@@ -229,6 +237,17 @@ triggerInput.addEventListener("change", async () => {
 function clearSelection() {
     previewContainer.innerHTML = "";
     hiddenInputContainer.innerHTML = "";
+    const base64Input = document.getElementById("croppedImageBase64");
+    if (base64Input) {
+        base64Input.value = "";
+    }
     currentHiddenInput = null;
     addImageBtn.disabled = false;
 }
+
+previewContainer.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest(".remove-preview-btn");
+    if (removeBtn) {
+        clearSelection();
+    }
+});

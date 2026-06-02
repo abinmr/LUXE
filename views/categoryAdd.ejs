@@ -60,13 +60,23 @@
                     <div class="mb-1">
                         <label class="form-label">Image</label>
                         <div class="image-picker-area" id="imagePickerArea">
-                            <div id="previewContainer"></div>
-                            <button type="button" class="btn btn-light border btn-sm d-flex align-items-center gap-1" id="addImageBtn">
+                            <div id="previewContainer">
+                                <% if (locals.croppedImageBase64) { %>
+                                    <div class="preview-item">
+                                        <img src="<%= locals.croppedImageBase64 %>" alt="preview">
+                                        <button type="button" class="remove-preview-btn" title="Remove">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <button type="button" class="btn btn-light border btn-sm d-flex align-items-center gap-1" id="addImageBtn" <%= locals.croppedImageBase64 ? 'disabled' : '' %>>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                                 Choose Image
                             </button>
                             <div id="hiddenInputContainer"></div>
                             <input type="file" id="triggerInput" class="d-none" accept=".png,.jpg,.webp">
+                            <input type="hidden" name="croppedImageBase64" id="croppedImageBase64" value="<%= locals.croppedImageBase64 || '' %>">
                         </div>
                         <div class="error-container mt-1">
                             <p class="text-danger mb-0 small fw-semibold" id="image-error"><%= locals.imageError %></p>

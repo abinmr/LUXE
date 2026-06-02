@@ -67,16 +67,32 @@ export const addCategory = async (req, res) => {
             if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
         }
         const { categoryName, slug, description, active } = req.body;
+        let { croppedImageBase64 } = req.body;
+
+        if (req.file) {
+            const fileBuffer = await fs.promises.readFile(req.file.path);
+            croppedImageBase64 = `data:${req.file.mimetype};base64,${fileBuffer.toString("base64")}`;
+
+            await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
+        }
+
         if (categoryName === "" || description === "") {
-            req.flash("categoryError", "All fields are required");
-            return res.redirect("/admin/categories/add");
+            return res.render("categoryAdd", {
+                categoryError: "All fields are required",
+                nameError: null,
+                slugError: null,
+                imageError: null,
+                categoryName,
+                slug,
+                description,
+                croppedImageBase64: croppedImageBase64 || "",
+            });
         }
 
         const nameExist = await getOneCategory({
             name: { $regex: `^${categoryName}$`, $options: "i" },
         });
         if (nameExist) {
-            req.flash("nameError", "category name already exist");
             return res.render("categoryAdd", {
                 nameError: "category name already exist",
                 categoryName,
@@ -85,26 +101,41 @@ export const addCategory = async (req, res) => {
                 categoryError: null,
                 slugError: null,
                 imageError: null,
+                croppedImageBase64: croppedImageBase64 || "",
             });
         }
 
         const slugExist = await getOneCategory({ slug: slug });
         if (slugExist) {
-            req.flash("slugError", "slug already exist");
-            return res.redirect("/admin/categories/add");
+            return res.render("categoryAdd", {
+                nameError: null,
+                categoryName,
+                slug,
+                description,
+                categoryError: null,
+                slugError: "slug already exist",
+                imageError: null,
+                croppedImageBase64: croppedImageBase64 || "",
+            });
         }
 
-        if (!req.file) {
-            req.flash("imageError", "Image is required");
-            return res.redirect("/admin/categories/add");
+        if (!croppedImageBase64 || croppedImageBase64.trim() === "") {
+            return res.render("categoryAdd", {
+                categoryError: null,
+                nameError: null,
+                slugError: null,
+                imageError: "Image is required",
+                categoryName,
+                slug,
+                description,
+                croppedImageBase64: "",
+            });
         }
 
-        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        const uploadResult = await cloudinary.uploader.upload(croppedImageBase64, {
             folder: "categories",
             allowed_formats: ["jpg", "png", "webp"],
         });
-
-        await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
 
         const isActive = active === "on" || active === true;
         const data = {
@@ -119,7 +150,7 @@ export const addCategory = async (req, res) => {
         return res.redirect("/admin/categories");
     } catch (err) {
         if (req.file) {
-            await fs.promises.unlink(req.file.path);
+            await fs.promises.unlink(req.file.path).catch((err) => console.error(err));
         }
         console.error(err);
         req.flash("categoryError", "something went wrong");
