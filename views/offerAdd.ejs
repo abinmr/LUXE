@@ -73,6 +73,7 @@
                         <div class="col" style="max-width: 732px;">
                             <label for="offer-type" class="form-label">Offer Type</label>
                             <select name="offerType" id="offer-type" class="form-select">
+                                <option value="" disabled selected hidden>Choose offer type...</option>
                                 <option value="percentage" <%= oldData.offerType === "percentage" ? 'selected' : '' %> >Percentage Discount</option>
                                 <option value="flat" <%= oldData.offerType === "flat" ? 'selected' : '' %> >Flat Discount</option>
                             </select>

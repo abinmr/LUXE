@@ -10,6 +10,6 @@ router.get("/:id", requireAdminAuth, orderDetailsById);
 
 router.get("/:id/update", requireAdminAuth, updateOrderDetails);
 
-router.post("/:id/approve-return", requireAdminAuth, orderReturn);
+router.patch("/:id/approve-return", requireAdminAuth, orderReturn);
 
 export default router;

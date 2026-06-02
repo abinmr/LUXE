@@ -45,8 +45,9 @@
                         <div class="col">
                             <label for="discount-type" class="form-label">Discount Type</label>
                             <select name="discountType" id="discount-type" class="form-select">
-                                <option value="percentage" <%= oldData.discountType === "percentage" ? "selected" : '' %> >Percentage</option>
-                                <option value="fixed" <%= oldData.discountType === "fixed" ? "selected" : '' %> >Fixed Amount</option>
+                                <option value="" disabled selected hidden>Discount Type...</option>
+                                <option value="percentage" <%= (oldData.discountType && oldData.discountType === "percentage") ? "selected" : '' %> >Percentage</option>
+                                <option value="fixed" <%= (oldData.discountType && oldData.discountType === "fixed") ? "selected" : '' %> >Fixed Amount</option>
                             </select>
                         </div>
                     </div>

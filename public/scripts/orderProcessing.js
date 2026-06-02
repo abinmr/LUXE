@@ -17,22 +17,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.getElementById("save-button");
     statusForm.addEventListener("submit", () => {
         submitBtn.disabled = true;
-    })
+    });
     const refundBtn = document.getElementById("refund-btn");
     const returnModalBtn = document.getElementById("process-return-btn");
     const orderStatusBtn = document.getElementById("order-status-btn");
     const form = document.getElementById("admin-return-form");
 
     const productCheckboxes = form ? form.querySelectorAll('input[name="product"]') : [];
-    
+
     function toggleRefundButton() {
-        const anyChecked = Array.from(productCheckboxes).some(cb => cb.checked);
+        const anyChecked = Array.from(productCheckboxes).some((cb) => cb.checked);
         if (refundBtn) {
             refundBtn.disabled = !anyChecked;
         }
     }
 
-    productCheckboxes.forEach(cb => {
+    productCheckboxes.forEach((cb) => {
         cb.addEventListener("change", toggleRefundButton);
     });
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // body["product"] = formData.getAll("product");
 
         const response = await fetch(`/admin/orders/${id}/approve-return`, {
-            method: "POST",
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
         });
@@ -70,25 +70,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Re-evaluate overall order status
-            const allBadges = Array.from(document.querySelectorAll('.item-status-badge'));
-            const statuses = allBadges.map(b => b.textContent.trim().toLowerCase());
-            
-            let newOverallStatus = statuses[0] || 'returned';
-            let newBtnClass = 'btn-light border';
+            const allBadges = Array.from(document.querySelectorAll(".item-status-badge"));
+            const statuses = allBadges.map((b) => b.textContent.trim().toLowerCase());
 
-            const activeStatus = statuses.find(s => ['pending', 'processing', 'shipped'].includes(s));
-            const hasReturnReq = statuses.includes('return-requested');
-            
+            let newOverallStatus = statuses[0] || "returned";
+            let newBtnClass = "btn-light border";
+
+            const activeStatus = statuses.find((s) => ["pending", "processing", "shipped"].includes(s));
+            const hasReturnReq = statuses.includes("return-requested");
+
             if (activeStatus) {
                 newOverallStatus = activeStatus;
             } else if (hasReturnReq) {
-                newOverallStatus = 'return-requested';
-                newBtnClass = 'btn-danger';
+                newOverallStatus = "return-requested";
+                newBtnClass = "btn-danger";
             } else {
-                if (['cancelled', 'returned'].includes(newOverallStatus)) {
-                    newBtnClass = 'btn-danger';
-                } else if (newOverallStatus === 'delivered') {
-                    newBtnClass = 'btn-success';
+                if (["cancelled", "returned"].includes(newOverallStatus)) {
+                    newBtnClass = "btn-danger";
+                } else if (newOverallStatus === "delivered") {
+                    newBtnClass = "btn-success";
                 }
             }
 
