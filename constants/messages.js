@@ -75,6 +75,14 @@ export const CART_MESSAGE = {
     ADDED_SUCCESS: "Added to cart",
 };
 
+export const WISHLIST_MESSAGE = {
+    NO_PRODUCT: "product not found",
+    PRODUCT_UNAVAILABLE: "product not longer available",
+    ADDED: "Add to wishlist",
+    ALREADY_AVAILABLE: "product already in wishlist",
+    REMOVED: "Removed from wishlist",
+};
+
 export const SERVER_ERROR = "Internal server error";
 
 export const CHECKOUT_MESSAGE = {
