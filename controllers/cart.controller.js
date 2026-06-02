@@ -1,5 +1,6 @@
 import { addToCartService, calcPricing, changeQuantity, getCartItems, removeCartItem, toggleSelection } from "../service/cart.service.js";
 import { serverError, success } from "../service/status.service.js";
+import { CART_MESSAGE } from "../constants/messages.js";
 
 export const getCartDetails = async (req, res) => {
     try {
@@ -26,7 +27,7 @@ export const getCartPage = async (req, res) => {
 export const addToCart = async (req, res) => {
     try {
         const result = await addToCartService(req.user._id, req.body);
-        return res.status(success).json({ success: true, message: "Added to cart", totalCart: result.totalCart });
+        return res.status(success).json({ success: true, message: CART_MESSAGE.ADDED_SUCCESS, totalCart: result.totalCart });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, error: err.message });

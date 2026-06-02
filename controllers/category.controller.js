@@ -2,6 +2,7 @@ import { getAllActiveCategories } from "../service/adminCategory.service.js";
 import { getCategoryColors, getProducts } from "../service/product.service.js";
 import { serverError, success } from "../service/status.service.js";
 import { getUserWishlist } from "../service/wishlist.service.js";
+import { SERVER_ERROR } from "../constants/messages.js";
 
 export const getCategoryProducts = async (req, res) => {
     try {
@@ -70,6 +71,6 @@ export const filterCategoryProducts = async (req, res) => {
         return res.status(success).json({ success: true, products, userWishlist });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Internal server error" });
+        return res.status(serverError).json({ success: false, message: SERVER_ERROR });
     }
 };

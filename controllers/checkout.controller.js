@@ -9,6 +9,7 @@ import { createWalletTransaction, getUserWallet } from "../service/wallet.servic
 import { getOrderById, updateOrder } from "../service/order.service.js";
 import { getProductById } from "../service/home.service.js";
 import { getCouponsDetails, getValidCoupons } from "../service/coupon.service.js";
+import { ADDRESS_MESSAGE, CHECKOUT_MESSAGE, COUPON_MESSAGE, PRODUCT_MESSAGE, SERVER_ERROR } from "../constants/messages.js";
 
 export const getDefaultAddress = async (req, res, next) => {
     try {
@@ -27,10 +28,10 @@ export const getDefaultAddress = async (req, res, next) => {
 export const checkoutAddAddress = async (req, res) => {
     try {
         const address = await createAddress(req.body, req.user?._id);
-        return res.status(created).json({ success: true, address });
+        return res.status(created).json({ success: true, address, message: ADDRESS_MESSAGE.SUCCESS });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Failed to save address" });
+        return res.status(serverError).json({ success: false, message: ADDRESS_MESSAGE.FAILED });
     }
 };
 
@@ -44,7 +45,7 @@ export const getCheckoutPage = async (req, res) => {
         const allCartItems = await getCartItems(req.user?._id);
         const products = allCartItems.filter((item) => item.isSelected);
         if (!products || products.length === 0) {
-            req.flash("home", { type: "error", message: "select atleast 1 item to continue" });
+            req.flash("home", { type: "error", message: CHECKOUT_MESSAGE.NO_PRODUCT });
             return res.redirect("/home");
         }
 
@@ -55,7 +56,7 @@ export const getCheckoutPage = async (req, res) => {
         }));
 
         if (!products[0].isListed || !products[0].categoryActive) {
-            req.flash("home", { type: "error", message: "product no longer available" });
+            req.flash("home", { type: "error", message: PRODUCT_MESSAGE.PRODUCT_UNAVAILABLE });
             return res.redirect("/home");
         }
         req.session.checkout = {
@@ -84,26 +85,26 @@ export const applyCoupon = async (req, res) => {
         const { code } = req.body;
         const coupon = await getCouponsDetails(code);
         if (!coupon) {
-            return res.status(notFound).json({ success: false, message: "Not a valid coupon" });
+            return res.status(notFound).json({ success: false, message: COUPON_MESSAGE.INVALID_COUPON });
         }
 
         const couponUsed = coupon.users.includes(req.user?._id);
         if (couponUsed) {
-            return res.status(conflict).json({ success: false, message: "coupon already used before" });
+            return res.status(conflict).json({ success: false, message: COUPON_MESSAGE.USED_COUPON });
         }
 
-        if (coupon.usageLimit >= coupon.users.length) {
-            return res.status(conflict).json({ success: false, message: "coupon limit reached" });
+        if (coupon.usageLimit <= coupon.users?.length || 0) {
+            return res.status(conflict).json({ success: false, message: COUPON_MESSAGE.LIMIT_EXCED });
         }
 
         const currentDate = new Date();
         if (!coupon.isActive || currentDate < coupon.startDate || currentDate > coupon.expiryDate) {
-            return res.status(notFound).json({ success: false, message: "Coupon expired" });
+            return res.status(notFound).json({ success: false, message: COUPON_MESSAGE.EXPIRED });
         }
 
         const checkoutSessoin = req.session.checkout;
         if (checkoutSessoin.subtotal < coupon.minPurchaseAmount) {
-            return res.status(badRequest).json({ success: false, message: `Minium purchase of ₹${coupon.minPurchaseAmount} required` });
+            return res.status(badRequest).json({ success: false, message: COUPON_MESSAGE.MINIMUM_PURCHASE(coupon.minPurchaseAmount) });
         }
 
         let discountAmount = 0;
@@ -120,7 +121,7 @@ export const applyCoupon = async (req, res) => {
         checkoutSessoin.total = checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount;
         checkoutSessoin.appliedCoupon = code;
 
-        return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: "Coupon applied" });
+        return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: COUPON_MESSAGE.APPLIED });
     } catch (err) {
         console.error(err);
     }
@@ -134,17 +135,17 @@ export const removeCoupon = async (req, res) => {
     try {
         const checkoutSession = req.session.checkout;
         if (!checkoutSession) {
-            return res.status(badRequest).json({ success: false, message: "No active session available" });
+            return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.SESSION_EXPIRED });
         }
 
         checkoutSession.discount = 0;
         checkoutSession.total = checkoutSession.subtotal + checkoutSession.gst + checkoutSession.shipping;
         checkoutSession.appliedCoupon = null;
 
-        return res.status(success).json({ success: true, message: "Coupon removed", total: checkoutSession.total });
+        return res.status(success).json({ success: true, message: COUPON_MESSAGE.REMOVED, total: checkoutSession.total });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "something went wrong" });
+        return res.status(serverError).json({ success: false, message: COUPON_MESSAGE.REMOVED });
     }
 };
 
@@ -162,7 +163,7 @@ export const checkoutBuyNow = async (req, res) => {
 
         const product = await getProductById(productId, { name: 1, isListed: 1, isdeleted: 1, variants: 1, category: 1 });
         if (!product || !product.isListed) {
-            req.flash("home", { type: "error", message: "product no longer available" });
+            req.flash("home", { type: "error", message: PRODUCT_MESSAGE.PRODUCT_UNAVAILABLE });
             return res.redirect("/home");
         }
         const variant = product.variants.id(variantId);
@@ -173,7 +174,7 @@ export const checkoutBuyNow = async (req, res) => {
         }
         const stock = size.stock;
         if (stock === 0) {
-            req.flash("productDetails", { type: "error", message: "out of stock" });
+            req.flash("productDetails", { type: "error", message: PRODUCT_MESSAGE.STOCK_UNAVAILABLE });
             return res.redirect(`/product/${productId}`);
         }
 
@@ -228,16 +229,16 @@ export const checkoutPlaceOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod } = req.body;
         if (!addressId || !paymentMethod) {
-            return res.status(badRequest).json({ success: false, message: "error processing request" });
+            return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.REQUEST_ERROR });
         }
 
         if (!["cod", "online", "wallet"].includes(paymentMethod)) {
-            return res.status(badRequest).json({ success: false, message: "Payment method not supported" });
+            return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.PAYMENT_UNSUPPOTED });
         }
 
         const checkout = req.session.checkout;
         if (!checkout) {
-            return res.status(badRequest).json({ success: false, message: "Session expired" });
+            return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.SESSION_EXPIRED });
         }
 
         const address = await findAddressById(addressId);
@@ -247,11 +248,11 @@ export const checkoutPlaceOrder = async (req, res) => {
 
         for (const item of checkout.items) {
             const product = await getProductById(item.productId);
-            if (!product) return res.status(badRequest).json({ success: false, message: "Product not found" });
+            if (!product) return res.status(badRequest).json({ success: false, message: PRODUCT_MESSAGE.NOTFOUND });
             const variant = product.variants.id(item.variantId);
             const size = variant.sizes.id(item.sizeId);
             if (!size || size.stock < item.quantity) {
-                return res.status(badRequest).json({ success: false, message: `Insufficient stock for ${item.productName}` });
+                return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.STOCK_UNAVAILABLE(item.productName) });
             }
         }
 
@@ -279,7 +280,7 @@ export const checkoutPlaceOrder = async (req, res) => {
         if (paymentMethod === "wallet") {
             const wallet = await getUserWallet(req.user?._id);
             if (!wallet || wallet.balance < checkout.total) {
-                return res.status(badRequest).json({ success: false, message: "Insufficient wallet balance" });
+                return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.WALLET_BALANCE });
             }
             wallet.balance = Math.round((wallet.balance - checkout.total) * 100) / 100;
             await wallet.save();
@@ -372,13 +373,13 @@ export const verifyPayment = async (req, res) => {
             }
 
             await updateOrder(orderId, { $set: { paymentStatus: "paid", paymentMethod: exactMethod } });
-            return res.status(success).json({ success: true, message: "Payment verified successfully" });
+            return res.status(success).json({ success: true, message: CHECKOUT_MESSAGE.PAYMENT_VERIFIED });
         } else {
-            return res.status(badRequest).json({ success: false, message: "Invalid signature" });
+            return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.SIGNATURE_ERROR });
         }
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Internal Server Error" });
+        return res.status(serverError).json({ success: false, message: SERVER_ERROR });
     }
 };
 
@@ -391,16 +392,16 @@ export const retryPayment = async (req, res) => {
         const id = req.params.id;
         const order = await getOrderById(id);
         if (!order || !["pending", "failed"].includes(order.paymentStatus)) {
-            return res.status(badRequest).json({ success: false, message: "Order cannot be retried" });
+            return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.ORDER_ISSUE });
         }
 
         for (const item of order.items) {
             const product = await getProductById(item.productId);
-            if (!product) return res.status(badRequest).json({ success: false, message: "Product not found" });
+            if (!product) return res.status(badRequest).json({ success: false, message: PRODUCT_MESSAGE.NOTFOUND });
             const variant = product.variants.id(item.variantId);
             const size = variant.sizes.id(item.sizeId);
             if (!size || size.stock < item.quantity) {
-                return res.status(badRequest).json({ success: false, message: `Insufficient stock for ${item.productName}` });
+                return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.STOCK_UNAVAILABLE(item.productName) });
             }
         }
 
