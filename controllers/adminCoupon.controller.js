@@ -1,3 +1,4 @@
+import { COUPON_MESSAGE } from "../constants/messages.js";
 import { couponUpdateById, createCoupon, getCouponById, getPaginatedCoupon, getTotalCoupons } from "../service/coupon.service.js";
 import { serverError, success } from "../service/status.service.js";
 
@@ -70,20 +71,20 @@ export const createNewCoupon = async (req, res) => {
 export const unlistCoupon = async (req, res) => {
     try {
         await couponUpdateById(req.params.id, { isActive: false });
-        return res.status(success).json({ success: true, message: "status updated" });
+        return res.status(success).json({ success: true, message: COUPON_MESSAGE.UNLIST_SUCCESS });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "error updating coupon" });
+        return res.status(serverError).json({ success: false, message: COUPON_MESSAGE.ERROR_UPDATING });
     }
 };
 
 export const listCoupon = async (req, res) => {
     try {
         await couponUpdateById(req.params.id, { isActive: true });
-        return res.status(success).json({ success: true, message: "status updated" });
+        return res.status(success).json({ success: true, message: COUPON_MESSAGE.LIST_SUCCESS });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "error updating coupon" });
+        return res.status(serverError).json({ success: false, message: COUPON_MESSAGE.ERROR_UPDATING });
     }
 };
 
@@ -129,7 +130,7 @@ export const updateCoupon = async (req, res) => {
 export const deleteCoupon = async (req, res) => {
     try {
         const result = await couponUpdateById(req.params.id, { isDeleted: true });
-        return res.status(success).json({ success: true, message: "Coupon deleted" });
+        return res.status(success).json({ success: true, message: COUPON_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error(err);
     }

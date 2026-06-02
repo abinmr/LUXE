@@ -1,5 +1,6 @@
 import { getPaginatedUsers, getTotalUsers, userFindAndUpdate } from "../service/user.service.js";
 import { serverError, success } from "../service/status.service.js";
+import { CUSTOMER_MESSAGE } from "../constants/messages.js";
 
 export const getAllCustomers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -45,7 +46,7 @@ export const blockUser = async (req, res) => {
     try {
         const id = req.params.id;
         await userFindAndUpdate(id, { isBlocked: true });
-        return res.status(success).json({ success: true, message: "user blocked successfully" });
+        return res.status(success).json({ success: true, message: CUSTOMER_MESSAGE.BLOCK_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, message: err.message });
@@ -56,7 +57,7 @@ export const unblockUser = async (req, res) => {
     try {
         const id = req.params.id;
         await userFindAndUpdate(id, { isBlocked: false });
-        return res.status(success).json({ success: true, message: "user unblocked successfully" });
+        return res.status(success).json({ success: true, message: CUSTOMER_MESSAGE.UNBLOCK_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, message: err.message });

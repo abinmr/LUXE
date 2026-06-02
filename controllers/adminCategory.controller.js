@@ -2,6 +2,7 @@ import fs from "fs";
 import { serverError, success } from "../service/status.service.js";
 import { createCategory, getCategoryById, getOneCategory, getPaginatedCategory, getTotalCategories, updateCategory } from "../service/adminCategory.service.js";
 import cloudinary from "../lib/cloudinary.js";
+import { CATEGORY_MESSAGE } from "../constants/messages.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -43,7 +44,7 @@ export const getAddCategory = (req, res) => {
 export const listCategory = async (req, res) => {
     try {
         await updateCategory(req.params.id, { isActive: true });
-        return res.status(success).json({ success: true, message: "category status updated successfully" });
+        return res.status(success).json({ success: true, message: CATEGORY_MESSAGE.STATUS_UPDATE });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, error: err });
@@ -53,7 +54,7 @@ export const listCategory = async (req, res) => {
 export const unlistCategory = async (req, res) => {
     try {
         await updateCategory(req.params.id, { isActive: false });
-        return res.status(success).json({ success: true, message: "category status updated successfully" });
+        return res.status(success).json({ success: true, message: CATEGORY_MESSAGE.STATUS_UPDATE });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, error: err });
@@ -208,7 +209,7 @@ export const editCategoryDetails = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try {
         await updateCategory(req.params.id, { isDeleted: true });
-        return res.status(success).json({ success: true, message: "category deleted successfully" });
+        return res.status(success).json({ success: true, message: CATEGORY_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, message: "Error in deleteing category" });

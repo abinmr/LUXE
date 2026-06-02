@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     statusBtn.textContent = "Inactive";
                     statusBtn.classList.replace("btn-dark", "btn-light");
                     statusBtn.classList.add("border");
-                    showToast("coupon unlisted successfully");
+                    showToast(data.message);
                 }
             } else if (text === "list") {
                 const res = await fetch(`/admin/coupons/status/list/${id}`, { method: "PATCH" });
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     statusBtn.textContent = "Active";
                     statusBtn.classList.remove("border");
                     statusBtn.classList.replace("btn-light", "btn-dark");
-                    showToast("coupon listed successfully");
+                    showToast(data.message);
                 }
             }
         });

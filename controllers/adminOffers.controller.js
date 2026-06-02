@@ -6,6 +6,7 @@ import cloudinary from "../lib/cloudinary.js";
 import { applyOffersToProducts, createOffer, deleteOfferById, findOfferById, findOneOffer, getOffers, removeOfferFromProducts, updateOffer } from "../service/offer.service.js";
 import { success, serverError } from "../service/status.service.js";
 import Product from "../models/product.model.js";
+import { OFFER_MESSAGE } from "../constants/messages.js";
 
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
@@ -240,7 +241,7 @@ export const listOffer = async (req, res) => {
     try {
         const result = await updateOffer(req.params.id, { isActive: true });
         await applyOffersToProducts(result._id);
-        return res.status(200).json({ success: true, message: "offer listed" });
+        return res.status(200).json({ success: true, message: OFFER_MESSAGE.LIST_SUCCESS });
     } catch (err) {
         console.error(err);
     }
@@ -254,7 +255,7 @@ export const unlistOffer = async (req, res) => {
     try {
         const result = await updateOffer(req.params.id, { isActive: false });
         await removeOfferFromProducts(result._id);
-        return res.status(success).json({ success: true, message: "offer unlisted" });
+        return res.status(success).json({ success: true, message: OFFER_MESSAGE.UNLIST_SUCCESS });
     } catch (err) {
         console.error(err);
     }
@@ -269,7 +270,7 @@ export const deleteOffer = async (req, res) => {
         const id = req.params.id;
         const result = await deleteOfferById(id);
         await removeOfferFromProducts(result._id);
-        return res.status(success).json({ success: true, message: "offer deleted" });
+        return res.status(success).json({ success: true, message: OFFER_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, message: "Something went wrong" });

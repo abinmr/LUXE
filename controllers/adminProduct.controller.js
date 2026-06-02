@@ -3,6 +3,7 @@ import cloudinary from "../lib/cloudinary.js";
 import { serverError, success } from "../service/status.service.js";
 import { createProduct, getPaginatedProducts, getProductWithCateogory, getTotalDocuments, updateProductById } from "../service/product.service.js";
 import { getAllActiveCategories, getAllCategories } from "../service/adminCategory.service.js";
+import { PRODUCT_MESSAGE } from "../constants/messages.js";
 
 export const getProductPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -179,7 +180,7 @@ export const editProductDetails = async (req, res) => {
 export const listProduct = async (req, res) => {
     try {
         await updateProductById(req.params.id, { isListed: true });
-        return res.status(success).json({ success: true, message: "product listed" });
+        return res.status(success).json({ success: true, message: PRODUCT_MESSAGE.LIST_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, error: err });
@@ -189,7 +190,7 @@ export const listProduct = async (req, res) => {
 export const unlistProduct = async (req, res) => {
     try {
         await updateProductById(req.params.id, { isListed: false });
-        return res.status(success).json({ success: true, message: "product unlisted" });
+        return res.status(success).json({ success: true, message: PRODUCT_MESSAGE.UNLIST_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ success: false, error: err });
@@ -199,7 +200,7 @@ export const unlistProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         await updateProductById(req.params.id, { isDeleted: true });
-        return res.status(success).json({ success: true, message: "product deleted successfully " });
+        return res.status(success).json({ success: true, message: PRODUCT_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error(err);
         return res.status(serverError).json({ error: err, message: "Server failure" });

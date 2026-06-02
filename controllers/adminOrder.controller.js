@@ -3,6 +3,7 @@ import { updateProduct } from "../service/product.service.js";
 import { findUserById } from "../service/user.service.js";
 import { createWalletTransaction, getUserWallet } from "../service/wallet.service.js";
 import { success } from "../service/status.service.js";
+import { ORDER_MESSAGE } from "../constants/messages.js";
 
 export const getOrdersPage = async (req, res) => {
     try {
@@ -129,7 +130,7 @@ export const orderReturn = async (req, res) => {
         }
 
         if (validItems === 0) {
-            return res.status(400).json({ success: false, message: "No items processed for return" });
+            return res.status(400).json({ success: false, message: ORDER_MESSAGE.INVALID_ITEMS });
         }
 
         const refund = Math.round(calculatedRefund * 100) / 100;
