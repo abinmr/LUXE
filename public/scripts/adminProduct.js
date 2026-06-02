@@ -225,6 +225,18 @@ function cropSingleFile(file) {
     });
 }
 
+function dataURLtoFile(dataurl, filename) {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+}
+
 function setupImagePicker(block, ci) {
     const fileInput = block.querySelector(".image-file-input");
     const previewGrid = block.querySelector(".image-preview-grid");
@@ -233,6 +245,17 @@ function setupImagePicker(block, ci) {
 
     fileInput.name = `variants[${ci}][newImages]`;
     let files = [];
+
+    // Load initial files from hidden input fields
+    const hiddenInputs = block.querySelectorAll('input[type="hidden"][name*="[croppedImages][]"]');
+    hiddenInputs.forEach((hiddenInput) => {
+        const dataUrl = hiddenInput.value;
+        if (dataUrl) {
+            const file = dataURLtoFile(dataUrl, `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.png`);
+            files.push(file);
+        }
+        hiddenInput.remove(); // Remove from DOM so it won't be submitted in the request body!
+    });
 
     addBtn.addEventListener("click", () => fileInput.click());
 
@@ -286,6 +309,12 @@ function setupImagePicker(block, ci) {
             });
             previewGrid.appendChild(item);
         });
+    }
+
+    // Sync and render the loaded files
+    if (files.length > 0) {
+        sync();
+        render();
     }
 }
 
@@ -432,8 +461,11 @@ document.getElementById("addVariantBtn").addEventListener("click", () => {
     colorCount++;
 });
 
-const firstBlock = document.querySelector(".color-variant-block");
-setupImagePicker(firstBlock, 0);
-attachSizeBtn(firstBlock);
-attachRemoveSizeBtns(firstBlock);
-attachRemoveVariantBtn(firstBlock);
+const existingBlocks = document.querySelectorAll(".color-variant-block");
+existingBlocks.forEach((block, ci) => {
+    setupImagePicker(block, ci);
+    attachSizeBtn(block);
+    attachRemoveSizeBtns(block);
+    attachRemoveVariantBtn(block);
+});
+colorCount = existingBlocks.length;
