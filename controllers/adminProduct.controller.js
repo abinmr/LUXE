@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import cloudinary from "../lib/cloudinary.js";
 import { serverError, success } from "../service/status.service.js";
-import { createProduct, getPaginatedProducts, getProductWithCateogory, getTotalDocuments, updateProductById } from "../service/product.service.js";
+import { createProduct, getPaginatedProducts, getProductWithCateogory, getTotalDocuments, updateProductById, getProducts } from "../service/product.service.js";
 import { getAllActiveCategories, getAllCategories } from "../service/adminCategory.service.js";
 import { PRODUCT_MESSAGE } from "../constants/messages.js";
 
@@ -48,39 +48,99 @@ export const addProduct = async (req, res) => {
             if (typeof req.body[key] === "string") req.body[key] = req.body[key].trim();
         }
         const { productName, productDescription, category, listing } = req.body;
-        if (!productName || !productDescription || !category || !listing) {
-            return res.render("productAdd", { productError: "Please provide all the details", oldData: req.body });
-        }
         const isListed = listing === "list";
-        const rawVariants = req.body.variants || {};
 
-        const variantImages = {};
-        for (const file of req.files) {
-            const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
-            if (match) {
-                const vi = parseInt(match[1]);
-                const uploadResult = await cloudinary.uploader.upload(file.path, {
-                    folder: "products",
-                    allowed_formats: ["jpg", "png", "webp"],
-                });
-                await fs.unlink(file.path).catch((err) => console.error(err));
-                if (!variantImages[vi]) variantImages[vi] = [];
-                variantImages[vi].push(uploadResult.secure_url);
+        req.body.name = productName;
+        req.body.description = productDescription;
+        req.body.isListed = isListed;
+
+        const rawVariants = req.body.variants || {};
+        const variantsArray = Array.isArray(rawVariants) ? rawVariants : Object.values(rawVariants);
+
+        const variants = variantsArray.map((variant) => {
+            const croppedImages = variant.croppedImages ? (Array.isArray(variant.croppedImages) ? variant.croppedImages : [variant.croppedImages]) : [];
+
+            let rawSizes = variant.sizes ? (Array.isArray(variant.sizes) ? variant.sizes : Object.values(variant.sizes)) : [];
+            let sizes = rawSizes.map((sz) => ({
+                size: sz.size || "",
+                price: sz.price || "",
+                compareAtPrice: sz.compareAtPrice || "",
+                stock: sz.stock || "",
+            }));
+
+            return {
+                color: variant.color || "",
+                croppedImages,
+                sizes,
+            };
+        });
+
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const match = file.fieldname.match(/variants\[(\d+)\]\[newImages\]/);
+                if (match) {
+                    const vi = parseInt(match[1]);
+                    const fileBuffer = await fs.readFile(file.path);
+                    const base64 = `data:${file.mimetype};base64,${fileBuffer.toString("base64")}`;
+
+                    if (!variants[vi]) {
+                        variants[vi] = { color: "", croppedImages: [], sizes: [] };
+                    }
+                    variants[vi].croppedImages.push(base64);
+
+                    await fs.unlink(file.path).catch((err) => console.error(err));
+                }
             }
         }
 
-        const variants = Object.entries(rawVariants).map(([i, variant]) => ({
-            color: variant.color,
-            images: variantImages[parseInt(i)] || [],
-            sizes: Array.isArray(variant.sizes) ? variant.sizes : variant.sizes ? [variant.sizes] : [],
-        }));
+        req.body.variants = variants;
+
+        if (!productName || !productDescription || !category || !listing) {
+            const categories = await getAllActiveCategories();
+            return res.render("productAdd", {
+                categories,
+                productError: "Please provide all the details",
+                oldData: req.body,
+            });
+        }
+
+        const nameExist = await getProducts({
+            name: { $regex: `^${productName}$`, $options: "i" },
+            isDeleted: false,
+        });
+        if (nameExist.length > 0) {
+            const categories = await getAllActiveCategories();
+            return res.render("productAdd", {
+                categories,
+                productError: "product name already exists",
+                oldData: req.body,
+            });
+        }
+
+        // Upload images to Cloudinary
+        const uploadedVariants = [];
+        for (const variant of variants) {
+            const imageUrls = [];
+            for (const base64 of variant.croppedImages) {
+                const uploadResult = await cloudinary.uploader.upload(base64, {
+                    folder: "products",
+                    allowed_formats: ["jpg", "png", "webp"],
+                });
+                imageUrls.push(uploadResult.secure_url);
+            }
+            uploadedVariants.push({
+                color: variant.color,
+                images: imageUrls,
+                sizes: variant.sizes,
+            });
+        }
 
         const data = {
             name: productName,
             description: productDescription,
             category,
             isListed,
-            variants,
+            variants: uploadedVariants,
         };
         await createProduct(data);
 

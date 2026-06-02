@@ -28,10 +28,10 @@
             <form action="/admin/products/add" method="POST" enctype="multipart/form-data" id="productForm">
 
                 <div class="p-4 border rounded-4 bg-white mb-3">
-                    <h5 class="mb-3">Basic Information</h5>
-                    <div class="error-container text-center text-danger">
-                        <p class="mb-0 fw-semibold" style="font-size: 18px;"><%= locals.productError %></p>
+                    <div class="error-container text-danger">
+                        <p class="mb-0 fw-semibold text-center mx-auto small"><%= locals.productError %></p>
                     </div>
+                    <h5 class="mb-3">Basic Information</h5>
                     <div class="mb-3">
                         <label for="productName" class="form-label">Product Name</label>
                         <input type="text" class="form-control bg-light text-capitalize" value="<%= oldData.name || '' %>" name="productName" id="productName" placeholder="Product name" required>
@@ -78,87 +78,131 @@
                     </div>
 
                     <div id="variantsContainer">
-                        <div class="color-variant-block border rounded-4 bg-white mb-3">
-                            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-                                <span class="fw-semibold">Variant 1</span>
-                                <button type="button" class="btn btn-link text-danger text-decoration-none p-0 remove-variant-btn d-flex align-items-center gap-1 small">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-                                    Remove Variant
-                                </button>
-                            </div>
-                            <div class="p-3">
-                                <div class="row g-3 mb-3">
-                                    <div class="col">
-                                        <label class="form-label small fw-semibold text-muted text-capitalize">Color Name</label>
-                                        <input type="text" class="form-control bg-light text-capitalize color-input" name="variants[0][color]" placeholder="e.g. Black, Blue, Red" >
-                                        <div class="error-container">
-                                            <p class="text-danger small mb-0 color-error"></p>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <label class="form-label small fw-semibold text-muted">
-                                            Variant Images <span class="image-count text-muted fw-normal">(0/8)</span>
-                                        </label>
-                                        <div class="image-picker-area">
-                                            <div class="image-preview-grid"></div>
-                                            <button type="button" class="btn btn-light border btn-sm add-images-btn d-flex align-items-center gap-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-                                                Add Images
-                                            </button>
-                                            <input type="file" class="image-file-input d-none" name="variants[0][newImages]" accept="image/*" multiple>
-                                        </div>
-                                        <div class="error-container">
-                                            <p class="text-danger mb-0 small image-error"></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small fw-semibold text-muted">Sizes & Pricing</span>
-                                    <button type="button" class="btn btn-link text-primary text-decoration-none p-0 small add-size-btn d-flex align-items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-                                        Add Size
+                        <% 
+                          let variantsToRender = [];
+                          if (locals.oldData && locals.oldData.variants) {
+                              variantsToRender = Array.isArray(locals.oldData.variants) 
+                                  ? locals.oldData.variants 
+                                  : Object.values(locals.oldData.variants);
+                          }
+                          if (variantsToRender.length === 0) {
+                              variantsToRender = [{ color: '', sizes: [{ size: '', price: '', compareAtPrice: '', stock: '' }], croppedImages: [] }];
+                          }
+                        %>
+                        <% variantsToRender.forEach((variant, ci) => { %>
+                            <div class="color-variant-block border rounded-4 bg-white mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                                    <span class="fw-semibold">Variant <%= ci + 1 %></span>
+                                    <button type="button" class="btn btn-link text-danger text-decoration-none p-0 remove-variant-btn d-flex align-items-center gap-1 small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                        Remove Variant
                                     </button>
                                 </div>
-
-                                <div class="sizes-container">
-                                    <div class="row g-2 mb-1 px-1">
-                                        <div class="col"><span class="small text-muted">Size</span></div>
-                                        <div class="col"><span class="small text-muted">Price (INR)</span></div>
-                                        <div class="col"><span class="small text-muted">Compare at (INR)</span></div>
-                                        <div class="col"><span class="small text-muted">Stock</span></div>
-                                        <div style="width:36px;"></div>
+                                <div class="p-3">
+                                    <div class="row g-3 mb-3">
+                                        <div class="col">
+                                            <label class="form-label small fw-semibold text-muted text-capitalize">Color Name</label>
+                                            <input type="text" class="form-control bg-light text-capitalize color-input" name="variants[<%= ci %>][color]" value="<%= variant.color || '' %>" placeholder="e.g. Black, Blue, Red" >
+                                            <div class="error-container">
+                                                <p class="text-danger small mb-0 color-error"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label small fw-semibold text-muted">
+                                                Variant Images <span class="image-count text-muted fw-normal">(<%= (variant.croppedImages || []).length %>/8)</span>
+                                            </label>
+                                            <div class="image-picker-area">
+                                                <div class="image-preview-grid">
+                                                    <% if (variant.croppedImages && variant.croppedImages.length > 0) { %>
+                                                        <% variant.croppedImages.forEach((imgBase64, imgIdx) => { %>
+                                                            <div class="preview-item">
+                                                                <img src="<%= imgBase64 %>" alt="preview">
+                                                                <button type="button" class="remove-preview-btn" title="Remove">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                                                </button>
+                                                                <input type="hidden" name="variants[<%= ci %>][croppedImages][]" value="<%= imgBase64 %>">
+                                                            </div>
+                                                        <% }) %>
+                                                    <% } %>
+                                                </div>
+                                                <button type="button" class="btn btn-light border btn-sm add-images-btn d-flex align-items-center gap-1" <%= (variant.croppedImages || []).length >= 8 ? 'disabled' : '' %>>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                                    Add Images
+                                                </button>
+                                                <input type="file" class="image-file-input d-none" name="variants[<%= ci %>][newImages]" accept="image/*" multiple>
+                                            </div>
+                                            <div class="error-container">
+                                                <p class="text-danger mb-0 small image-error"></p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="size-row row g-2 align-items-center mb-2">
-                                        <div class="col">
-                                            <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[0][sizes][0][size]" placeholder="e.g., M">
-                                            <div class="error-container">
-                                                <p class="text-danger mb-0 small size-error"></p>
-                                            </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-semibold text-muted">Sizes & Pricing</span>
+                                        <button type="button" class="btn btn-link text-primary text-decoration-none p-0 small add-size-btn d-flex align-items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                            Add Size
+                                        </button>
+                                    </div>
+
+                                    <div class="sizes-container">
+                                        <div class="row g-2 mb-1 px-1">
+                                            <div class="col"><span class="small text-muted">Size</span></div>
+                                            <div class="col"><span class="small text-muted">Price (INR)</span></div>
+                                            <div class="col"><span class="small text-muted">Compare at (INR)</span></div>
+                                            <div class="col"><span class="small text-muted">Stock</span></div>
+                                            <div style="width:36px;"></div>
                                         </div>
-                                        <div class="col">
-                                            <input type="number" class="form-control bg-light price-input" name="variants[0][sizes][0][price]" placeholder="0.00" step="0.01" min="0" required>
-                                            <div class="error-container">
-                                                <p class="text-danger mb-0 small price-error"></p>
+                                        <% 
+                                          let sizesToRender = [];
+                                          if (variant.sizes) {
+                                              sizesToRender = Array.isArray(variant.sizes) 
+                                                  ? variant.sizes 
+                                                  : Object.values(variant.sizes);
+                                          }
+                                          if (sizesToRender.length === 0) {
+                                              sizesToRender = [{ size: '', price: '', compareAtPrice: '', stock: '' }];
+                                          }
+                                        %>
+                                        <% sizesToRender.forEach((sz, si) => { %>
+                                            <div class="size-row row g-2 align-items-center mb-2">
+                                                <div class="col">
+                                                    <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[<%= ci %>][sizes][<%= si %>][size]" value="<%= sz.size || '' %>" placeholder="e.g., M" required>
+                                                    <div class="error-container">
+                                                        <p class="text-danger mb-0 small size-error"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="number" class="form-control bg-light price-input" name="variants[<%= ci %>][sizes][<%= si %>][price]" value="<%= sz.price || '' %>" placeholder="0.00" step="0.01" min="0" required>
+                                                    <div class="error-container">
+                                                        <p class="text-danger mb-0 small price-error"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="number" class="form-control bg-light compare-price-input" name="variants[<%= ci %>][sizes][<%= si %>][compareAtPrice]" value="<%= sz.compareAtPrice || '' %>" placeholder="0.00" step="0.01" min="0" required>
+                                                    <div class="error-container">
+                                                        <p class="text-danger mb-0 small compare-error"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="number" class="form-control bg-light stock-input" name="variants[<%= ci %>][sizes][<%= si %>][stock]" value="<%= sz.stock || '' %>" placeholder="0" min="0" required>
+                                                    <div class="error-container">
+                                                        <p class="text-danger mb-0 small stock-input"></p>
+                                                    </div>
+                                                </div>
+                                                <div style="width:36px;">
+                                                    <% if (si > 0) { %>
+                                                        <button type="button" class="btn btn-link text-muted p-0 remove-size-btn">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                                        </button>
+                                                    <% } %>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col">
-                                            <input type="number" class="form-control bg-light compare-price-input" name="variants[0][sizes][0][compareAtPrice]" placeholder="0.00" step="0.01" min="0" required>
-                                            <div class="error-container">
-                                                <p class="text-danger mb-0 small compare-error"></p>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <input type="number" class="form-control bg-light stock-input" name="variants[0][sizes][0][stock]" placeholder="0" min="0" required>
-                                            <div class="error-container">
-                                                <p class="text-danger mb-0 small stock-input"></p>
-                                            </div>
-                                        </div>
-                                        <div style="width:36px;"></div>
+                                        <% }) %>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        <% }) %>
                     </div>
                 </div>
 
