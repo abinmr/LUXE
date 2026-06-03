@@ -34,14 +34,14 @@
                     <h5 class="mb-3">Basic Information</h5>
                     <div class="mb-3">
                         <label for="productName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control bg-light text-capitalize" value="<%= oldData.name || '' %>" name="productName" id="productName" placeholder="Product name" required>
+                        <input type="text" class="form-control bg-light text-capitalize" value="<%= oldData.name || '' %>" name="productName" id="productName" placeholder="Product name">
                         <div class="error-container">
                             <p class="text-danger mb-0 small" id="productError"></p>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="productDescription" class="form-label">Description</label>
-                        <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize:none;" required><%= oldData.description || '' %></textarea>
+                        <textarea class="form-control bg-light" name="productDescription" id="productDescription" placeholder="Product description..." rows="4" style="resize:none;"><%= oldData.description || '' %></textarea>
                         <div class="error-container">
                             <p class="text-danger small mb-0" id="productDescError"></p>
                         </div>
@@ -55,6 +55,9 @@
                                     <option value="<%= cat._id %>" <%= oldData.category === cat._id ? 'selected' : '' %> ><%= cat.name %></option>
                                 <% }) %>
                             </select>
+                            <div class="error-container">
+                                <p class="text-danger small mb-0" id="categoryError"></p>
+                            </div>
                         </div>
                         <div class="col">
                             <label for="listing" class="form-label">Listing Status</label>
@@ -63,6 +66,9 @@
                                 <option value="list" <%= (typeof oldData.isListed !== "undefined" && oldData.isListed) ? 'selected' : '' %> >Listed</option>
                                 <option value="unlist" <%= (typeof oldData.isListed !== "undefined" && !oldData.isListed) ? 'selected' : '' %>>Unlisted</option>
                             </select>
+                            <div class="error-container">
+                                <p class="text-danger small mb-0" id="listingError"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -169,27 +175,27 @@
                                         <% sizesToRender.forEach((sz, si) => { %>
                                             <div class="size-row row g-2 align-items-center mb-2">
                                                 <div class="col">
-                                                    <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[<%= ci %>][sizes][<%= si %>][size]" value="<%= sz.size || '' %>" placeholder="e.g., M" required>
+                                                    <input type="text" class="form-control bg-light text-uppercase size-input" name="variants[<%= ci %>][sizes][<%= si %>][size]" value="<%= sz.size || '' %>" placeholder="e.g., M">
                                                     <div class="error-container">
                                                         <p class="text-danger mb-0 small size-error"></p>
                                                     </div>
                                                 </div>
                                                 <div class="col">
-                                                    <input type="number" class="form-control bg-light price-input" name="variants[<%= ci %>][sizes][<%= si %>][price]" value="<%= sz.price || '' %>" placeholder="0.00" step="0.01" min="0" required>
+                                                    <input type="number" class="form-control bg-light price-input" name="variants[<%= ci %>][sizes][<%= si %>][price]" value="<%= sz.price || '' %>" placeholder="0.00" step="0.01" min="0">
                                                     <div class="error-container">
                                                         <p class="text-danger mb-0 small price-error"></p>
                                                     </div>
                                                 </div>
                                                 <div class="col">
-                                                    <input type="number" class="form-control bg-light compare-price-input" name="variants[<%= ci %>][sizes][<%= si %>][compareAtPrice]" value="<%= sz.compareAtPrice || '' %>" placeholder="0.00" step="0.01" min="0" required>
+                                                    <input type="number" class="form-control bg-light compare-price-input" name="variants[<%= ci %>][sizes][<%= si %>][compareAtPrice]" value="<%= sz.compareAtPrice || '' %>" placeholder="0.00" step="0.01" min="0">
                                                     <div class="error-container">
                                                         <p class="text-danger mb-0 small compare-error"></p>
                                                     </div>
                                                 </div>
                                                 <div class="col">
-                                                    <input type="number" class="form-control bg-light stock-input" name="variants[<%= ci %>][sizes][<%= si %>][stock]" value="<%= sz.stock || '' %>" placeholder="0" min="0" required>
+                                                    <input type="number" class="form-control bg-light stock-input" name="variants[<%= ci %>][sizes][<%= si %>][stock]" value="<%= sz.stock || '' %>" placeholder="0" min="0">
                                                     <div class="error-container">
-                                                        <p class="text-danger mb-0 small stock-input"></p>
+                                                        <p class="text-danger mb-0 small stock-error"></p>
                                                     </div>
                                                 </div>
                                                 <div style="width:36px;">

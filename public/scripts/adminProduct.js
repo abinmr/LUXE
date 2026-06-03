@@ -2,6 +2,8 @@ const productNameInput = document.getElementById("productName");
 const productDescInput = document.getElementById("productDescription");
 const productError = document.getElementById("productError");
 const productDescError = document.getElementById("productDescError");
+const categorySelect = document.getElementById("categorySelect");
+const listingSelect = document.getElementById("listing");
 const submitBtn = document.getElementById("submit-btn");
 const productForm = document.getElementById("productForm");
 
@@ -31,15 +33,39 @@ function validateProductDesc() {
     }
 }
 
+function validateCategory() {
+    const categoryError = document.getElementById("categoryError");
+    if (!categorySelect.value) {
+        categoryError.textContent = "Please select a category";
+        categoryError.style.visibility = "visible";
+        return false;
+    }
+    categoryError.textContent = "";
+    categoryError.style.visibility = "hidden";
+    return true;
+}
+
+function validateListing() {
+    const listingError = document.getElementById("listingError");
+    if (!listingSelect.value) {
+        listingError.textContent = "Please select a listing status";
+        listingError.style.visibility = "visible";
+        return false;
+    }
+    listingError.textContent = "";
+    listingError.style.visibility = "hidden";
+    return true;
+}
+
 function validateVariantImages() {
     const variants = document.querySelectorAll(".color-variant-block");
     let isValid = true;
     variants.forEach((variant) => {
-        const imageInput = variant.querySelector(".image-file-input");
         const imageError = variant.querySelector(".image-error");
+        const previewCount = variant.querySelectorAll(".image-preview-grid .preview-item").length;
 
-        if (!imageInput || imageInput.files.length < 3) {
-            imageError.textContent = "Please upload at least 3 image";
+        if (previewCount < 3) {
+            imageError.textContent = "Please upload at least 3 images";
             imageError.style.visibility = "visible";
             isValid = false;
         } else {
@@ -70,15 +96,60 @@ function validateColorInput() {
 function validateSize() {
     const sizeInput = document.querySelectorAll(".size-input");
     const sizeError = document.querySelectorAll(".size-error");
-    let isValid = false;
+    let isValid = true;
     sizeInput.forEach((input, i) => {
         const sizeText = input.value.trim();
         if (sizeText === "") {
             sizeError[i].textContent = "size is required";
+            sizeError[i].style.visibility = "visible";
             isValid = false;
         } else {
             sizeError[i].textContent = "";
-            isValid = true;
+            sizeError[i].style.visibility = "hidden";
+        }
+    });
+    return isValid;
+}
+
+function validatePrice() {
+    const priceInputs = document.querySelectorAll(".price-input");
+    const priceErrors = document.querySelectorAll(".price-error");
+    let isValid = true;
+    priceInputs.forEach((input, i) => {
+        const val = parseFloat(input.value);
+        if (input.value.trim() === "" || isNaN(val)) {
+            priceErrors[i].textContent = "price is required";
+            priceErrors[i].style.visibility = "visible";
+            isValid = false;
+        } else if (val <= 0) {
+            priceErrors[i].textContent = "price must be greater than 0";
+            priceErrors[i].style.visibility = "visible";
+            isValid = false;
+        } else {
+            priceErrors[i].textContent = "";
+            priceErrors[i].style.visibility = "hidden";
+        }
+    });
+    return isValid;
+}
+
+function validateStock() {
+    const stockInputs = document.querySelectorAll(".stock-input");
+    const stockErrors = document.querySelectorAll(".stock-error");
+    let isValid = true;
+    stockInputs.forEach((input, i) => {
+        const val = parseInt(input.value);
+        if (input.value.trim() === "" || isNaN(val)) {
+            stockErrors[i].textContent = "stock is required";
+            stockErrors[i].style.visibility = "visible";
+            isValid = false;
+        } else if (val < 0) {
+            stockErrors[i].textContent = "stock cannot be negative";
+            stockErrors[i].style.visibility = "visible";
+            isValid = false;
+        } else {
+            stockErrors[i].textContent = "";
+            stockErrors[i].style.visibility = "hidden";
         }
     });
     return isValid;
@@ -86,15 +157,20 @@ function validateSize() {
 
 productNameInput.addEventListener("blur", validateProductName);
 productDescInput.addEventListener("blur", validateProductDesc);
+categorySelect.addEventListener("change", validateCategory);
+listingSelect.addEventListener("change", validateListing);
 
 productForm.addEventListener("submit", (e) => {
     const isNameValid = validateProductName();
     const isDescValid = validateProductDesc();
+    const isCategoryValid = validateCategory();
+    const isListingValid = validateListing();
     const isColorValid = validateColorInput();
     const isImageValid = validateVariantImages();
     const isSizeValid = validateSize();
-    console.log("size", isSizeValid);
-    if (!isNameValid || !isDescValid || !isImageValid || !isColorValid || !isSizeValid) {
+    const isPriceValid = validatePrice();
+    const isStockValid = validateStock();
+    if (!isNameValid || !isDescValid || !isCategoryValid || !isListingValid || !isImageValid || !isColorValid || !isSizeValid || !isPriceValid || !isStockValid) {
         return e.preventDefault();
     }
     submitBtn.disabled = true;
