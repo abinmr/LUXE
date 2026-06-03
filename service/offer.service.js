@@ -45,6 +45,10 @@ export async function updateOffer(id, data) {
  * @param {Offer} offer
  */
 export async function applyOffersToProducts(offer) {
+    const currentDate = new Date();
+    if (!offer.isActive || offer.startDate > currentDate || offer.endDate < currentDate) {
+        return;
+    }
     let matchQuery = { isDeleted: false };
 
     if (offer.applicableTo === "category") {
@@ -100,4 +104,3 @@ export async function removeOfferFromProducts(offerId) {
 export async function deleteOfferById(id) {
     return await Offer.findByIdAndUpdate(id, { isDeleted: true });
 }
-
