@@ -240,7 +240,7 @@ export const updateOffersDetails = async (req, res) => {
 export const listOffer = async (req, res) => {
     try {
         const result = await updateOffer(req.params.id, { isActive: true });
-        await applyOffersToProducts(result._id);
+        await applyOffersToProducts(result);
         return res.status(200).json({ success: true, message: OFFER_MESSAGE.LIST_SUCCESS });
     } catch (err) {
         console.error(err);

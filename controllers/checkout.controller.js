@@ -55,9 +55,11 @@ export const getCheckoutPage = async (req, res) => {
             productImage: productImage[0],
         }));
 
-        if (!products[0].isListed || !products[0].categoryActive) {
-            req.flash("home", { type: "error", message: PRODUCT_MESSAGE.PRODUCT_UNAVAILABLE });
-            return res.redirect("/home");
+        for (const product of products) {
+            if (!product.isListed || !products.categoryActive) {
+                req.flash("home", { type: "error", message: PRODUCT_MESSAGE.PRODUCT_UNAVAILABLE });
+                return res.redirect("/home");
+            }
         }
         req.session.checkout = {
             source: "cart",
@@ -93,7 +95,7 @@ export const applyCoupon = async (req, res) => {
             return res.status(conflict).json({ success: false, message: COUPON_MESSAGE.USED_COUPON });
         }
 
-        if (coupon.usageLimit <= coupon.users?.length || 0) {
+        if (coupon.usageLimit && coupon.usageLimit <= (coupon.users?.length || 0)) {
             return res.status(conflict).json({ success: false, message: COUPON_MESSAGE.LIMIT_EXCED });
         }
 

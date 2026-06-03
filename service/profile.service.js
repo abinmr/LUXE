@@ -29,9 +29,8 @@ export async function generateInvoice(order, res) {
     let y = margin;
 
     function paymentMethod(method) {
-        if (method === "cod") {
-            return "Cash on Delivery";
-        }
+        const map = { cod: "Cash on Delivery", wallet: "Wallet", card: "Card", upi: "UPI", online: "Online" };
+        return map[method] || method;
     }
 
     const detailRow = (label, value) => {

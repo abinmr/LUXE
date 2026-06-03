@@ -10,7 +10,6 @@ import { findOneUser, findUserById, userFindAndUpdate } from "../service/user.se
 import { createAddress, findAddresses, updateAddressById, updateManyAddress, deleteAddressById } from "../service/address.service.js";
 import { getOneOrder, getOrderById, getUserOrders } from "../service/order.service.js";
 import { deleteManyOtp, findOneOtp } from "../service/otp.service.js";
-import Order from "../models/order.model.js";
 import { ADDRESS_MESSAGE, ORDER_MESSAGE, PASSWORD_MESSAGE, PROFILE_MESSAGE } from "../constants/messages.js";
 
 /** @typedef {import('express').Request} Request */
@@ -346,8 +345,6 @@ export const cancelOrder = async (req, res) => {
         }
 
         const date = new Date(Date.now());
-
-        const orders = await Order.find({ createdAt: { $eq: date } }, { "items.orderStatus": "cancelled" });
 
         if (order.paymentMethod !== "cod" && refundAmount > 0) {
             const wallet = await getUserWallet(req.user?._id);

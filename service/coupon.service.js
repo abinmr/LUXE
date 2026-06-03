@@ -13,7 +13,12 @@ export async function getCouponById(id) {
 
 export async function getValidCoupons() {
     const currentDate = new Date(Date.now());
-    return await Coupon.find({ startDate: { $lte: currentDate } }).limit(3);
+    return await Coupon.find({
+        startDate: { $lte: currentDate },
+        expiryDate: { $gte: currentDate },
+        isActive: true,
+        isDeleted: false,
+    }).limit(3);
 }
 
 /**

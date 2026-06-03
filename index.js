@@ -59,13 +59,13 @@ app.use("/cart", cartRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/checkout", checkoutRouter);
 
-app.get("/", (req, res) => {
-    return res.redirect("/home");
-});
-
 app.use((req, res, next) => {
     res.locals.currentPage = req.path.split("/")[1];
     next();
+});
+
+app.get("/", (req, res) => {
+    return res.redirect("/home");
 });
 
 await connectDB();

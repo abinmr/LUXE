@@ -77,9 +77,9 @@ export const updateOrderDetails = async (req, res) => {
                 };
                 await createWalletTransaction(data);
                 user.referralBonusGranted = true;
-                order.paymentStatus = "paid";
                 await user.save();
             }
+            order.paymentStatus = "paid";
         }
         await order.save();
         return res.redirect("/admin/orders");

@@ -46,17 +46,17 @@ router.get("/login", redirectIfAuth, noCache, (req, res) => {
     return res.render("login", { error: error });
 });
 
-router.get("/login/reset-otp", getResetOtp);
+router.get("/login/reset-otp", noCache, getResetOtp);
 
-router.get("/login/reset-password", (req, res) => {
+router.get("/login/reset-password", noCache, (req, res) => {
     const resetError = req.flash("resetError")[0];
     return res.render("resetPassword", { error: resetError });
 });
 
-router.get("/login/reset-otp", noCache, (req, res) => {
-    const resetOtpError = req.flash("resetOtpError")[0];
-    return res.render("reset", { error: resetOtpError });
-});
+// router.get("/login/reset-otp", noCache, (req, res) => {
+//     const resetOtpError = req.flash("resetOtpError")[0];
+//     return res.render("reset", { error: resetOtpError });
+// });
 
 router.get("/login/update-password", noCache, (req, res) => {
     const error = req.flash("newPasswordError")[0];

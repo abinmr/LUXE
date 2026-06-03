@@ -108,7 +108,7 @@ export const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!user.referralCode) {
         user.referralCode = nanoid(8);
-        user.save();
+        await user.save();
     }
 
     if (!match) {
@@ -212,7 +212,7 @@ export const getRegisterOtp = async (req, res) => {
     const userId = req.session.userId;
     if (!userId) return res.redirect("/auth/register");
 
-    const otpRecord = await findOneOtp({ userid: userId });
+    const otpRecord = await findOneOtp({ userId: userId });
 
     let secondsLeft = 0;
     if (otpRecord) {
