@@ -69,7 +69,7 @@ app.use((req, res, next) => {
 });
 
 await connectDB();
-initCronJob();
+await initCronJob();
 app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
 });

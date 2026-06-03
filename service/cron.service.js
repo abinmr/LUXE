@@ -1,8 +1,32 @@
 import cron from "node-cron";
 import Order from "../models/order.model.js";
 import Coupon from "../models/coupon.model.js";
+import Offer from "../models/offer.model.js";
+import { removeOfferFromProducts } from "./offer.service.js";
 
-export const initCronJob = () => {
+async function cleanupExpiredOffers() {
+    try {
+        const now = new Date();
+        const expiredOffers = await Offer.find({ isActive: true, endDate: { $lt: now } });
+        if (expiredOffers.length === 0) return;
+        for (const offer of expiredOffers) {
+            await removeOfferFromProducts(offer._id);
+            offer.isActive = false;
+            await offer.save();
+            console.log(`[Cron] Expired offer removed: ${offer.title || offer._id}`);
+        }
+    } catch (err) {
+        console.error("[Cron] Error cleaning up expired offers:", err);
+    }
+}
+
+export const initCronJob = async () => {
+    // Run immediately on server startup to clear any offers that expired while server was down
+    await cleanupExpiredOffers();
+
+    // Also run every 15 minutes going forward
+    cron.schedule("*/15 * * * *", cleanupExpiredOffers);
+
     cron.schedule("*/15 * * * *", async () => {
         try {
             const expiryTime = new Date(Date.now() - 30 * 60 * 1000);

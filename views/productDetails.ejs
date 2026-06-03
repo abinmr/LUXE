@@ -61,7 +61,7 @@
                    const mainEffectivePrice = mainSize.effectivePrice ?? null;
                    const mainDisplayPrice = mainEffectivePrice ?? mainOriginalPrice;
                 %>
-                <% if (mainEffectivePrice) { %>
+                <% if (mainEffectivePrice && mainEffectivePrice < mainOriginalPrice) { %>
                     <div class="my-2">
                         <span class="badge bg-danger">offer</span>
                     </div>

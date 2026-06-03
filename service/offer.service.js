@@ -1,6 +1,5 @@
 import Offer from "../models/offer.model.js";
 import Product from "../models/product.model.js";
-import nodeCron from "node-cron";
 
 /** @typedef {import('../types.d.ts').Offer} Offer */
 /** @typedef {import("mongoose").ObjectId} ObjectId */
@@ -102,12 +101,3 @@ export async function deleteOfferById(id) {
     return await Offer.findByIdAndUpdate(id, { isDeleted: true });
 }
 
-nodeCron.schedule("0 * * * *", async () => {
-    const now = new Date();
-    const expiredOffer = await Offer.find({ isActive: true, endDate: { $lt: now } });
-    for (const offer of expiredOffer) {
-        await removeOfferFromProducts(offer._id);
-        offer.isActive = false;
-        await offer.save();
-    }
-});

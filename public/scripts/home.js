@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="card-body d-flex flex-column p-3">
                             <div class="d-flex gap-4">
                                 <h6 class="card-title fw-semibold text-truncate mb-1" title="${product.name}">${product.name}</h6>
-                                ${effectivePrice ? '<div class="badge bg-danger">Offer</div>' : ""}
+                                ${effectivePrice && effectivePrice < originalPrice ? '<div class="badge bg-danger">Offer</div>' : ""}
                             </div>
                             <div class="mb-3 d-flex align-items-center gap-2">
                                 <span class="fw-bold fs-5 mb-0 text-dark">₹${displayPrice}</span>
