@@ -124,6 +124,7 @@ export const applyCoupon = async (req, res) => {
         return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: COUPON_MESSAGE.APPLIED });
     } catch (err) {
         console.error(err);
+        return res.status(serverError).json({ success: false, message: COUPON_MESSAGE.ERROR });
     }
 };
 
@@ -256,6 +257,14 @@ export const checkoutPlaceOrder = async (req, res) => {
             }
         }
 
+        let wallet = null;
+        if (paymentMethod === "wallet") {
+            wallet = await getUserWallet(req.user?._id);
+            if (!wallet || wallet.balance < checkout.total) {
+                return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.WALLET_BALANCE });
+            }
+        }
+
         const order = await createOrder(req, checkout, address, paymentMethod);
 
         if (checkout.appliedCoupon) {
@@ -263,6 +272,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             coupon.users.push(req.user?._id);
             await coupon.save();
         }
+
         if (paymentMethod !== "online") {
             if (order) {
                 for (const item of checkout.items) {
@@ -278,13 +288,9 @@ export const checkoutPlaceOrder = async (req, res) => {
         }
 
         if (paymentMethod === "wallet") {
-            const wallet = await getUserWallet(req.user?._id);
-            if (!wallet || wallet.balance < checkout.total) {
-                return res.status(badRequest).json({ success: false, message: CHECKOUT_MESSAGE.WALLET_BALANCE });
-            }
             wallet.balance = Math.round((wallet.balance - checkout.total) * 100) / 100;
             await wallet.save();
-            const walletTransaction = await createWalletTransaction({
+            await createWalletTransaction({
                 walletId: wallet._id,
                 userId: req.user?._id,
                 transactionType: "debit",

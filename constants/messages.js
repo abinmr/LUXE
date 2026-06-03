@@ -16,6 +16,7 @@ export const COUPON_MESSAGE = {
     MINIMUM_PURCHASE: (amount) => `Minium purchase of ₹${amount} required`,
     APPLIED: "coupon applied successfully",
     REMOVED: "coupon removed successfully",
+    ERROR: "error in apply coupon",
 };
 
 export const CUSTOMER_MESSAGE = {
