@@ -56,7 +56,7 @@ export const getCheckoutPage = async (req, res) => {
         }));
 
         for (const product of products) {
-            if (!product.isListed || !products.categoryActive) {
+            if (!product.isListed || !product.categoryActive) {
                 req.flash("home", { type: "error", message: PRODUCT_MESSAGE.PRODUCT_UNAVAILABLE });
                 return res.redirect("/home");
             }

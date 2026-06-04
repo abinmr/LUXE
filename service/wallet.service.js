@@ -8,9 +8,9 @@ import WalletTransaction from "../models/walletTransation.model.js";
  * @param {ObjectId} userId -
  */
 export async function getUserWallet(userId) {
-    let userWallet = Wallet.findOne({ userId: userId });
+    let userWallet = await Wallet.findOne({ userId: userId });
     if (!userWallet) {
-        userWallet = Wallet.create({ userId: userId, balance: 0 });
+        userWallet = await Wallet.create({ userId: userId, balance: 0 });
     }
     return userWallet;
 }
