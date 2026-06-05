@@ -70,7 +70,7 @@ document.querySelectorAll(".quantityAdd").forEach((addBtn) => {
         addBtn.previousElementSibling.previousElementSibling.disabled = false;
 
         try {
-            const res = await fetch(`/cart/quantityAdd/${this.dataset.itemId}`);
+            const res = await fetch(`/cart/quantityAdd/${this.dataset.itemId}`, { method: "PATCH" });
             // if (res.ok) calculateTotal();
             const data = await res.json();
             if (data.success) {
@@ -99,7 +99,7 @@ document.querySelectorAll(".quantityMinus").forEach((minusBtn) => {
         input.nextElementSibling.disabled = false;
 
         try {
-            const res = await fetch(`/cart/quantityMinus/${this.dataset.itemId}`);
+            const res = await fetch(`/cart/quantityMinus/${this.dataset.itemId}`, { method: "PATCH" });
             // if (res.ok) calculateTotal();
             const data = await res.json();
             console.log(data);

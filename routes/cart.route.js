@@ -10,9 +10,9 @@ router.get("/", protectedRoute, getCartPage);
 
 router.post("/add", protectedRoute, addToCart);
 
-router.get("/quantityAdd/:id", protectedRoute, addQuantity);
+router.patch("/quantityAdd/:id", protectedRoute, addQuantity);
 
-router.get("/quantityMinus/:id", protectedRoute, minusQuantity);
+router.patch("/quantityMinus/:id", protectedRoute, minusQuantity);
 
 router.patch("/toggle-selection/:id", protectedRoute, toggleItemSelection);
 
