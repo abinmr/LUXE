@@ -17,7 +17,8 @@ export const getCategoryProducts = async (req, res) => {
         if (wishlist) {
             userWishlist = wishlist.products.map((item) => item.productId.toString());
         }
-        return res.render("categoryDetails", { categories, id: req.params.id, products, userWishlist, colors });
+        const maxPrice = products.length > 0 ? Math.max(...products.flatMap((p) => p.variants.flatMap((v) => v.sizes.map((s) => s.price)))) : 500;
+        return res.render("categoryDetails", { categories, id: req.params.id, products, userWishlist, colors, maxPrice });
     } catch (err) {
         console.error("category error", err);
         return res.redirect("/home");
@@ -27,7 +28,7 @@ export const getCategoryProducts = async (req, res) => {
 export const filterCategoryProducts = async (req, res) => {
     try {
         const { id } = req.params;
-        const { priceRange, sizes, colors, sort } = req.body;
+        const { priceRange, sizes, colors, sort } = req.query;
 
         const query = {
             category: id,

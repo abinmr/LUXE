@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get("/:id", getCategoryProducts);
 
-router.post("/:id/filter", filterCategoryProducts);
+router.get("/:id/filter", filterCategoryProducts);
 
 export default router;
