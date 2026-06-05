@@ -65,10 +65,7 @@ export async function getRelatedProducts(excludeId, limit = 4) {
  */
 export async function getSearchProductsByName(search) {
     const regex = { $regex: search, $options: "i" };
-    const [products, colors] = await Promise.all([
-        Product.find({ name: regex, isListed: true, isDeleted: false }),
-        Product.find({ name: regex, isListed: true, isDeleted: false }).distinct("variants.color"),
-    ]);
+    const [products, colors] = await Promise.all([Product.find({ name: regex, isListed: true, isDeleted: false }), Product.find({ name: regex, isListed: true, isDeleted: false }).distinct("variants.color")]);
     return { products, colors };
 }
 
@@ -100,11 +97,11 @@ export async function getFilterAndSortProducts({ search, priceRange, sizes, colo
     }
 
     const sortMap = {
-        "low-to-high": { "variants.0.sizes.0.price": -1 },
-        "high-to-low": { "variants.0.sizes.0.price": 1 },
+        "low-to-high": { "variants.0.sizes.0.price": 1 },
+        "high-to-low": { "variants.0.sizes.0.price": -1 },
         "A-Z": { name: 1 },
         "Z-A": { name: -1 },
     };
 
-    return Product.find(query).sort(sortMap[sort] ?? { createdAt: 1 });
+    return Product.find(query).sort(sortMap[sort] ?? { createdAt: -1 });
 }

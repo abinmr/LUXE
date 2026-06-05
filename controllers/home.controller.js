@@ -64,17 +64,24 @@ export const getSearchProducts = async (req, res) => {
     const search = req.query.search;
     const { products, colors } = await getSearchProductsByName(search);
     const userWishlist = await getWishlistProducts(req.user?._id);
+
+    const maxPrice = products.length > 0 ? Math.max(...products.flatMap((p) => p.variants.flatMap((v) => v.sizes.map((s) => s.price)))) : 500;
     return res.render("productSearch", {
         products,
         userWishlist,
         search,
         colors,
+        maxPrice,
     });
 };
 
 export const searchProductFilter = async (req, res) => {
     try {
-        const [products, userWishlist] = await Promise.all([getFilterAndSortProducts(req.body), getWishlistProducts(req.user?._id)]);
+        const { search, priceRange, sort } = req.query;
+        const sizes = req.query.sizes ? (Array.isArray(req.query.sizes) ? req.query.sizes : [req.query.sizes]) : [];
+        const colors = req.query.colors ? (Array.isArray(req.query.colors) ? req.query.colors : [req.query.colors]) : [];
+
+        const [products, userWishlist] = await Promise.all([getFilterAndSortProducts({ search, priceRange, sizes, colors, sort }), getWishlistProducts(req.user?._id)]);
 
         return res.status(success).json({ success: true, products, userWishlist });
     } catch (err) {

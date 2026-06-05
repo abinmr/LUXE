@@ -65,10 +65,10 @@
                                 <button type="reset" class="btn mb-0 border-0 text-primary" id="mobile-reset-form">Cancel</button>
                             </div>
                             <div class="position-relative mb-4">
-                                <input type="range" class="form-range" min="0" max="500" step="10" name="priceRange" id="priceRangeMobile" value="500">
+                                <input type="range" class="form-range" min="0" max="<%= maxPrice %>" step="10" name="priceRange" id="priceRangeMobile" value="<%= maxPrice %>">
                                 <div class="d-flex justify-content-between text-muted small mt-1">
                                     <span>₹0</span>
-                                    <span id="maxRangeMobile">₹500</span>
+                                    <span id="maxRangeMobile">₹<%= maxPrice %></span>
                                 </div>
                             </div>
 
@@ -106,10 +106,10 @@
                         <button type="reset" class="btn mb-0 p-0 text-primary" id="reset-form">Cancel</button>
                     </div>
                     <div class="position-relative mb-4">
-                        <input type="range" class="form-range" min="0" max="500" step="10" name="priceRange" id="priceRangeDesktop" value="500">
+                        <input type="range" class="form-range" min="0" max="<%= maxPrice %>" step="10" name="priceRange" id="priceRangeDesktop" value="<%= maxPrice %>">
                         <div class="d-flex justify-content-between text-muted small mt-1">
                             <span>₹0</span>
-                            <span id="maxRangeDesktop">₹500</span>
+                            <span id="maxRangeDesktop">₹<%= maxPrice %></span>
                         </div>
                     </div>
 

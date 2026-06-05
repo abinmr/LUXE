@@ -81,19 +81,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const price = formData.get("priceRange") || "500";
         const sort = sortSelect ? sortSelect.value : "featured";
 
+        const params = new URLSearchParams({
+            search: searchQuery,
+            priceRange: price,
+            sort,
+        });
+
+        sizes.forEach((s) => params.append("sizes", s));
+        colors.forEach((c) => params.append("colors", c));
+
         try {
-            const response = await fetch(`/search/filter`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    search: searchQuery,
-                    priceRange: price,
-                    sizes,
-                    colors,
-                    sort,
-                }),
+            const response = await fetch(`/search/filter?${params}`, {
+                method: "GET",
             });
 
             const data = await response.json();

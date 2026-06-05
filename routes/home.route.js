@@ -14,6 +14,6 @@ router.get("/product/:id", getProductDetails);
 
 router.get("/search", getSearchProducts);
 
-router.post("/search/filter", searchProductFilter);
+router.get("/search/filter", searchProductFilter);
 
 export default router;
