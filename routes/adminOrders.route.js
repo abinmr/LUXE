@@ -8,7 +8,7 @@ router.get("/", requireAdminAuth, getOrdersPage);
 
 router.get("/:id", requireAdminAuth, orderDetailsById);
 
-router.get("/:id/update", requireAdminAuth, updateOrderDetails);
+router.patch("/:id/update", requireAdminAuth, updateOrderDetails);
 
 router.patch("/:id/approve-return", requireAdminAuth, orderReturn);
 

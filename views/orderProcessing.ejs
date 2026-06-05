@@ -139,7 +139,7 @@
                             <span>Update Status</span>
                         </div>
                         <div class="mt-2">
-                            <form action="/admin/orders/<%= order._id %>/update" method="get" id="status-form">
+                            <form action="/admin/orders/<%= order._id %>/update?_method=PATCH" method="POST" id="status-form">
                                 <label for="status" class="form-label small mb-0 ms-1">Order status</label>
                                 <%
                                     const terminalStates = ["returned", "delivered", "cancelled", "return-requested"];

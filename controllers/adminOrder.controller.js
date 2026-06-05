@@ -49,7 +49,7 @@ export const orderDetailsById = async (req, res) => {
  */
 export const updateOrderDetails = async (req, res) => {
     try {
-        const status = req.query.status;
+        const status = req.body.status;
         const order = await getOrderById(req.params.id);
         const terminalStates = ["cancelled", "return-requested", "returned"];
         for (const item of order.items) {
