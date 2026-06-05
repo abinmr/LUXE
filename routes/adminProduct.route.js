@@ -13,7 +13,7 @@ router.post("/add", upload.any(), addProduct);
 
 router.get("/edit/:id", requireAdminAuth, getEditPage);
 
-router.post("/edit/:id", upload.any(), editProductDetails);
+router.patch("/edit/:id", upload.any(), editProductDetails);
 
 router.patch("/list/:id", requireAdminAuth, listProduct);
 
