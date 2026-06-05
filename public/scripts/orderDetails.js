@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const response = await fetch(`/profile/orders/${id}/cancel`, {
-                method: "post",
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
             });
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
             continueReturn.disabled = true;
 
             const response = await fetch(`/profile/orders/${id}/return`, {
-                method: "post",
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
             });

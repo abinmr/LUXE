@@ -1,0 +1,70 @@
+<div class="modal fade" id="editModal-<%= address._id %>" tabindex="-1" aria-hidden="true"> 
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-2">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="/profile/address/edit/<%= address._id %>?_method=PUT" class="form" method="POST" id="edit-form">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control fullNameAddress" name="fullName" placeholder="full name" required value="<%= address.fullName || '' %>" >
+                        <div class="error-container">
+                            <p class="text-danger mb-0 small fullnameError"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Mobile Number</label>
+                        <input type="number" class="form-control mobile-number" name="phone" placeholder="phone" maxlength="10" required value="<%= address.phone || '' %>" >
+                        <div class="error-container">
+                            <p class="text-danger mb-0 small mobile-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pincode">Pincode</label>
+                        <input type="text" class="form-control pincode" name="pincode" placeholder="pincode" required value="<%= address.pincode || '' %>" >
+                        <div class="error-container">
+                            <p class="text-danger mb-0 small pincode-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="house" class="form-label">House No / Building / Apartment</label>
+                        <input type="text" class="form-control house-number" name="house" placeholder="Building name, House No" required value="<%= address.houseNumber || '' %>" >
+                        <div>
+                            <p class="text-danger mb-0 small house-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="street" class="form-label">Street</label>
+                        <input type="text" class="form-control street" name="street" placeholder="Street" value="<%= address.street || '' %>">
+                        <div class="error-container">
+                            <p class="text-danger mb-0 small street-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="city" class="form-label">Town / City</label>
+                        <input type="text" class="form-control" name="city" placeholder="city" value="<%= address.city || '' %>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="state" class="form-label">State</label>
+                        <input type="text" class="form-control state" name="state" id="edit-state" placeholder="state" value="<%= address.state || '' %>" >
+                        <div class="error-container">
+                            <p class="text-danger mb-0 small state-error"></p>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" <%= address.isDefault ? 'checked' : ''%> class="form-check-input" name="isDefault">
+                        <label for="isDefault">Make this my default address</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger px-5 save-address-btn">Save Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

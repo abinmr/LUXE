@@ -267,13 +267,10 @@ export const deleteAddress = async (req, res) => {
     try {
         const addressId = req.params.id;
         const deleteResult = await deleteAddressById(addressId);
-        if (deleteResult) {
-            req.flash("toast", JSON.stringify({ type: "success", message: ADDRESS_MESSAGE.DELETE_SUCCESS }));
-        }
-        return res.redirect("/profile?section=address");
+        return res.status(success).json({ success: true, message: ADDRESS_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error("Address delete error", err);
-        return res.redirect("/profile?section=address");
+        return res.status(serverError).json({ success: false, message: ADDRESS_MESSAGE.DELETE_FAIL });
     }
 };
 

@@ -19,17 +19,17 @@ router.post("/change-password", changePassword);
 
 router.post("/add-address", addAddress);
 
-router.post("/address/edit/:id", editAddress);
+router.put("/address/edit/:id", editAddress);
 
-router.get("/address/delete/:id", deleteAddress);
+router.delete("/address/delete/:id", deleteAddress);
 
 router.get("/orders/:id", getOrderDetails);
 
 router.get("/orders/:id/invoice", getOrderInvoice);
 
-router.post("/orders/:id/cancel", cancelOrder);
+router.patch("/orders/:id/cancel", cancelOrder);
 
-router.post("/orders/:id/return", returnOrder);
+router.patch("/orders/:id/return", returnOrder);
 
 router.get("/logout", logout);
 

@@ -70,6 +70,7 @@ export const ADDRESS_MESSAGE = {
     SUCCESS: "Address saved successfully",
     FAILED_SAVE: "Address failed to save",
     DELETE_SUCCESS: "Address deleted successfully",
+    DELETE_FAIL: "Address delete failed",
 };
 
 export const CART_MESSAGE = {

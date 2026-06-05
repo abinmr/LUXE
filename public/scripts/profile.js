@@ -291,6 +291,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const deleteAddress = document.querySelectorAll(".delete-address");
+
+    deleteAddress.forEach((button) => {
+        button.addEventListener("click", async function () {
+            const addressId = this.dataset.id;
+            const modal = bootstrap.Modal.getInstance(document.getElementById(`deleteModal-${addressId}`));
+            button.disabled = true;
+
+            try {
+                const response = await fetch(`/profile/address/delete/${addressId}`, { method: "DELETE" });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (modal) {
+                        modal.hide();
+                    }
+                    const card = document.querySelector(`[data-address-id="${addressId}"]`);
+                    if (card) card.remove();
+                    showToast(data.message);
+                } else {
+                    showToast(data.message, "error");
+                    button.disabled = false;
+                }
+            } catch (err) {
+                console.error("delete address failed", err);
+                button.disabled = false;
+            }
+        })
+    });
+
     const code = document.getElementById("referral-code");
     const copyBtn = document.getElementById("copy-btn");
     copyBtn.addEventListener("click", () => {
