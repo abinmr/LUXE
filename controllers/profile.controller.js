@@ -296,6 +296,7 @@ export const getOrderInvoice = async (req, res) => {
     }
 };
 
+// FIX: The refund amount does not include the gst of the order. make that feature work
 export const cancelOrder = async (req, res) => {
     try {
         const id = req.params.id;
@@ -320,7 +321,11 @@ export const cancelOrder = async (req, res) => {
                 await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
             }
             if (isPaid) {
-                refundAmount = item.price * item.quantity;
+                const itemTotalValue = item.price * item.quantity;
+                const itemProportion = itemTotalValue / order.subtotal;
+                const proportionalGST = itemProportion * order.GST;
+                const proportionalDiscount = itemProportion * (order.discount || 0);
+                refundAmount = itemTotalValue + proportionalGST - proportionalDiscount;
             }
             itemsCancelled++;
         } else {
@@ -330,19 +335,22 @@ export const cancelOrder = async (req, res) => {
                     item.cancellationReason = reason;
                     await updateProduct(item.productId, item.variantId, item.sizeId, item.quantity);
                     if (isPaid) {
-                        refundAmount += item.price * item.quantity;
+                        const itemTotalValue = item.price * item.quantity;
+                        const itemProportion = itemTotalValue / order.subtotal;
+                        const proportionalGST = itemProportion * order.GST;
+                        const proportionalDiscount = itemProportion * (order.discount || 0);
+                        refundAmount += itemTotalValue + proportionalGST - proportionalDiscount;
                     }
                     itemsCancelled++;
                 }
-            }
-            if (isPaid && itemsCancelled === order.items.length) {
-                refundAmount = order.total;
             }
         }
 
         if (itemsCancelled === 0) {
             return res.status(400).json({ success: false, message: ORDER_MESSAGE.EMPTY_CANCEL });
         }
+
+        refundAmount = Math.round(refundAmount * 100) / 100;
 
         const date = new Date(Date.now());
 

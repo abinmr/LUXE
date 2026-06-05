@@ -114,12 +114,14 @@
                         <button type="submit" class="btn btn-danger" id="applyBtn">Apply</button>
                         <button type="button" class="btn btn-light border d-none" id="cancelBtn">Cancel</button>
                     </form>
-                    <div class="ms-2">
-                        <span class="small pe-1">Avaiable Coupons:</span>
-                        <% locals.coupons.forEach((coupon, i) => { %>
-                        <span class="small"> <%= coupon.code %> <%= i > 0 ? "," : '' %> </span>
-                        <% }) %>
-                    </div>
+                    <% if (coupons.length > 0) { %>
+                        <div class="ms-2">
+                            <span class="small pe-1">Avaiable Coupons:</span>
+                            <% locals.coupons.forEach((coupon, i) => { %>
+                            <span class="small"> <%= coupon.code %> <%= i > 0 ? "," : '' %> </span>
+                            <% }) %>
+                        </div>
+                    <% } %>
                 </div>
 
                 <div class="border border-1 rounded-4 p-4 bg-white h-100 order-summary-card">

@@ -120,7 +120,7 @@ export const applyCoupon = async (req, res) => {
         }
 
         checkoutSessoin.discount = discountAmount;
-        checkoutSessoin.total = checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount;
+        checkoutSessoin.total = (checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount).toFixed(2);
         checkoutSessoin.appliedCoupon = code;
 
         return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: COUPON_MESSAGE.APPLIED });
