@@ -120,7 +120,7 @@ export const applyCoupon = async (req, res) => {
         }
 
         checkoutSessoin.discount = discountAmount;
-        checkoutSessoin.total = (checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount).toFixed(2);
+        checkoutSessoin.total = parseFloat(checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount).toFixed(2);
         checkoutSessoin.appliedCoupon = code;
 
         return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: COUPON_MESSAGE.APPLIED });
@@ -376,7 +376,7 @@ export const verifyPayment = async (req, res) => {
                     await updateProduct(item.productId, item.variantId, item.sizeId, -item.quantity);
                 }
 
-                const selectedIds = order.items.map((item) => item.sizeId.toString());
+                const selectedIds = order.items.map((item) => item.sizeId);
                 await removeSelectedItemsFromCart(order.userId, selectedIds);
             }
 

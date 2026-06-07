@@ -79,7 +79,10 @@ export const updateOrderDetails = async (req, res) => {
                 user.referralBonusGranted = true;
                 await user.save();
             }
-            order.paymentStatus = "paid";
+            const hasActiveItems = order.items.some((item) => !["cancelled", "returned"].includes(item.orderStatus));
+            if (hasActiveItems) {
+                order.paymentStatus = "paid";
+            }
         }
         await order.save();
         return res.redirect("/admin/orders");

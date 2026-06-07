@@ -303,7 +303,6 @@ export const getOrderInvoice = async (req, res) => {
     }
 };
 
-// FIX: The refund amount does not include the gst of the order. make that feature work
 export const cancelOrder = async (req, res) => {
     try {
         const id = req.params.id;
@@ -374,6 +373,7 @@ export const cancelOrder = async (req, res) => {
                 description: "Money refunded for cancelled order",
                 status: "completed",
             });
+            order.paymentStatus = "refunded";
         }
 
         await order.save();
