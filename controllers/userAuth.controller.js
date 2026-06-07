@@ -111,16 +111,16 @@ export const login = async (req, res) => {
         await user.save();
     }
 
-    if (!match) {
-        return res.render("login", { error: "Wrong email or password." });
-    }
-
     if (user.isBlocked) {
         return res.render("login", { error: "you are blocked from accessing this site." });
     }
 
+    if (!match) {
+        return res.render("login", { error: "Wrong email or password." });
+    }
+
     req.session.userId = user._id;
-    setCookies(user._id, res);
+    await setCookies(user._id, res);
 
     return res.redirect("/home");
 };

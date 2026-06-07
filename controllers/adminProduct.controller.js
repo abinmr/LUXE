@@ -13,7 +13,7 @@ export const getProductPage = async (req, res) => {
     let skip = (page - 1) * limit;
     const productError = req.flash("productError")[0];
     if (search) {
-        JSON.stringify((dbQuery.$or = [{ name: { $regex: search, $options: "i" } }]));
+        dbQuery.$or = [{ name: { $regex: search, $options: "i" } }];
     }
     const products = await getPaginatedProducts(dbQuery, skip, limit);
     for (const product of products) {

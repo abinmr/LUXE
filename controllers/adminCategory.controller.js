@@ -16,7 +16,7 @@ export const getCategories = async (req, res) => {
     if (search) {
         dbQuery.$or = [{ name: { $regex: search, $options: "i" } }, { slug: { $regex: search, $options: "i" } }];
     }
-    const totalCategory = await getTotalCategories();
+    const totalCategory = await getTotalCategories(dbQuery);
     const categories = await getPaginatedCategory(dbQuery, skip, limit);
     const totalPages = Math.ceil(totalCategory / limit);
     return res.render("categories", {

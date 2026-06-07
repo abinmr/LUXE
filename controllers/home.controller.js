@@ -34,7 +34,7 @@ export const getHomePage = async (req, res) => {
         const [products, userWishlist] = await Promise.all([getPaginatedProducts(page), getWishlistProducts(req.user?._id)]);
         const offer = await findOneOffer({ isActive: true, isDeleted: false, featureHomepage: true });
 
-        if (req.xhr || req.headers.accept.includes("json")) {
+        if (req.xhr || req.headers.accept?.includes("json")) {
             return res.json({ products, wishlist: userWishlist });
         }
         const toast = req.flash("home")[0];

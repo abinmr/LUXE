@@ -49,18 +49,19 @@ export const getCheckoutPage = async (req, res) => {
             return res.redirect("/home");
         }
 
-        const data = calcPricing(products);
-        const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
-            ...rest,
-            productImage: productImage[0],
-        }));
-
         for (const product of products) {
             if (!product.isListed || !product.categoryActive) {
                 req.flash("home", { type: "error", message: PRODUCT_MESSAGE.PRODUCT_UNAVAILABLE });
                 return res.redirect("/home");
             }
         }
+
+        const data = calcPricing(products);
+        const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
+            ...rest,
+            productImage: productImage[0],
+        }));
+
         req.session.checkout = {
             source: "cart",
             items: formattedProducts,

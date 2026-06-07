@@ -1,7 +1,7 @@
 import Category from "../models/category.model.js";
 
-export async function getTotalCategories() {
-    return await Category.countDocuments();
+export async function getTotalCategories(query) {
+    return await Category.countDocuments(query);
 }
 
 export async function getAllCategories() {

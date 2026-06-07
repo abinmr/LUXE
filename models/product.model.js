@@ -27,7 +27,7 @@ const productModel = new mongoose.Schema(
 
         variants: [
             {
-                color: { type: String, trim: true, unique: true },
+                color: { type: String, trim: true },
                 images: [{ type: String }],
                 sizes: [
                     {

@@ -106,7 +106,7 @@ export const addNewOffers = async (req, res) => {
         }
 
         if (!req.file) {
-            throw new Error("image is required");
+            return res.render("offerAdd", { errors: { image: "offer image is required" }, oldData: req.body, products, categories });
         }
         const uploadResult = await cloudinary.uploader.upload(req.file.path, {
             folder: "offers",
