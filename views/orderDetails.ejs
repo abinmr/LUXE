@@ -137,7 +137,7 @@
                             </span>
                         </div>
 
-                        <% if (orderDetails.paymentMethod !== "cod" && (orderDetails.paymentStatus === "failed" || orderDetails.paymentStatus === "pending")) { %>
+                        <% if (orderDetails.paymentMethod !== "cod" && (orderDetails.paymentStatus === "failed" || orderDetails.paymentStatus === "pending") && orderDetails.paymentMethod !== "wallet") { %>
                             <button id="retry-payment-btn" class="btn btn-danger btn-sm mt-3 w-100 rounded-2" data-id="<%= orderDetails._id %>">
                                 Retry Payment
                             </button>

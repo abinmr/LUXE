@@ -300,6 +300,7 @@ export const checkoutPlaceOrder = async (req, res) => {
                 description: "paid for order",
                 status: "completed",
             });
+            order.paymentStatus = "paid";
         }
 
         if (paymentMethod === "online") {
@@ -311,7 +312,7 @@ export const checkoutPlaceOrder = async (req, res) => {
             const razorpayOrder = await razorpay.orders.create(options);
             return res.status(success).json({ success: true, order: order._id, razorpayOrderId: razorpayOrder.id, amount: options.amount });
         }
-
+        await order.save();
         delete req.session.checkout;
         return res.status(success).json({ success: true, order: order._id });
     } catch (err) {
