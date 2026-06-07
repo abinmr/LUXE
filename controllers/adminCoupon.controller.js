@@ -13,7 +13,7 @@ export const getCouponPage = async (req, res) => {
             isDeleted: false,
         };
         if (search) {
-            dbQuery.$or = [{ code: { $regex: search, $options: "i" } }, { description: { $regex: description, $options: "i" } }];
+            dbQuery.$or = [{ code: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }];
         }
 
         if (couponStatus === "active") {

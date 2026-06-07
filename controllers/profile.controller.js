@@ -148,6 +148,11 @@ export const verifyEmailOtp = async (req, res) => {
         return res.redirect("/profile?section=profile");
     }
     const otpDetails = await findOneOtp({ userId: req.user?._id });
+
+    if (!otpDetails) {
+        req.flash("profileError", "OTP expired. please request a new one");
+        return res.redirect("/profile/verify-email-otp");
+    }
     const isMatch = await bcrypt.compare(otp, otpDetails.otp);
     if (!isMatch) {
         req.flash("profileError", "Invalid otp");
@@ -275,9 +280,14 @@ export const deleteAddress = async (req, res) => {
 };
 
 export const getOrderDetails = async (req, res) => {
-    const id = req.params.id;
-    const orderDetails = await getOneOrder({ orderId: id });
-    return res.render("orderDetails", { orderDetails });
+    try {
+        const id = req.params.id;
+        const orderDetails = await getOneOrder({ orderId: id });
+        return res.render("orderDetails", { orderDetails });
+    } catch (err) {
+        console.error(err);
+        return res.redirect("/profile?section=order-history");
+    }
 };
 
 export const getOrderInvoice = async (req, res) => {
