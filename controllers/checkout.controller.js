@@ -57,6 +57,7 @@ export const getCheckoutPage = async (req, res) => {
         }
 
         const data = calcPricing(products);
+        console.log("data", data);
         const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
             ...rest,
             productImage: productImage[0],
@@ -188,7 +189,7 @@ export const checkoutBuyNow = async (req, res) => {
                 quantity: quantity,
                 isListed: product.isListed,
                 isSelected: true,
-                price: size.price,
+                price: size.effectivePrice ?? size.price,
             },
         ];
 
