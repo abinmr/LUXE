@@ -223,9 +223,8 @@
                                         <div class="user-select-none"><%= item.productName %></div>
                                         <img src="<%= item.productImage %>" class="rounded-2 object-fit-cover" height="60" width="50">
                                     </div>
-                                    <span>₹<%= item.price %></span>
+                                    <span>₹<%= item.effectivePrice ?? item.price %></span>
                                 </label>
-                                
                                 <div class="bg-light p-2 mt-2 rounded-2 small text-muted">
                                     <span class="fw-semibold text-dark">Reason:</span> <%= item.returnReason || 'Not specified' %>
                                 </div>

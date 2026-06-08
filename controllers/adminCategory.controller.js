@@ -243,6 +243,6 @@ export const deleteCategory = async (req, res) => {
         return res.status(success).json({ success: true, message: CATEGORY_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Error in deleteing category" });
+        return res.status(serverError).json({ success: false, message: CATEGORY_MESSAGE.DELETE_FAIL });
     }
 };

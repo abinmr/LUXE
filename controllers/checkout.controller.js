@@ -57,7 +57,6 @@ export const getCheckoutPage = async (req, res) => {
         }
 
         const data = calcPricing(products);
-        console.log("data", data);
         const formattedProducts = products.map(({ itemId, description, isSelected, categoryActive, isListed, stock, compareAtPrice, productImage, ...rest }) => ({
             ...rest,
             productImage: productImage[0],
@@ -122,7 +121,7 @@ export const applyCoupon = async (req, res) => {
         }
 
         checkoutSessoin.discount = discountAmount;
-        checkoutSessoin.total = parseFloat(checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount).toFixed(2);
+        checkoutSessoin.total = Math.round((checkoutSessoin.subtotal + checkoutSessoin.gst + checkoutSessoin.shipping - discountAmount) * 100) / 100;
         checkoutSessoin.appliedCoupon = code;
 
         return res.status(success).json({ success: true, discount: checkoutSessoin.discount, total: checkoutSessoin.total, message: COUPON_MESSAGE.APPLIED });
@@ -209,7 +208,7 @@ export const checkoutBuyNow = async (req, res) => {
                     color: variant.color,
                     size: size.size,
                     quantity,
-                    price: size.price,
+                    price: size.effectivePrice ?? size.price,
                 },
             ],
             subtotal: data.subtotal,

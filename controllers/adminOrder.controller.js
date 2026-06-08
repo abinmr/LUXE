@@ -154,7 +154,7 @@ export const orderReturn = async (req, res) => {
         const transaction = await createWalletTransaction(data);
         userWallet.balance = Math.round((userWallet.balance + refund) * 100) / 100;
         await userWallet.save();
-        return res.status(success).json({ success: true, message: `Item returned. ₹${refund} refunded`, returnedItems: selectedIts });
+        return res.status(success).json({ success: true, message: ORDER_MESSAGE.REFUND_SUCCESS(refund), returnedItems: selectedIts });
     } catch (err) {
         console.error(err);
         return res.redirect("/admin/orders");

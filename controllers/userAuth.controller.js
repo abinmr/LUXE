@@ -293,6 +293,11 @@ export const updatePassword = async (req, res) => {
     try {
         const { newPassword, confirmPassword } = req.body;
         const userId = req.session.resetUserId;
+
+        if (!userId || !req.session.resetVerified) {
+            req.flash("newPasswordError", "Unauthorized request.");
+            return res.redirect("/auth/login/reset-password");
+        }
         const numberCount = (newPassword.match(/[0-9]/g) || []).length;
 
         if (newPassword.length < 8) {

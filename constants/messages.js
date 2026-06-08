@@ -2,6 +2,7 @@ export const CATEGORY_MESSAGE = {
     STATUS_UPDATE: "category status updated successfully",
     NOT_FOUND: "category not found",
     DELETE_SUCCESS: "category deleted successfully",
+    DELETE_FAIL: "error deleting category",
 };
 
 export const COUPON_MESSAGE = {
@@ -28,6 +29,7 @@ export const OFFER_MESSAGE = {
     LIST_SUCCESS: "offer listed successfully",
     UNLIST_SUCCESS: "offer unlisted successfully",
     DELETE_SUCCESS: "offer deleted successfully",
+    SERVER_ERROR: "Something went wrong. please try again...",
 };
 
 export const ORDER_MESSAGE = {
@@ -40,6 +42,7 @@ export const ORDER_MESSAGE = {
     NO_RETURN: "No items to return",
     RETURN_UNAVAILABLE: "Item cannot be returned",
     FAILED_RETURN_REQUEST: "Failed to request return",
+    REFUND_SUCCESS: (refund) => `Item returned. ₹${refund} refunded`,
 };
 
 export const PRODUCT_MESSAGE = {

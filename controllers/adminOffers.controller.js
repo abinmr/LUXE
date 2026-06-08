@@ -250,7 +250,7 @@ export const updateOffersDetails = async (req, res) => {
             offers,
             categories,
             products,
-            errors: { general: "Something went wrong. Please try again." },
+            errors: { general: OFFER_MESSAGE.SERVER_ERROR },
         });
     }
 };
@@ -295,6 +295,6 @@ export const deleteOffer = async (req, res) => {
         return res.status(success).json({ success: true, message: OFFER_MESSAGE.DELETE_SUCCESS });
     } catch (err) {
         console.error(err);
-        return res.status(serverError).json({ success: false, message: "Something went wrong" });
+        return res.status(serverError).json({ success: false, message: OFFER_MESSAGE.SERVER_ERROR });
     }
 };
