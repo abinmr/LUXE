@@ -25,13 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
         /** @type {HTMLParagraphElement} */
         const error = document.getElementById(errorId);
 
-        if (inputEl === offerTypeSelect) {
-            if (!offerTypeSelect.value) {
-                error.textContent = "offer type is required";
-                error.style.visibility = "visible";
-                return false;
-            }
-        }
         const valueStr = inputEl.value.trim();
         if (valueStr.length === 0) {
             error.textContent = message;
@@ -70,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { input: discountPercentageInput, errorId: "discount-percentage-error", message: "discount percentage is required", event: "blur" },
         { input: discountAmountInput, errorId: "discount-amount-error", message: "discount amount is required", event: "blur" },
         { input: minPurchaseInput, errorId: "min-purchase-error", message: "minimum purchase amount is required", event: "blur" },
-        { input: maxDiscountInput, errorId: "max-discount-error", message: "", event: "blur" },
+        { input: maxDiscountInput, errorId: "max-discount-error", message: "max discount is required", event: "blur" },
         { input: startDateInput, errorId: "start-date-error", message: "start date is required", event: "blur" },
         { input: endDateInput, errorId: "end-date-error", message: "end date is required", event: "blur" },
     ];
