@@ -69,6 +69,16 @@ export const addNewOffers = async (req, res) => {
     try {
         const data = validateData.data;
 
+        const duplicateTitle = await findOneOffer({ title: data.title, isDeleted: false });
+        if (duplicateTitle) {
+            return res.render("offerAdd", {
+                errors: { title: "offer with title already exists" },
+                oldData: req.body,
+                products,
+                categories,
+            });
+        }
+
         if (data.applicableTo === "category") delete data.applicableProducts;
         else if (data.applicableTo === "products") delete data.applicableCategories;
         else {
@@ -171,6 +181,18 @@ export const updateOffersDetails = async (req, res) => {
     }
     try {
         const data = validateData.data;
+
+        const duplicateTitle = await findOneOffer({ title: data.title, isDeleted: false, _id: { $ne: id }});
+        
+        if (duplicateTitle) {
+            return res.render("offerAdd", {
+                offers,
+                errors: { title: "an offer with title already exist" },
+                oldData: req.body,
+                products,
+                categories
+            })
+        }
         if (data.applicableTo === "category") delete data.applicableProducts;
         else if (data.applicableTo === "products") delete data.applicableCategories;
         else {

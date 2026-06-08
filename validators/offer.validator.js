@@ -78,6 +78,14 @@ export const offerSchema = z
             });
         }
 
+        if (data.maxDiscountAmount > data.minPurchaseAmount) {
+            ctx.addIssue({
+                path: ["maxDiscountAmount"],
+                code: z.ZodIssueCode.custom,
+                message: "Max discount cannot be greater than min purchase amount",
+            });
+        }
+
         if (data.applicableTo === "category" && (!data.applicableCategories || data.applicableCategories.length === 0)) {
             ctx.addIssue({
                 path: ["applicableCategories"],

@@ -11,6 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.getElementById("submit-btn");
     const offerForm = document.getElementById("offerForm");
 
+    const offerTypeSelect = document.getElementById("offer-type");
+    const discountPercentageContainer = document.getElementById("discount-percentage-container");
+    const discountAmountContainer = document.getElementById("discount-amount-container");
+    const maxDiscountContainer = document.getElementById("max-discount-container");
+
     /**
      * @param {HTMLInputElement} inputEl
      * @param {HTMLParagraphElement} errorId
@@ -19,6 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
     function validate(inputEl, errorId, message) {
         /** @type {HTMLParagraphElement} */
         const error = document.getElementById(errorId);
+
+        if (inputEl === offerTypeSelect) {
+            if (!offerTypeSelect.value) {
+                error.textContent = "offer type is required";
+                error.style.visibility = "visible";
+                return false;
+            }
+        }
         const valueStr = inputEl.value.trim();
         if (valueStr.length === 0) {
             error.textContent = message;
@@ -35,6 +48,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
         }
+
+        if (inputEl === maxDiscountInput) {
+            if (minPurchaseInput.value) {
+                if (Number(maxDiscountInput.value) > Number(minPurchaseInput.value)) {
+                    error.textContent = "Max discount cannot be greater than min purchase amount";
+                    error.style.visibility = "visible";
+                    return false;
+                }
+            }
+        }
         error.textContent = "";
         error.style.visibility = "hidden";
         return true;
@@ -43,9 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const fields = [
         { input: titleInput, errorId: "title-error", message: "title is required", event: "blur" },
         { input: descriptionInput, errorId: "description-error", message: "description is required", event: "blur" },
+        { input: offerTypeSelect, errorId: "offerType-error", message: "offer type is required", event: "change" },
         { input: discountPercentageInput, errorId: "discount-percentage-error", message: "discount percentage is required", event: "blur" },
         { input: discountAmountInput, errorId: "discount-amount-error", message: "discount amount is required", event: "blur" },
         { input: minPurchaseInput, errorId: "min-purchase-error", message: "minimum purchase amount is required", event: "blur" },
+        { input: maxDiscountInput, errorId: "max-discount-error", message: "", event: "blur" },
         { input: startDateInput, errorId: "start-date-error", message: "start date is required", event: "blur" },
         { input: endDateInput, errorId: "end-date-error", message: "end date is required", event: "blur" },
     ];
@@ -60,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return offerTypeSelect.value === "flat";
             }
             if (input === discountPercentageInput) {
-                return (offerTypeSelect.value = "percentage");
+                return offerTypeSelect.value === "percentage";
             }
 
             return true;
@@ -75,11 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.disabled = true;
         submitBtn.textContent = "Creating Offer...";
     });
-
-    const offerTypeSelect = document.getElementById("offer-type");
-    const discountPercentageContainer = document.getElementById("discount-percentage-container");
-    const discountAmountContainer = document.getElementById("discount-amount-container");
-    const maxDiscountContainer = document.getElementById("max-discount-container");
 
     function updateOfferTypeVisibility() {
         const selectedType = offerTypeSelect.value;
