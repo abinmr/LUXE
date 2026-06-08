@@ -49,6 +49,9 @@
                                 <option value="percentage" <%= (oldData.discountType && oldData.discountType === "percentage") ? "selected" : '' %> >Percentage</option>
                                 <option value="fixed" <%= (oldData.discountType && oldData.discountType === "fixed") ? "selected" : '' %> >Fixed Amount</option>
                             </select>
+                            <div class="error-container">
+                                <p class="text-danger mb-0 fw-semibold" id="discount-type-error"></p>
+                            </div>
                         </div>
                     </div>
                     <div class="my-2">

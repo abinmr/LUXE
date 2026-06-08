@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const fields = [
         { input: codeInput, errorId: "codeError", message: "Coupon code is required", event: "blur" },
         { input: descriptionInput, errorId: "descriptionError", message: "Description is required", event: "blur" },
+        { input: discountTypeSelect, errorId: "discount-type-error", message: "coupon discount type is required", event: "change" },
         { input: discountPercentageInput, errorId: "discount-percentage-error", message: "Discount percentage is required", event: "blur" },
         { input: discountFixedInput, errorId: "discount-fixed-error", message: "Discount amount is required", event: "blur" },
         { input: minPurchaseInput, errorId: "min-purchase-error", message: "Min purchase amount is required", event: "blur" },
