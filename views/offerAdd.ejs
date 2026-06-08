@@ -144,7 +144,7 @@
                         <label class="form-label mb-1">Select Categories</label>
                         <div class="border rounded-3 p-3 bg-body-tertiary" style="max-height: 200px; overflow-y: auto;">
                             <% if (locals.categories && categories.length > 0) { %>
-                                <% categories.forEach(category => { %>
+                                <% categories.forEach((category) => { %>
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="applicableCategories" value="<%= category._id %>" id="cat-<%= category._id %>">
                                         <label class="form-check-label user-select-none" for="cat-<%= category._id %>">
@@ -161,7 +161,7 @@
                         <label class="form-label mb-1">Select Products</label>
                         <div class="border rounded-3 p-3 bg-body-tertiary" style="max-height: 200px; overflow-y: auto;">
                             <% if (locals.products && products.length > 0) { %>
-                                <% products.forEach(product => { %>
+                                <% products.forEach((product) => { %>
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="applicableProducts" value="<%= product._id %>" id="prod-<%= product._id %>">
                                         <label class="form-check-label user-select-none" for="prod-<%= product._id %>">
