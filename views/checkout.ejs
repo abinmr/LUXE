@@ -128,8 +128,8 @@
                     <h6 class="fw-bold mb-3">Order Summary</h6>
                     <% products.forEach((item) => { %>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class=""> <%= item.productName %> × <span> <%= item.quantity %> </span> </span>
-                        <span> <%= item.effectivePrice || item.price %> </span>
+                        <span class=""> <%= item.productName %> × <span> <%= item.quantity %> </span></span>
+                        <span>₹<%= item.effectivePrice || item.price %> </span>
                     </div>
                     <% }); %>
                     <hr class="text-muted">
