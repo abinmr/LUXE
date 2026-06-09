@@ -51,6 +51,22 @@ export const addNewOffers = async (req, res) => {
     const products = await getAllActiveProducts();
     const categories = await getAllActiveCategories();
 
+    let imageUrl = req.body.existingImage || "";
+
+    if (req.file) {
+        try {
+            const fileBuffer = await fs.promises.readFile(req.file.path);
+            imageUrl = `data:${req.file.mimetype};base64,${fileBuffer.toString("base64")}`;
+            await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    if (imageUrl) {
+        req.body.existingImage = imageUrl;
+    }
+
     const validateData = offerSchema.safeParse({ ...req.body });
 
     if (!validateData.success) {
@@ -115,17 +131,20 @@ export const addNewOffers = async (req, res) => {
             }
         }
 
-        if (!req.file) {
+        if (!imageUrl) {
             return res.render("offerAdd", { errors: { image: "offer image is required" }, oldData: req.body, products, categories });
         }
-        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-            folder: "offers",
-            allowed_formats: ["jpg", "png", "webp"],
-        });
+        
+        let finalImageUrl = imageUrl;
+        if (imageUrl.startsWith("data:")) {
+            const uploadResult = await cloudinary.uploader.upload(imageUrl, {
+                folder: "offers",
+                allowed_formats: ["jpg", "png", "webp"],
+            });
+            finalImageUrl = uploadResult.secure_url;
+        }
 
-        await fs.promises.unlink(req.file.path).catch((err) => console.log(err));
-
-        const result = await createOffer({ ...data, image: uploadResult.secure_url });
+        const result = await createOffer({ ...data, image: finalImageUrl });
         await applyOffersToProducts(result);
 
         return res.redirect("/admin/offers");
@@ -182,8 +201,8 @@ export const updateOffersDetails = async (req, res) => {
     try {
         const data = validateData.data;
 
-        const duplicateTitle = await findOneOffer({ title: data.title, isDeleted: false, _id: { $ne: id }});
-        
+        const duplicateTitle = await findOneOffer({ title: data.title, isDeleted: false, _id: { $ne: id } });
+
         if (duplicateTitle) {
             return res.render("offerAdd", {
                 offers,

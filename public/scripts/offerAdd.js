@@ -204,6 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     reader.onload = (e) => {
                         croppedDataURL = e.target.result;
                         resultImg.src = croppedDataURL;
+                        const existingImageInput = document.getElementById("existingImage");
+                        if (existingImageInput) existingImageInput.value = croppedDataURL;
                         cropModal.hide();
                         resultModal.show();
                     };
@@ -317,5 +319,16 @@ document.addEventListener("DOMContentLoaded", () => {
         hiddenInputContainer.innerHTML = "";
         currentHiddenInput = null;
         addImageBtn.disabled = false;
+        const existingImageInput = document.getElementById("existingImage");
+        if (existingImageInput) {
+            existingImageInput.value = "";
+        }
+    }
+
+    const removeExistingBtn = document.getElementById("removeExistingBtn");
+    if (removeExistingBtn) {
+        removeExistingBtn.addEventListener("click", () => {
+            clearSelection();
+        });
     }
 });
