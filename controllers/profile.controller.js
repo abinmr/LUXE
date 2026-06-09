@@ -40,7 +40,7 @@ export const getProfile = async (req, res) => {
         let totalReferrals = 0;
         let totalReferralEarning = 0;
         if (currentSection === "referrals") {
-            let referrals = await getWalletTransactions({ referenceModel: "User" });
+            let referrals = await getWalletTransactions({ referenceModel: "User", userId: req.user?._id });
             totalReferrals = referrals.length;
             totalReferralEarning = referrals.reduce((acc, curr) => acc + curr.amount, 0);
         }
