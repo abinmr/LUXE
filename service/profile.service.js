@@ -47,7 +47,9 @@ export async function generateInvoice(order, res) {
     detailRow("Order Date", new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }));
     y += 10;
     detailRow("Payment Method", paymentMethod(order.paymentMethod));
-    detailRow("Status", order.items[0].orderStatus);
+    const activeItem = order.items.find(item => item.orderStatus !== "cancelled" && item.orderStatus !== "returned");
+    const displayStatus = activeItem ? activeItem.orderStatus : order.items[0].orderStatus;
+    detailRow("Status", displayStatus);
 
     y += 20;
     doc.moveTo(margin, y).lineTo(rightEdge, y).strokeColor("#cccccc").lineWidth(1).stroke();
@@ -85,11 +87,16 @@ export async function generateInvoice(order, res) {
 
     order.items.forEach((item) => {
         const itemRowHeight = item.size || item.color ? 45 : 30;
+        
+        let itemName = item.productName;
+        if (item.orderStatus === "cancelled") itemName += " (Cancelled)";
+        else if (item.orderStatus === "returned") itemName += " (Returned)";
+        else if (item.orderStatus === "return-requested") itemName += " (Return Requested)";
 
         doc.font("Helvetica-Bold")
             .fontSize(10)
             .fillColor("#000000")
-            .text(item.productName, colItem + 5, y + 8);
+            .text(itemName, colItem + 5, y + 8);
 
         if (item.size || item.color) {
             const subParts = [];
