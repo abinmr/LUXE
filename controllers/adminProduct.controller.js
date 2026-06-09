@@ -53,6 +53,7 @@ export const addProduct = async (req, res) => {
         req.body.name = productName;
         req.body.description = productDescription;
         req.body.isListed = isListed;
+        req.body.category = category;
 
         const rawVariants = req.body.variants || {};
         const variantsArray = Array.isArray(rawVariants) ? rawVariants : Object.values(rawVariants);
@@ -110,9 +111,10 @@ export const addProduct = async (req, res) => {
         });
         if (nameExist.length > 0) {
             const categories = await getAllActiveCategories();
+            console.log(req.body);
             return res.render("productAdd", {
                 categories,
-                productError: "product name already exists",
+                nameError: "product name already exists",
                 oldData: req.body,
             });
         }
