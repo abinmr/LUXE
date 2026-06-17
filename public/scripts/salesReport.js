@@ -13,9 +13,30 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.show();
     };
 
+    /** @type { HTMLInputElement }  */
     const dateSelect = document.getElementById("date");
     const customDateContainer = document.getElementById("custom-date-container");
     const filterForm = document.getElementById("filterForm");
+
+    function isCustomDateValid() {
+        if (dateSelect.value === "custom") {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            const today = new Date().toISOString().split("T")[0];
+
+            if (!startDate || !endDate) {
+                showToast("Please select both a Start Date and End Date.");
+                return false;
+            } else if (startDate > today || endDate > today) {
+                showToast("Date cannot be in the future.", "error");
+                return false;
+            } else if (startDate > endDate) {
+                showToast("Start date cannot be after end date.", "error");
+                return false;
+            }
+        }
+        return true;
+    }
 
     dateSelect.addEventListener("change", () => {
         if (dateSelect.value === "custom") {
@@ -26,27 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     filterForm.addEventListener("submit", (e) => {
-        if (dateSelect.value === "custom") {
-            const startDate = document.getElementById("startDate").value;
-            const endDate = document.getElementById("endDate").value;
-            const today = new Date().toISOString().split('T')[0];
-
-            if (!startDate || !endDate) {
-                e.preventDefault();
-                showToast("Please select both a Start Date and End Date.");
-            } else if (startDate > today || endDate > today) {
-                e.preventDefault();
-                showToast("Date cannot be in the future.", "error");
-            } else if (startDate > endDate) {
-                e.preventDefault();
-                showToast("Start date cannot be after end date.", "error");
-            }
+        if (!isCustomDateValid()) {
+            e.preventDefault();
         }
     });
 
     const downloadPdfBtn = document.getElementById("downloadPdfBtn");
     downloadPdfBtn.addEventListener("click", (e) => {
         e.preventDefault();
+        if (!isCustomDateValid()) return;
+
         const selectedDateRange = dateSelect.value;
         let downloadUrl = `/admin/sales-report/pdf?date=${selectedDateRange}`;
         if (selectedDateRange === "custom") {
