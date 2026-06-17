@@ -24,11 +24,16 @@
                     <% } %>
                 </ul>
 
-                <div class="py-0 py-lg-1 px-0 px-lg-3 btn-group gap-3 rounded-2 bg-white search-bar d-none d-lg-flex">
-                    <img src="/images/nav-search.svg" alt="Search" />
-                    <form action="/search" method="get" class="d-none d-lg-block">
-                        <input type="text" name="search" placeholder="Search products..." value="<%= locals.search %>" class="border-0 bg-transparent d-none d-lg-block shadow-none p-0 w-100" style="outline: none" />
-                    </form>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="py-0 py-lg-1 px-0 px-lg-3 btn-group gap-3 rounded-2 bg-white search-bar d-none d-lg-flex">
+                        <img src="/images/nav-search.svg" alt="Search" />
+                        <form action="/search" method="get" class="d-none d-lg-block">
+                            <input type="text" name="search" placeholder="Search products..." value="<%= locals.search %>" class="border-0 bg-transparent d-none d-lg-block shadow-none p-0 w-100" style="outline: none" />
+                        </form>
+                    </div>
+                    <% if (locals.search) { %>
+                    <a href="/" class="btn btn-danger btn-sm rounded-2">Cancel</a>
+                    <% } %>
                 </div>
             </div>
             

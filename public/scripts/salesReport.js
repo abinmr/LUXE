@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
             customDateContainer.classList.remove("d-none");
         } else {
             customDateContainer.classList.add("d-none");
-            filterForm.submit();
         }
     });
 
@@ -30,10 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dateSelect.value === "custom") {
             const startDate = document.getElementById("startDate").value;
             const endDate = document.getElementById("endDate").value;
+            const today = new Date().toISOString().split('T')[0];
 
             if (!startDate || !endDate) {
                 e.preventDefault();
                 showToast("Please select both a Start Date and End Date.");
+            } else if (startDate > today || endDate > today) {
+                e.preventDefault();
+                showToast("Date cannot be in the future.", "error");
+            } else if (startDate > endDate) {
+                e.preventDefault();
+                showToast("Start date cannot be after end date.", "error");
             }
         }
     });
