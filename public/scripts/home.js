@@ -79,10 +79,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Prefer offer-based discount %, then compareAtPrice-based
             let discount = 0;
+            let crossedOutPrice = null;
+
             if (effectivePrice && effectivePrice < originalPrice) {
                 discount = Math.round(((originalPrice - effectivePrice) / originalPrice) * 100);
+                crossedOutPrice = originalPrice;
             } else if (comparePrice > originalPrice) {
                 discount = Math.round(((comparePrice - originalPrice) / comparePrice) * 100);
+                crossedOutPrice = comparePrice;
             }
 
             const isInWishlist = wishlist.includes(product._id.toString());
@@ -129,9 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             <div class="mb-3 d-flex align-items-center gap-2">
                                 <span class="fw-bold fs-5 mb-0 text-dark">₹${displayPrice}</span>
                                 ${
-                                    displayPrice < originalPrice
+                                    crossedOutPrice
                                         ? `
-                                    <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem">₹${originalPrice}</span>
+                                    <span class="text-decoration-line-through text-muted fw-normal" style="font-size: 0.85rem">₹${crossedOutPrice}</span>
                                 `
                                         : ""
                                 }

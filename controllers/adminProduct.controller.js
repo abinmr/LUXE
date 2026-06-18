@@ -62,12 +62,17 @@ export const addProduct = async (req, res) => {
             const croppedImages = variant.croppedImages ? (Array.isArray(variant.croppedImages) ? variant.croppedImages : [variant.croppedImages]) : [];
 
             let rawSizes = variant.sizes ? (Array.isArray(variant.sizes) ? variant.sizes : Object.values(variant.sizes)) : [];
-            let sizes = rawSizes.map((sz) => ({
-                size: sz.size || "",
-                price: sz.price || "",
-                compareAtPrice: sz.compareAtPrice || "",
-                stock: sz.stock || "",
-            }));
+            let sizes = rawSizes.map((sz) => {
+                let sizeData = {
+                    size: sz.size || "",
+                    price: sz.price || "",
+                    stock: sz.stock || "",
+                };
+                if (sz.compareAtPrice && sz.compareAtPrice.trim() !== "") {
+                    sizeData.compareAtPrice = sz.compareAtPrice;
+                }
+                return sizeData;
+            });
 
             return {
                 color: variant.color || "",
@@ -203,6 +208,9 @@ export const editProductDetails = async (req, res) => {
             let mappedSizes = rawSizes.map((size) => {
                 let sObj = { ...size };
                 if (!sObj._id || sObj._id.trim() === "") delete sObj._id;
+                if (!sObj.compareAtPrice || String(sObj.compareAtPrice).trim() === "") {
+                    delete sObj.compareAtPrice;
+                }
                 return sObj;
             });
 

@@ -56,7 +56,7 @@
         <section class="my-5">
             <div class="container-xl">
                 <h3 class="fs-2 fw-bolder text-center">Shop by Category</h3>
-                <div class="d-flex gap-3 mt-4 overflow-x-auto pb-2">
+                <div class="d-flex justify-content-center gap-3 mt-4 overflow-x-auto pb-2">
                     <% categories.forEach((category) => { %>
                         <a href="/category/<%= category._id %>" class="rounded-3 overflow-hidden position-relative d-block text-decoration-none flex-shrink-0" style="height: 410px; width: 310px;">
                             <img src="<%= category.image %>" alt="<%= category.name %>"
@@ -75,8 +75,6 @@
     <section>
         <div class="container-xxl">
             <h3 class="fw-bolder mb-0">Products</h3>
-
-            
             <div id="product-container" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mt-2 pb-5">
             </div>
 
