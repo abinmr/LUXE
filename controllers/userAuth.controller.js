@@ -105,6 +105,10 @@ export const login = async (req, res) => {
         return res.render("login", { error: "Please register first." });
     }
 
+    if (!user.password) {
+        return res.render("login", { error: "This account is a google account. Please login using google" });
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!user.referralCode) {
         user.referralCode = nanoid(8);
