@@ -1,12 +1,11 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import Admin from "../models/admin.model.js";
 import { preventLoggedInAdmin, requireAdminAuth, noCache } from "../middlewares/admin-auth.middleware.js";
-import Product from "../models/product.model.js";
-import Order from "../models/order.model.js";
-import User from "../models/user.model.js";
-import { getBestSellingCategories, getBestSellingProducts, getTotalRevenue, monthelyOrders, monthelyRevenue } from "../service/order.service.js";
+import { findOne } from "../service/admin.service.js";
+import { getBestSellingCategories, getBestSellingProducts, getTotalOrders, getTotalRevenue, monthelyOrders, monthelyRevenue } from "../service/order.service.js";
+import { getTotalDocuments } from "../service/product.service.js";
+import { getTotalUsers } from "../service/user.service.js";
 
 const router = express.Router();
 
@@ -15,9 +14,9 @@ router.get("/login", noCache, preventLoggedInAdmin, (req, res) => {
 });
 
 router.get("/dashboard", requireAdminAuth, async (req, res) => {
-    const totalProducts = await Product.countDocuments();
-    const totalOrders = await Order.countDocuments();
-    const totalCustomers = await User.countDocuments();
+    const totalProducts = await getTotalDocuments();
+    const totalOrders = await getTotalOrders();
+    const totalCustomers = await getTotalUsers();
     const totalRevenue = await getTotalRevenue();
     const bestSellingProducts = await getBestSellingProducts();
     const bestSellingCategories = await getBestSellingCategories();
@@ -43,7 +42,8 @@ router.post("/login", async (req, res) => {
         return res.render("admin-login", { error: "please provide email and password" });
     }
 
-    const user = await Admin.findOne({ email: email });
+    // const user = await Admin.findOne({ email: email });
+    const user = await findOne({ email: email });
     if (!user) {
         return res.status(401).render("admin-login", { error: "unauthorized access." });
     }
